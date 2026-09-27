@@ -651,6 +651,12 @@
     object-fit: cover;
   }
 
+  /* CAD renders are cut out, so they sit inside the frame on the surface
+     colour rather than filling it. Photographs still use cover. */
+  .figure__frame--render img {
+    object-fit: contain;
+  }
+
   /* Shown until a real photo or render replaces it */
   .figure__placeholder {
     padding: var(--space-s);

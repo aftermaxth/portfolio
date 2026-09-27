@@ -138,22 +138,25 @@
             <div class="project__media">
               <figure class="figure">
                 <div class="figure__frame figure__frame--wide">
-                  <p class="figure__placeholder">Photo to add: robot in the arena, 3/4 view</p>
+                  <img src="assets/img/robot-build.webp" width="1536" height="960" loading="lazy" decoding="async"
+                       alt="The finished robot on a lab bench: tracked drive base, ultrasonic sensors, and the 3D-printed frame carrying the control boards.">
                 </div>
-                <figcaption><span class="figure__tag">FIG 1.1</span>Competition robot on the arena floor</figcaption>
+                <figcaption><span class="figure__tag">FIG 1.1</span>Competition robot, final build</figcaption>
               </figure>
               <div class="project__thumbs">
                 <figure class="figure">
-                  <div class="figure__frame">
-                    <p class="figure__placeholder">SolidWorks: main housing</p>
+                  <div class="figure__frame figure__frame--render">
+                    <img src="assets/img/robot-housing.webp" width="712" height="534" loading="lazy" decoding="async"
+                         alt="SolidWorks model of the printed chassis frame: vertical column posts, angled braces, and two circular lightening cutouts through the front sensor panel.">
                   </div>
                   <figcaption><span class="figure__tag">FIG 1.2</span>Main housing, SolidWorks model</figcaption>
                 </figure>
                 <figure class="figure">
-                  <div class="figure__frame">
-                    <p class="figure__placeholder">Diagram: marker → path → obstacle check</p>
+                  <div class="figure__frame figure__frame--render">
+                    <img src="assets/img/robot-assembly.webp" width="976" height="732" loading="lazy" decoding="async"
+                         alt="Full robot assembly in SolidWorks: five ultrasonic sensors across the front, control boards on the vertical columns, and the ArUco marker panel raised above them.">
                   </div>
-                  <figcaption><span class="figure__tag">FIG 1.3</span>Pathfinding logic: ArUco localization with ultrasonic feedback</figcaption>
+                  <figcaption><span class="figure__tag">FIG 1.3</span>Sensor array and raised ArUco marker panel</figcaption>
                 </figure>
               </div>
             </div>
@@ -169,13 +172,13 @@
                 <div class="spec__row"><dt>Role</dt><dd>Led the housing design and printing. Helped debug pathfinding late in the build.</dd></div>
                 <div class="spec__row"><dt>Tools</dt><dd>SolidWorks · FDM printing · Arduino · ArUco markers · Ultrasonic sensing</dd></div>
                 <div class="spec__row"><dt>Timeline</dt><dd class="mono">Jan to May 2026</dd></div>
-                <div class="spec__row"><dt>Result</dt><dd class="spec__result">1st in prelims · finalist, top 12 of ~650</dd></div>
+                <div class="spec__row"><dt>Result</dt><dd class="spec__result">1st in prelims · finalist, top 12 of ~650 · 31 s competition run</dd></div>
               </dl>
 
               <dl class="notes">
                 <div>
                   <dt>Housing</dt>
-                  <dd>Designed the main housing frame in SolidWorks to beat the spec on weight while staying stiff. I iterated the prints until it did both.</dd>
+                  <dd>Designed the main housing frame in SolidWorks around the print time limit without giving up strength. Circular lightening cutouts on the lateral panels cut material and time while keeping the frame rigid. The final slice came in at 2 hr 10 min against a 4 hour cap.</dd>
                 </div>
                 <div>
                   <dt>Pathfinding</dt>
@@ -189,23 +192,26 @@
           <article class="project grid" id="plant-watering" data-reveal>
             <div class="project__media">
               <figure class="figure">
-                <div class="figure__frame figure__frame--wide">
-                  <p class="figure__placeholder">Photo to add: installed system with plant</p>
+                <div class="figure__frame figure__frame--wide figure__frame--render">
+                  <img src="assets/img/plant-enclosure.webp" width="1333" height="833" loading="lazy" decoding="async"
+                       alt="SolidWorks model of the final enclosure seen from behind: the dividing wall with its wire-routing cutouts, the bottle slot at the base, and the pump in its side slot.">
                 </div>
-                <figcaption><span class="figure__tag">FIG 2.1</span>Automatic watering system, installed</figcaption>
+                <figcaption><span class="figure__tag">FIG 2.1</span>Final enclosure, wire routing and pump slot</figcaption>
               </figure>
               <div class="project__thumbs">
                 <figure class="figure">
                   <div class="figure__frame">
-                    <p class="figure__placeholder">Wiring diagram</p>
+                    <img src="assets/img/plant-wiring.webp" width="1400" height="1050" loading="lazy" decoding="async"
+                         alt="Bench wiring: capacitive soil moisture sensor, DHT11 temperature and humidity sensor and a photocell on a breadboard, all wired to an ESP32.">
                   </div>
-                  <figcaption><span class="figure__tag">FIG 2.2</span>Wiring: moisture sensor, controller, pump</figcaption>
+                  <figcaption><span class="figure__tag">FIG 2.2</span>Wiring: moisture sensor, DHT11, photocell, ESP32</figcaption>
                 </figure>
                 <figure class="figure">
-                  <div class="figure__frame">
-                    <p class="figure__placeholder">Enclosure revisions</p>
+                  <div class="figure__frame figure__frame--render">
+                    <img src="assets/img/plant-final.webp" width="915" height="686" loading="lazy" decoding="async"
+                         alt="The same enclosure from the front, with the motor controller, ESP32 and breadboard each seated in their own slot on the rear shelf.">
                   </div>
-                  <figcaption><span class="figure__tag">FIG 2.3</span>Enclosure, early vs. final revision</figcaption>
+                  <figcaption><span class="figure__tag">FIG 2.3</span>Every board in its own slot on the rear shelf</figcaption>
                 </figure>
               </div>
             </div>
@@ -221,17 +227,17 @@
                 <div class="spec__row"><dt>Role</dt><dd>Led the SolidWorks design and the Arduino programming.</dd></div>
                 <div class="spec__row"><dt>Tools</dt><dd>Arduino IDE · SolidWorks · FDM printing</dd></div>
                 <div class="spec__row"><dt>Timeline</dt><dd class="mono">Sep to Dec 2025</dd></div>
-                <div class="spec__row"><dt>Result</dt><dd class="spec__result">Working closed-loop watering system</dd></div>
+                <div class="spec__row"><dt>Result</dt><dd class="spec__result">Deployed 5 days · telemetry every 10 min</dd></div>
               </dl>
 
               <dl class="notes">
                 <div>
                   <dt>Control</dt>
-                  <dd>Arduino code reads the moisture sensor and drives the watering hardware, then transmits readings to the Stevens network.</dd>
+                  <dd>Waters 20 mL every 24 hours, and any time soil moisture reads under 30%. Readings go to the Stevens network every 10 minutes. The DHT11 and the soil sensor each worked alone but neither worked with both on the breadboard, and nothing threw an error. An hour of wiring permutations later, the answer was that both had to share one power supply and one ground line.</dd>
                 </div>
                 <div>
                   <dt>Enclosure</dt>
-                  <dd>Went through several revisions to cut print time and material while keeping it strong enough.</dd>
+                  <dd>Three revisions. The first did not fit the 5 x 5 x 10 inch envelope, the second fit but left no room for the components, and the final one dropped the bottle into a slide-in slot at the base and gave every board its own slot on a rear shelf. Cutouts in the dividing wall route the wiring and cut print time. Final slice: 6 hr 51 min against an 8 hour cap.</dd>
                 </div>
               </dl>
             </div>
@@ -251,13 +257,26 @@
             <div class="project__body">
               <header class="project__header">
                 <p class="eyebrow">Project 03 · Software · Personal</p>
-                <h3>Training Hub V2 <span class="project__subtitle">Web app for tracking my running training</span></h3>
+                <h3>Training Hub V2 <span class="project__subtitle">Coaching web app for the athletes I write training for</span></h3>
               </header>
-              <p class="project__summary">Tracks weekly mileage and workouts, plus goals sorted into Safe, Solid and Reach tiers with a weekly process tracker.</p>
+              <p class="project__summary">I coach, the athletes log. Tracks weekly mileage and workouts, plus goals sorted into Safe, Solid and Reach tiers with a weekly process tracker.</p>
 
               <dl class="spec">
-                <div class="spec__row"><dt>Role</dt><dd>Solo, AI-assisted build. I owned the data model, UI decisions and debugging.</dd></div>
-                <div class="spec__row"><dt>Tools</dt><dd>HTML · CSS · JavaScript · Supabase</dd></div>
+                <div class="spec__row"><dt>Role</dt><dd>Solo, AI-assisted build. I designed the data model and permissions on paper before any code existed.</dd></div>
+                <div class="spec__row"><dt>Tools</dt><dd>Git · GitHub · HTML · CSS · JavaScript · Supabase · Claude</dd></div>
+                <div class="spec__row"><dt>Timeline</dt><dd class="mono">Three days, September 2026</dd></div>
+                <div class="spec__row"><dt>Result</dt><dd class="spec__result">Three days from never having installed Git to a working app in real use</dd></div>
+              </dl>
+
+              <dl class="notes">
+                <div>
+                  <dt>Data model</dt>
+                  <dd>Supabase and Postgres behind a vanilla HTML, CSS and JS front end, no framework. Tables for athletes, weeks, sessions, resets, goals, races and lift cycles, scoped so the schema holds a full roster rather than one athlete.</dd>
+                </div>
+                <div>
+                  <dt>Permissions</dt>
+                  <dd>The database has no concept of a coach. It sees two accounts that both logged in, and two separate problems: scoping who can see which rows, and stopping an athlete from editing their own prescribed workout instead of just logging it. Neither one throws an error.</dd>
+                </div>
               </dl>
             </div>
           </article>
@@ -286,14 +305,9 @@
             <p class="next-card__text">Joined the vehicle team this fall. Our proposal is in, and NASA announces selections October 1.</p>
           </li>
           <li class="next-card" data-reveal>
-            <p class="status">Planned</p>
-            <h3 class="next-card__title">Metal additive manufacturing research</h3>
-            <p class="next-card__text">Joining Prof. Chang-Hwan Choi's group to measure how infill pattern affects the properties of printed parts.</p>
-          </li>
-          <li class="next-card" data-reveal>
             <p class="status">Exploring</p>
-            <h3 class="next-card__title">Small rocket engine (side project)</h3>
-            <p class="next-card__text">A 3D-printed combustion chamber and nozzle, possibly water cooled, to try different nozzle shapes. Cold-flow testing first. Any hot fire only under supervision.</p>
+            <h3 class="next-card__title">Small engine (side project)</h3>
+            <p class="next-card__text">Winter 2027. Design not started. Open between a plastic print with a water-cooled setup to keep it from melting, or metal, either printed by an outside company or machined by hand.</p>
           </li>
         </ul>
 
