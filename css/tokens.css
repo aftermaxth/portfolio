@@ -1,0 +1,155 @@
+/* ==========================================================================
+   tokens.css
+   Design tokens only. Every color, size and space value on the site comes
+   from here. A raw hex or px value anywhere else is a bug. The hero shader
+   reads its colors from these same custom properties.
+   ========================================================================== */
+
+@layer reset, tokens, base, layout, components, utilities;
+
+@font-face {
+  font-family: "Archivo";
+  src: url("../assets/fonts/archivo-var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Anybody";
+  src: url("../assets/fonts/anybody-italic-var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 50% 150%;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Anybody";
+  src: url("../assets/fonts/anybody-var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 50% 150%;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("../assets/fonts/dmmono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Mono";
+  src: url("../assets/fonts/dmmono-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer tokens {
+  :root {
+    color-scheme: dark;
+
+    /* Type families: Anybody for display, Archivo for text, DM Mono for labels and data */
+    --font-display: "Anybody", "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-sans: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    /* Color: test cell at night. Graphite surfaces and one afterburner-orange accent. */
+    --color-bg: #0a0b0d;
+    --color-bg-veil: rgb(10 11 13 / 0.82);
+    --color-surface: #111317;
+    --color-surface-raised: #171a1f;
+    --color-ink: #f2f1ee;
+    --color-ink-muted: #a0a6ad;
+    --color-rule: #23272d;
+    --color-rule-strong: #343a42;
+    --color-accent: #ff8100;
+    --color-accent-ink: #0a0b0d;
+    --color-accent-soft: rgb(255 129 0 / 0.12);
+    --color-focus: #7cc4ff;
+    --color-grid: rgb(255 255 255 / 0.045);
+
+    /* Heat scale for the hero intro: red nearest the nozzle, blue farthest. Lighter than a
+       solver's pure blue and red so every stop keeps at least 6:1 contrast on the page. */
+    --heat-1: #ff4d3d;
+    --heat-2: #ff8100;
+    --heat-3: #ffd34d;
+    --heat-4: #5ee08a;
+    --heat-5: #4fd8ff;
+    --heat-6: #6ea8ff;
+
+    /* Colorbar for the Mach-number contours: the same 16 jet-colormap steps as
+       tools/mach_field.py, so the legend matches the picture band for band. */
+    --mach-scale: linear-gradient(90deg,
+      #0000a4 0% 6.25%, #0000ed 6.25% 12.5%, #0020ff 12.5% 18.75%, #0060ff 18.75% 25%,
+      #00a0ff 25% 31.25%, #00e0fb 31.25% 37.5%, #30ffc7 37.5% 43.75%, #63ff94 43.75% 50%,
+      #97ff60 50% 56.25%, #caff2c 56.25% 62.5%, #feed00 62.5% 68.75%, #ffb200 68.75% 75%,
+      #ff7700 75% 81.25%, #ff3b00 81.25% 87.5%, #e80000 87.5% 93.75%, #9f0000 93.75% 100%);
+
+    /* Hero: the shader reads these, so the canvas and the static fallback match */
+    --hero-grid-size: 32px;
+    --hero-grid-alpha: 0.045;
+    --hero-art-ratio: 2040 / 630;
+    --hero-art-axis: 0.1393; /* nozzle centerline from the art's top, as a share of its width */
+
+    /* Type scale: fluid, rem term keeps browser zoom working */
+    --step--2: 0.75rem;
+    --step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+    --step-0: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+    --step-1: clamp(1.25rem, 1.12rem + 0.55vw, 1.625rem);
+    --step-2: clamp(1.75rem, 1.35rem + 1.6vw, 2.75rem);
+    --step-3: clamp(2.25rem, 1.6rem + 2.8vw, 4rem);
+    --step-lede: clamp(1.0625rem, 0.98rem + 0.35vw, 1.3rem);
+
+    --leading-body: 1.6;
+    --leading-tight: 1.05;
+    --tracking-tight: -0.015em;
+    --tracking-label: 0.08em;
+    --tracking-caps: 0.04em;
+
+    --weight-body: 430;
+    --weight-medium: 560;
+    --weight-bold: 720;
+    --weight-heavy: 820;
+    --weight-black: 900;
+
+    --stretch-body: 100%;
+    --stretch-wide: 112%;
+    --stretch-expanded: 125%;
+    --stretch-display: 150%;
+
+    --measure: 65ch;
+
+    /* Space: 4px base */
+    --space-3xs: 0.25rem;
+    --space-2xs: 0.5rem;
+    --space-xs: 0.75rem;
+    --space-s: 1rem;
+    --space-m: 1.5rem;
+    --space-l: 2rem;
+    --space-xl: 3rem;
+    --space-2xl: clamp(4rem, 3rem + 4vw, 6rem);
+
+    /* Layout */
+    --container: 76rem;
+    --gutter: clamp(1rem, 4vw, 2.5rem);
+    --header-height: 3.75rem;
+    --tap-target: 2.75rem;
+
+    /* Shape */
+    --border: 1px solid var(--color-rule);
+    --radius-s: 2px;
+    --radius-m: 4px;
+
+    /* Motion */
+    --dur: 200ms;
+    --dur-slow: 700ms;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --reveal-offset: 0.5rem;
+  }
+}

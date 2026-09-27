@@ -1,0 +1,811 @@
+/* ==========================================================================
+   components.css
+   One block per component, BEM-lite naming, selector depth of 2 max.
+   Mobile first; the 56rem breakpoint matches layout.css.
+   ========================================================================== */
+
+@layer components {
+  /* ---------- Skip link ---------- */
+  .skip-link {
+    position: absolute;
+    left: var(--space-s);
+    top: calc(-1 * var(--space-2xl));
+    z-index: 20;
+    padding: var(--space-2xs) var(--space-s);
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+    font-weight: var(--weight-bold);
+    border-radius: var(--radius-s);
+  }
+
+  .skip-link:focus {
+    top: var(--space-s);
+  }
+
+  /* ---------- Eyebrow label ---------- */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .eyebrow__index {
+    color: var(--color-accent);
+  }
+
+  /* ---------- Site header ---------- */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--color-bg-veil);
+    border-bottom: var(--border);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-s);
+    min-height: var(--header-height);
+  }
+
+  .site-header__name {
+    font-family: var(--font-display);
+    font-size: var(--step--1);
+    font-style: italic;
+    font-weight: var(--weight-black);
+    font-stretch: var(--stretch-display);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-ink);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* Phones: a narrower wordmark and tighter links so the nav fits beside it. */
+  @media (max-width: 39.99rem) {
+    .site-header__name {
+      font-stretch: var(--stretch-body);
+      letter-spacing: 0;
+    }
+
+    .nav__link {
+      padding-inline: var(--space-3xs);
+    }
+  }
+
+  @media (max-width: 22.49rem) {
+    .nav__item--roomy {
+      display: none;
+    }
+  }
+
+  .nav {
+    min-width: 0;
+  }
+
+  .nav__list {
+    display: flex;
+    gap: var(--space-3xs);
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-target);
+    padding-inline: var(--space-2xs);
+    font-size: var(--step--1);
+    font-weight: var(--weight-medium);
+    font-stretch: var(--stretch-wide);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav__item--wide {
+    display: none;
+  }
+
+  @media (min-width: 40rem) {
+    .nav__item--wide {
+      display: block;
+    }
+  }
+
+  .nav__link:hover,
+  .nav__link[aria-current="true"] {
+    color: var(--color-accent);
+  }
+
+  /* ---------- Hero ----------
+     Layers, back to front: the art (static images, which are also the fallback), the canvas
+     (the live render, fades in once WebGL is drawing), then the text. The art's box is the
+     single source of truth for placement: the shader and the heat text both measure it.
+
+     Phones: name, intro and buttons, art, legend, specs.
+     Desktop: name left and intro right, the engine band across the middle, specs below. */
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden; /* fallback for browsers without overflow: clip */
+    overflow: clip;
+    display: grid;
+    grid-template-columns:
+      [full-start] minmax(var(--gutter), 1fr)
+      [content-start] minmax(0, calc(var(--container) - 2 * var(--gutter)))
+      [content-end] minmax(var(--gutter), 1fr) [full-end];
+    grid-template-rows: auto auto auto auto;
+    row-gap: var(--space-m);
+    padding-block: var(--space-xl) var(--space-l);
+    background-color: var(--color-bg);
+    background-image:
+      linear-gradient(var(--color-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+    background-size: var(--hero-grid-size) var(--hero-grid-size);
+  }
+
+  .hero__canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease);
+    pointer-events: none;
+  }
+
+  .hero.is-live .hero__canvas {
+    opacity: 1;
+  }
+
+  /* Once the canvas fully covers them, the static layers stop compositing. Opacity (not
+     visibility) keeps the engine image's alt text available to screen readers. */
+  .hero.is-covered .hero__art {
+    opacity: 0;
+  }
+
+  /* Phones: the art sits in the flow, wider than the screen. The left offset starts the
+     view where the plume has faded out, so the whole plume fits and the back of the engine
+     runs off the right. No z-index or transform here: either would make the art its own
+     stacking context, and the screen-blended layers would stop blending with the hero. */
+  .hero__art {
+    position: relative;
+    grid-column: full;
+    grid-row: 2;
+    justify-self: start;
+    width: 160vw;
+    max-width: none;
+    margin-left: -15.7vw;
+    aspect-ratio: var(--hero-art-ratio);
+  }
+
+  .hero__layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__layer--glow {
+    mix-blend-mode: screen;
+    opacity: 0.45;
+  }
+
+  .hero__layer--flame {
+    mix-blend-mode: screen;
+  }
+
+  .hero__top {
+    position: relative;
+    z-index: 2;
+    grid-column: content;
+    grid-row: 1;
+    display: grid;
+    gap: var(--space-l);
+  }
+
+  .hero__head {
+    display: grid;
+    gap: var(--space-s);
+    container-type: inline-size;
+  }
+
+  /* Sized to its column: "CHARLES" is about 7.2em wide in this cut, so 13cqi keeps the
+     longer line inside the column at every width. */
+  .hero__title {
+    font-size: clamp(2.25rem, 9vw, 5.75rem); /* browsers without container units */
+    font-size: clamp(2.25rem, 13cqi, 5.75rem);
+    line-height: 0.9;
+  }
+
+  .hero__aside {
+    display: grid;
+    gap: var(--space-m);
+    align-content: end;
+  }
+
+  .hero__lede {
+    max-width: 46ch;
+    font-size: var(--step-lede);
+    font-weight: var(--weight-medium);
+    line-height: 1.45;
+    color: var(--color-ink-muted);
+  }
+
+  /* Heat text: colored like a temperature field around the engine, red on the words closest
+     to it and blue on the farthest. js/heat-text.js measures the real distances; without it,
+     the warm end sits along the bottom, toward the engine below. */
+  .heat-text {
+    --heat-x: 50%;
+    --heat-y: 140%;
+    --heat-near: 0px;
+    --heat-far: 36rem;
+    --heat-span: calc(var(--heat-far) - var(--heat-near));
+    color: var(--heat-3);
+  }
+
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .heat-text {
+      background-image: radial-gradient(circle at var(--heat-x) var(--heat-y),
+        var(--heat-1) var(--heat-near),
+        var(--heat-2) calc(var(--heat-near) + var(--heat-span) * 0.2),
+        var(--heat-3) calc(var(--heat-near) + var(--heat-span) * 0.4),
+        var(--heat-4) calc(var(--heat-near) + var(--heat-span) * 0.6),
+        var(--heat-5) calc(var(--heat-near) + var(--heat-span) * 0.8),
+        var(--heat-6) var(--heat-far));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .heat-text {
+      background: none;
+      color: CanvasText;
+    }
+  }
+
+  /* Colorbar for the Mach-number contours behind the plume. */
+  .mach-legend {
+    position: relative;
+    z-index: 2;
+    grid-column: content;
+    grid-row: 3;
+    justify-self: start;
+    display: grid;
+    gap: var(--space-2xs);
+    width: min(100%, 20rem);
+    margin: 0;
+    padding: var(--space-xs) var(--space-s);
+    background: var(--color-bg-veil);
+    border: var(--border);
+    border-radius: var(--radius-m);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .mach-legend__scale {
+    height: 0.5rem;
+    border-radius: 1px;
+    background: var(--mach-scale);
+  }
+
+  .mach-legend__ticks {
+    display: flex;
+    justify-content: space-between;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hero__bottom {
+    position: relative;
+    z-index: 2;
+    grid-column: content;
+    grid-row: 4;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-m);
+  }
+
+  .hero__specs {
+    flex: 1 1 34rem;
+    max-width: 44rem;
+  }
+
+  .hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2xs) var(--space-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  .hero__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: var(--tap-target);
+    padding-inline: var(--space-s);
+    background: var(--color-bg-veil);
+    border: 1px solid var(--color-rule-strong);
+    border-radius: var(--radius-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+
+  .hero__toggle:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  .hero__toggle-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    fill: currentColor;
+  }
+
+  /* Desktop: the art leaves the flow and bleeds off the right edge. An absolutely
+     positioned grid item's containing block is its grid area; the row needs both lines
+     (2 / 3), since a missing end line would stretch the area to the hero's bottom edge.
+     The band is at least as tall as the engine, and the nozzle centerline sits in its middle. */
+  @media (min-width: 56rem) {
+    .hero {
+      --art-width: clamp(52rem, 96vw, 118rem);
+      grid-template-rows: auto minmax(calc(var(--art-width) * 0.28), 1fr) auto;
+      min-height: clamp(40rem, calc(100svh - var(--header-height)), 66rem);
+      padding-top: var(--space-l);
+    }
+
+    .hero__top {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: var(--space-xl);
+      align-items: end;
+    }
+
+    .hero__art {
+      position: absolute;
+      grid-row: 2 / 3;
+      top: calc(50% - var(--art-width) * var(--hero-art-axis));
+      right: 0;
+      width: var(--art-width);
+      margin-left: 0;
+    }
+
+    .mach-legend {
+      grid-row: 2;
+      align-self: start;
+    }
+
+    .hero__bottom {
+      grid-row: 3;
+    }
+  }
+
+  /* ---------- Telemetry strip ---------- */
+  /* Each cell draws its own top and left rule; the container clips the
+     outer edges, so dividers stay correct however the cells wrap. */
+  .telemetry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    overflow: hidden;
+    background: var(--color-bg-veil);
+    border: var(--border);
+    border-radius: var(--radius-m);
+  }
+
+  /* Narrow screens: label and value side by side, one row per fact. */
+  .telemetry__cell {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: var(--space-3xs) var(--space-s);
+    align-items: baseline;
+    padding: var(--space-xs) var(--space-s);
+    box-shadow: -1px -1px 0 var(--color-rule);
+  }
+
+  @media (min-width: 40rem) {
+    .telemetry {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .telemetry__cell {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      padding: var(--space-s);
+    }
+  }
+
+  .telemetry__label {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .telemetry__value {
+    margin: 0;
+    font-weight: var(--weight-bold);
+    font-stretch: var(--stretch-wide);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Buttons ---------- */
+  .button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-height: var(--tap-target);
+    padding-inline: var(--space-m);
+    border: 1px solid transparent;
+    border-radius: var(--radius-s);
+    font-size: var(--step--1);
+    font-weight: var(--weight-bold);
+    font-stretch: var(--stretch-wide);
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background var(--dur) var(--ease), color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease);
+  }
+
+  .button--primary {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  .button--primary:hover {
+    background: var(--color-ink);
+  }
+
+  .button--ghost {
+    background: var(--color-bg-veil);
+    border-color: var(--color-rule-strong);
+    color: var(--color-ink);
+  }
+
+  .button--ghost:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  /* ---------- Project ---------- */
+  .project {
+    padding-top: var(--space-xl);
+    border-top: var(--border);
+  }
+
+  .project:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .project__media {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+  }
+
+  .project__body {
+    display: grid;
+    gap: var(--space-m);
+    align-content: start;
+  }
+
+  .project__header {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  /* Sits inside the h3 but reads as text, so it goes back to the text face. */
+  .project__subtitle {
+    display: block;
+    margin-top: var(--space-2xs);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    font-weight: var(--weight-body);
+    font-stretch: var(--stretch-body);
+    line-height: 1.4;
+    color: var(--color-ink-muted);
+  }
+
+  .project__summary {
+    font-weight: var(--weight-medium);
+  }
+
+  .project__thumbs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-s);
+  }
+
+  @media (min-width: 56rem) {
+    .project__media {
+      grid-column: 1 / span 7;
+    }
+
+    .project__body {
+      grid-column: 8 / span 5;
+    }
+
+    .project--flip .project__media {
+      grid-column: 6 / span 7;
+      grid-row: 1;
+    }
+
+    .project--flip .project__body {
+      grid-column: 1 / span 5;
+      grid-row: 1;
+    }
+
+    .project--compact .project__media {
+      grid-column: 1 / span 5;
+    }
+
+    .project--compact .project__body {
+      grid-column: 6 / span 7;
+    }
+  }
+
+  /* ---------- Spec block ---------- */
+  .spec {
+    border-top: var(--border);
+  }
+
+  .spec__row {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: var(--space-s);
+    padding-block: var(--space-2xs);
+    border-bottom: var(--border);
+    font-size: var(--step--1);
+  }
+
+  .spec__row dt {
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .spec__row dd {
+    margin: 0;
+  }
+
+  .spec__result {
+    color: var(--color-accent);
+    font-weight: var(--weight-bold);
+  }
+
+  /* ---------- Notes (problem / approach / hard part) ---------- */
+  .notes {
+    display: grid;
+    gap: var(--space-s);
+  }
+
+  .notes dt {
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .notes dd {
+    margin: var(--space-3xs) 0 0;
+    max-width: var(--measure);
+    color: var(--color-ink-muted);
+  }
+
+  /* ---------- Figure ---------- */
+  .figure {
+    display: grid;
+    gap: var(--space-2xs);
+  }
+
+  .figure__frame {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius-s);
+  }
+
+  .figure__frame--wide {
+    aspect-ratio: 16 / 10;
+  }
+
+  .figure__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Shown until a real photo or render replaces it */
+  .figure__placeholder {
+    padding: var(--space-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .figure figcaption {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  .figure__tag {
+    margin-right: var(--space-2xs);
+    font-family: var(--font-mono);
+    color: var(--color-accent);
+  }
+
+  /* ---------- Next cards ---------- */
+  .next-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--space-s);
+    padding: 0;
+    list-style: none;
+  }
+
+  .next-card {
+    display: grid;
+    gap: var(--space-xs);
+    align-content: start;
+    padding: var(--space-m);
+    background: var(--color-surface);
+    border: var(--border);
+    border-radius: var(--radius-m);
+  }
+
+  .next-card__title {
+    font-size: var(--step-0);
+  }
+
+  .next-card__text {
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  .status {
+    justify-self: start;
+    padding: var(--space-3xs) var(--space-2xs);
+    border: 1px solid currentColor;
+    border-radius: var(--radius-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: var(--color-ink-muted);
+  }
+
+  .status--active {
+    color: var(--color-accent);
+  }
+
+  .updated {
+    margin-top: var(--space-m);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  /* ---------- About + contact ---------- */
+  .about__text {
+    display: grid;
+    gap: var(--space-s);
+    align-content: start;
+  }
+
+  .contact {
+    display: grid;
+    align-content: start;
+    border-top: var(--border);
+  }
+
+  .contact__row {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: var(--space-s);
+    align-items: center;
+    min-height: var(--tap-target);
+    padding-block: var(--space-2xs);
+    border-bottom: var(--border);
+  }
+
+  .contact__row dt {
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
+  .contact__row dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 56rem) {
+    .about__text {
+      grid-column: 1 / span 7;
+    }
+
+    .contact {
+      grid-column: 8 / span 5;
+    }
+  }
+
+  /* ---------- 404 ---------- */
+  .notfound {
+    display: grid;
+    gap: var(--space-m);
+    align-content: center;
+    min-height: 70svh;
+  }
+
+  /* ---------- Footer ---------- */
+  .site-footer {
+    padding-block: var(--space-l);
+    border-top: var(--border);
+    font-size: var(--step--1);
+    color: var(--color-ink-muted);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2xs) var(--space-m);
+  }
+
+  .site-footer a {
+    color: inherit;
+  }
+
+  /* ---------- Reveal (only once JS opts in) ---------- */
+  .js-reveal [data-reveal] {
+    opacity: 0;
+    transform: translateY(var(--reveal-offset));
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  }
+
+  .js-reveal [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}

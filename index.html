@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Charles Thorn · Mechanical Engineering Portfolio</title>
+  <meta name="description" content="Charles Thorn, mechanical engineering student at Stevens Institute of Technology, seeking Summer 2027 internships in propulsion, thermal, structures and vehicle systems.">
+  <link rel="canonical" href="https://aftermaxth.github.io/portfolio/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Charles Thorn · Mechanical Engineering Portfolio">
+  <meta property="og:description" content="Research prototyping, an autonomous robot finalist, embedded systems, and what I'm building next toward supersonic propulsion.">
+  <meta property="og:url" content="https://aftermaxth.github.io/portfolio/">
+  <meta property="og:image" content="https://aftermaxth.github.io/portfolio/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Charles Thorn, mechanical engineering portfolio, over a jet engine test run">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0a0b0d">
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="preload" href="assets/fonts/anybody-italic-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/img/hero/engine.webp" as="image" type="image/webp" fetchpriority="high">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/utilities.css">
+
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="site-header__name" href="#main">Charles Thorn</a>
+      <nav class="nav" aria-label="Primary">
+        <ul class="nav__list">
+          <li class="nav__item--roomy"><a class="nav__link" href="#projects">Projects</a></li>
+          <li class="nav__item--wide"><a class="nav__link" href="#next">Next</a></li>
+          <li class="nav__item--wide"><a class="nav__link" href="#about">About</a></li>
+          <li><a class="nav__link" href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ===== 01 / INTRO =====
+         The art layers are plain images, so the hero is complete without JS.
+         js/hero-engine.js redraws them in WebGL on the canvas and animates the plume, and
+         js/heat-text.js colors the intro by its distance from the nozzle. -->
+    <section class="hero" aria-labelledby="hero-title" data-hero>
+      <div class="hero__art">
+        <img class="hero__layer" data-hero-layer="mach"
+             src="assets/img/hero/mach-field.webp" width="2040" height="630" alt="" decoding="async">
+        <img class="hero__layer hero__layer--glow" data-hero-layer="bloom"
+             src="assets/img/hero/bloom.webp" width="510" height="157" alt="" decoding="async">
+        <img class="hero__layer hero__layer--flame" data-hero-layer="flame"
+             src="assets/img/hero/flame.webp" width="2040" height="630" alt="" decoding="async">
+        <img class="hero__layer" data-hero-layer="engine"
+             src="assets/img/hero/engine.webp" width="2040" height="630" fetchpriority="high" decoding="async"
+             alt="Jet engine on a test stand running with its afterburner lit. The exhaust plume shows a row of shock diamonds, drawn over Mach-number contours.">
+      </div>
+      <canvas class="hero__canvas" data-hero-canvas aria-hidden="true"></canvas>
+
+      <div class="hero__top">
+        <div class="hero__head">
+          <p class="eyebrow"><span class="eyebrow__index">01</span> / Intro</p>
+          <h1 class="hero__title" id="hero-title">Charles Thorn</h1>
+        </div>
+
+        <div class="hero__aside">
+          <p class="hero__lede heat-text" data-heat-text>Mechanical engineering at Stevens. I design, build, and integrate hardware, and I analyze how each component affects overall system performance. I lead and coordinate project work across teams.</p>
+          <div class="button-row">
+            <a class="button button--primary" href="#projects">View projects <span aria-hidden="true">→</span></a>
+            <a class="button button--ghost" href="assets/resume/Thorn_Charles_Resume.pdf" target="_blank" rel="noopener">Resume (PDF) <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- The contours are an illustrative model lined up with the photo (tools/mach_field.py),
+           not a simulation of this engine. The caption says so. -->
+      <figure class="mach-legend">
+        <figcaption>Mach number · illustrative model</figcaption>
+        <div class="mach-legend__scale" aria-hidden="true"></div>
+        <div class="mach-legend__ticks" aria-hidden="true"><span>0.0</span><span>1.6</span><span>3.2</span></div>
+        <p class="visually-hidden">Color scale from blue at Mach 0 to red at Mach 3.2.</p>
+      </figure>
+
+      <div class="hero__bottom">
+        <dl class="telemetry hero__specs">
+          <div class="telemetry__cell">
+            <dt class="telemetry__label">Degree</dt>
+            <dd class="telemetry__value">B.E. Mechanical, May 2029</dd>
+          </div>
+          <div class="telemetry__cell">
+            <dt class="telemetry__label">Minor</dt>
+            <dd class="telemetry__value">Aerospace (planned)</dd>
+          </div>
+          <div class="telemetry__cell">
+            <dt class="telemetry__label">Seeking</dt>
+            <dd class="telemetry__value">Summer 2027 internship</dd>
+          </div>
+        </dl>
+
+        <div class="hero__meta">
+          <!-- Credit inferred from the test-stand stenciling. Confirm against the photo's source page. -->
+          <p>Photo: U.S. Air Force</p>
+          <button class="hero__toggle" type="button" data-hero-toggle hidden>
+            <svg class="hero__toggle-icon" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+              <path data-hero-toggle-icon d="M2 1h3v10H2zM7 1h3v10H7z"/>
+            </svg>
+            <span data-hero-toggle-label>Pause</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 02 / PROJECTS ===== -->
+    <section class="section" id="projects" aria-labelledby="projects-title">
+      <div class="container">
+        <header class="section__header">
+          <p class="eyebrow"><span class="eyebrow__index">02</span> / Projects</p>
+          <h2 id="projects-title">Selected work</h2>
+        </header>
+
+        <div class="stack stack--xl">
+
+          <!-- Project 01: Robot Arena -->
+          <article class="project project--flip grid" id="robot-arena" data-reveal>
+            <div class="project__media">
+              <figure class="figure">
+                <div class="figure__frame figure__frame--wide">
+                  <p class="figure__placeholder">Photo to add: robot in the arena, 3/4 view</p>
+                </div>
+                <figcaption><span class="figure__tag">FIG 1.1</span>Competition robot on the arena floor</figcaption>
+              </figure>
+              <div class="project__thumbs">
+                <figure class="figure">
+                  <div class="figure__frame">
+                    <p class="figure__placeholder">SolidWorks: main housing</p>
+                  </div>
+                  <figcaption><span class="figure__tag">FIG 1.2</span>Main housing, SolidWorks model</figcaption>
+                </figure>
+                <figure class="figure">
+                  <div class="figure__frame">
+                    <p class="figure__placeholder">Diagram: marker → path → obstacle check</p>
+                  </div>
+                  <figcaption><span class="figure__tag">FIG 1.3</span>Pathfinding logic: ArUco localization with ultrasonic feedback</figcaption>
+                </figure>
+              </div>
+            </div>
+
+            <div class="project__body">
+              <header class="project__header">
+                <p class="eyebrow">Project 01 · ENGR 122 · 2026</p>
+                <h3>Robot Arena <span class="project__subtitle">Autonomous navigation robot for the Gallois competition</span></h3>
+              </header>
+              <p class="project__summary">Ranked 1st in preliminary standings and made the finals: 1 of 12 teams selected from roughly 650 first-year engineers.</p>
+
+              <dl class="spec">
+                <div class="spec__row"><dt>Role</dt><dd>Led the housing design and printing. Helped debug pathfinding late in the build.</dd></div>
+                <div class="spec__row"><dt>Tools</dt><dd>SolidWorks · FDM printing · Arduino · ArUco markers · Ultrasonic sensing</dd></div>
+                <div class="spec__row"><dt>Timeline</dt><dd class="mono">Jan to May 2026</dd></div>
+                <div class="spec__row"><dt>Result</dt><dd class="spec__result">1st in prelims · finalist, top 12 of ~650</dd></div>
+              </dl>
+
+              <dl class="notes">
+                <div>
+                  <dt>Housing</dt>
+                  <dd>Designed the main housing frame in SolidWorks to beat the spec on weight while staying stiff. I iterated the prints until it did both.</dd>
+                </div>
+                <div>
+                  <dt>Pathfinding</dt>
+                  <dd>Late in the project I stepped outside my usual scope to debug navigation. The robot combines camera-based ArUco marker localization for targeting checkpoints with ultrasonic feedback for avoiding obstacles.</dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+
+          <!-- Project 02: Plant watering -->
+          <article class="project grid" id="plant-watering" data-reveal>
+            <div class="project__media">
+              <figure class="figure">
+                <div class="figure__frame figure__frame--wide">
+                  <p class="figure__placeholder">Photo to add: installed system with plant</p>
+                </div>
+                <figcaption><span class="figure__tag">FIG 2.1</span>Automatic watering system, installed</figcaption>
+              </figure>
+              <div class="project__thumbs">
+                <figure class="figure">
+                  <div class="figure__frame">
+                    <p class="figure__placeholder">Wiring diagram</p>
+                  </div>
+                  <figcaption><span class="figure__tag">FIG 2.2</span>Wiring: moisture sensor, controller, pump</figcaption>
+                </figure>
+                <figure class="figure">
+                  <div class="figure__frame">
+                    <p class="figure__placeholder">Enclosure revisions</p>
+                  </div>
+                  <figcaption><span class="figure__tag">FIG 2.3</span>Enclosure, early vs. final revision</figcaption>
+                </figure>
+              </div>
+            </div>
+
+            <div class="project__body">
+              <header class="project__header">
+                <p class="eyebrow">Project 02 · ENGR 111 · 2025</p>
+                <h3>Automatic Plant Watering System <span class="project__subtitle">Soil-moisture sensing, automatic watering, wireless reporting</span></h3>
+              </header>
+              <p class="project__summary">Reads soil moisture, waters on its own, and sends sensor readings over the Stevens wireless network.</p>
+
+              <dl class="spec">
+                <div class="spec__row"><dt>Role</dt><dd>Led the SolidWorks design and the Arduino programming.</dd></div>
+                <div class="spec__row"><dt>Tools</dt><dd>Arduino IDE · SolidWorks · FDM printing</dd></div>
+                <div class="spec__row"><dt>Timeline</dt><dd class="mono">Sep to Dec 2025</dd></div>
+                <div class="spec__row"><dt>Result</dt><dd class="spec__result">Working closed-loop watering system</dd></div>
+              </dl>
+
+              <dl class="notes">
+                <div>
+                  <dt>Control</dt>
+                  <dd>Arduino code reads the moisture sensor and drives the watering hardware, then transmits readings to the Stevens network.</dd>
+                </div>
+                <div>
+                  <dt>Enclosure</dt>
+                  <dd>Went through several revisions to cut print time and material while keeping it strong enough.</dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+
+          <!-- Project 03: Training Hub (compact, software) -->
+          <article class="project project--compact grid" id="training-hub" data-reveal>
+            <div class="project__media">
+              <figure class="figure">
+                <div class="figure__frame figure__frame--wide">
+                  <p class="figure__placeholder">Screenshot to add: dashboard</p>
+                </div>
+                <figcaption><span class="figure__tag">FIG 3.1</span>Training Hub dashboard, desktop view</figcaption>
+              </figure>
+            </div>
+
+            <div class="project__body">
+              <header class="project__header">
+                <p class="eyebrow">Project 03 · Software · Personal</p>
+                <h3>Training Hub V2 <span class="project__subtitle">Web app for tracking my running training</span></h3>
+              </header>
+              <p class="project__summary">Tracks weekly mileage and workouts, plus goals sorted into Safe, Solid and Reach tiers with a weekly process tracker.</p>
+
+              <dl class="spec">
+                <div class="spec__row"><dt>Role</dt><dd>Solo, AI-assisted build. I owned the data model, UI decisions and debugging.</dd></div>
+                <div class="spec__row"><dt>Tools</dt><dd>HTML · CSS · JavaScript · Supabase</dd></div>
+              </dl>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 03 / NEXT ===== -->
+    <section class="section" id="next" aria-labelledby="next-title">
+      <div class="container">
+        <header class="section__header">
+          <p class="eyebrow"><span class="eyebrow__index">03</span> / Next</p>
+          <h2 id="next-title">What I'm building next</h2>
+        </header>
+
+        <ul class="next-list">
+          <li class="next-card" data-reveal>
+            <p class="status status--active">In progress</p>
+            <h3 class="next-card__title">SAE Aero Design: structures</h3>
+            <p class="next-card__text">Modeling the electronics bay (longerons and the vertical member) for the subteam's full SolidWorks assembly of the plane, which we'll use to pick materials before the build.</p>
+          </li>
+          <li class="next-card" data-reveal>
+            <p class="status status--active">In progress</p>
+            <h3 class="next-card__title">NASA Student Launch: vehicle team</h3>
+            <p class="next-card__text">Joined the vehicle team this fall. Our proposal is in, and NASA announces selections October 1.</p>
+          </li>
+          <li class="next-card" data-reveal>
+            <p class="status">Planned</p>
+            <h3 class="next-card__title">Metal additive manufacturing research</h3>
+            <p class="next-card__text">Joining Prof. Chang-Hwan Choi's group to measure how infill pattern affects the properties of printed parts.</p>
+          </li>
+          <li class="next-card" data-reveal>
+            <p class="status">Exploring</p>
+            <h3 class="next-card__title">Small rocket engine (side project)</h3>
+            <p class="next-card__text">A 3D-printed combustion chamber and nozzle, possibly water cooled, to try different nozzle shapes. Cold-flow testing first. Any hot fire only under supervision.</p>
+          </li>
+        </ul>
+
+        <p class="updated">Last updated: <time datetime="2026-09">September 2026</time></p>
+      </div>
+    </section>
+
+    <!-- ===== 04 / ABOUT + CONTACT ===== -->
+    <section class="section" id="about" aria-labelledby="about-title">
+      <div class="container">
+        <header class="section__header">
+          <p class="eyebrow"><span class="eyebrow__index">04</span> / About</p>
+          <h2 id="about-title">About</h2>
+        </header>
+
+        <div class="grid">
+          <div class="about__text">
+            <p>I'm Charles. I study mechanical engineering at Stevens, plan to add an aerospace minor, and run distance for the varsity cross country and track teams.</p>
+            <p>The long-term goal is engine design for supersonic flight. I'd rather build something, test it and fix it than leave it as a drawing, so I look for projects where I get my hands on the hardware.</p>
+            <p>I'm also secretary of our AIAA chapter and a member of ASME and NSBE.</p>
+          </div>
+
+          <dl class="contact" id="contact">
+            <div class="contact__row"><dt>Email</dt><dd><a href="mailto:cthorn@stevens.edu">cthorn@stevens.edu</a></dd></div>
+            <div class="contact__row"><dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/charles-thorn-2491573a1" target="_blank" rel="noopener">charles-thorn <span aria-hidden="true">↗</span></a></dd></div>
+            <div class="contact__row"><dt>GitHub</dt><dd><a href="https://github.com/aftermaxth" target="_blank" rel="noopener">aftermaxth <span aria-hidden="true">↗</span></a></dd></div>
+            <div class="contact__row"><dt>Resume</dt><dd><a href="assets/resume/Thorn_Charles_Resume.pdf" target="_blank" rel="noopener">PDF <span aria-hidden="true">↗</span></a></dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <p>© 2026 Charles Thorn · Hoboken, NJ, United States, Earth</p>
+      <p>Built by hand with HTML, CSS and a little JS · <a href="https://github.com/aftermaxth/portfolio" target="_blank" rel="noopener">Source <span aria-hidden="true">↗</span></a></p>
+    </div>
+  </footer>
+</body>
+</html>

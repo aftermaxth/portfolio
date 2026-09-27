@@ -1,0 +1,141 @@
+/* ==========================================================================
+   base.css
+   Reset and element defaults. No classes here.
+   ========================================================================== */
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  img,
+  picture,
+  svg,
+  canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  img,
+  picture,
+  svg {
+    height: auto;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    background: var(--color-bg);
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+    font-weight: var(--weight-body);
+    font-stretch: var(--stretch-body);
+    line-height: var(--leading-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+  }
+
+  /* Display headings: black, italic, extra expanded. */
+  h1,
+  h2 {
+    font-style: italic;
+    font-weight: var(--weight-black);
+    font-stretch: var(--stretch-display);
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    font-size: var(--step-3);
+  }
+
+  h2 {
+    font-size: var(--step-2);
+  }
+
+  /* Project titles: same family, upright and bold, so they read as a level below. */
+  h3 {
+    font-size: var(--step-1);
+    font-weight: var(--weight-bold);
+    font-stretch: var(--stretch-wide);
+  }
+
+  p {
+    max-width: var(--measure);
+    text-wrap: pretty;
+  }
+
+  strong {
+    font-weight: var(--weight-bold);
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-accent-ink);
+  }
+
+  [id] {
+    scroll-margin-top: calc(var(--header-height) + var(--space-s));
+  }
+
+  dt {
+    font-family: var(--font-mono);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
