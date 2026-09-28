@@ -41,7 +41,9 @@ OUT = ROOT / "assets" / "img" / "hero" / "mach-field.webp"
 MACH_MAX = 3.2          # top of the color scale (the legend in index.html matches)
 LEVELS = 16             # contour bands (the legend's colorbar has the same 16 steps)
 FILL_ALPHA = 0.42       # band opacity
-LINE_ALPHA = 0.45       # extra opacity on band edges
+LINE_ALPHA = 0.66       # extra opacity on band edges
+LINE_WIDTH = 5          # band-edge thickness in art px (structuring element)
+LINE_LIFT = 0.45        # how much lighter the edge is drawn than its band
 
 CELL_START = 240.0      # shock-cell length at the nozzle exit, art px
 CELL_SHRINK = 0.12      # cell length lost per px downstream
@@ -104,8 +106,8 @@ def render(plume: dict) -> np.ndarray:
 
     band = np.floor(t * LEVELS) / LEVELS
     color = colormaps["jet"](np.clip(band + 0.5 / LEVELS, 0.0, 1.0))[..., :3]
-    edge = (ndimage.maximum_filter(band, 3) != ndimage.minimum_filter(band, 3)).astype(np.float32)
-    color = color + edge[..., None] * 0.25 * (1.0 - color)   # band edges drawn a little lighter
+    edge = (ndimage.maximum_filter(band, LINE_WIDTH) != ndimage.minimum_filter(band, LINE_WIDTH)).astype(np.float32)
+    color = color + edge[..., None] * LINE_LIFT * (1.0 - color)   # band edges drawn a little lighter
 
     visible = np.clip((t - 0.02) / 0.25, 0.0, 1.0) ** 0.8    # freestream stays transparent
     visible *= smoothstep(20.0, 280.0, xs)                    # fade toward the art's left edge

@@ -50,7 +50,9 @@ NOZZLE_X = 1045           # nozzle exit plane
 PLUME_END_X = 95          # augmenter ring edge; the plume is hidden past this
 PLUME_FADE_TO_X = 470     # plume fades in from PLUME_END_X to here
 PLUME_SPREAD_TO_X = 620   # and diffuses (blurs outward) from PLUME_END_X to here
-DIAMOND_GAIN = 0.7        # local contrast along the axis, so the shock diamonds read clearly
+DIAMOND_GAIN = 1.05       # local contrast along the axis, so the shock diamonds read clearly
+DIAMOND_SIGMA = (5, 72)   # reference blur (across flow, along flow): wider = broader diamonds
+ENGINE_DIM = 0.82         # engine sits back from the plume
 TOP_BAND_ONLY_BELOW_X = 185   # left of this the ring sits under the plume, so skip the lower band
 STAND_FADE_ROWS = (680, 812)  # stand goes from opaque to clear across these rows
 BG_COLOR = (0.035, 0.039, 0.047)  # page background, only used for the preview
@@ -148,7 +150,7 @@ def build_engine(srgb: np.ndarray) -> np.ndarray:
     # Neutral steel: pull 20% of the green cast out, and let the stand sink into shadow as it fades.
     lum = luminance(srgb)[..., None]
     rgb = lum + (srgb - lum) * 0.8
-    rgb *= (0.55 + 0.45 * stand_fade)[..., None]
+    rgb *= (0.55 + 0.45 * stand_fade)[..., None] * ENGINE_DIM
 
     return np.dstack([rgb, alpha])
 
@@ -209,7 +211,7 @@ def build_flame(srgb: np.ndarray, xs, top, bottom) -> np.ndarray:
 
     # Shock diamonds: boost contrast along the flow only. Blurring along x and barely at all
     # across it sharpens the bright cells without putting a bright rim on the plume's edge.
-    along_blur = ndimage.gaussian_filter(emission, sigma=(3, 45, 0))
+    along_blur = ndimage.gaussian_filter(emission, sigma=(DIAMOND_SIGMA[0], DIAMOND_SIGMA[1], 0))
     emission = np.maximum(emission + DIAMOND_GAIN * (emission - along_blur), 0.0)
 
     # Far end: the augmenter ring hides the rest of the plume, so let it spread and fade out
