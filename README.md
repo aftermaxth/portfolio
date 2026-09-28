@@ -77,31 +77,7 @@ python3 tools/mach_field.py              # run after extract_hero.py; it reads j
 - Every project uses the same template: eyebrow, title, one-line result, Role / Tools / Timeline / Result spec block, figures, short notes.
 - The site works with JS off. JS only adds the hero animation, a one-time fade-in and the active nav state.
 
-## Adding a project figure
-
-1. Export at 800 and 1600 px wide, WebP (AVIF optional), under 200 KB each. Squoosh works.
-2. Save to `assets/img/<project>/`, lowercase-kebab-case filenames.
-3. In `index.html`, replace the `<p class="figure__placeholder">` inside the matching `figure__frame` with:
-
-```html
-<img src="assets/img/robot-arena/hero-800.webp"
-     srcset="assets/img/robot-arena/hero-800.webp 800w, assets/img/robot-arena/hero-1600.webp 1600w"
-     sizes="(min-width: 56rem) 55vw, 100vw"
-     width="1600" height="1000" loading="lazy" decoding="async"
-     alt="Describe what the figure shows, in engineering terms">
 ```
-
-## Deploy (GitHub Pages)
-
-1. Push to a repo named `portfolio` on the `aftermaxth` account.
-2. Settings → Pages → Deploy from branch `main`, folder `/ (root)`.
-3. All paths are relative, so the site works at `/portfolio/` and at a custom domain root. If you add a domain, update the `canonical` and `og:` URLs in `index.html`.
-
-## Before each application cycle
-
-- Click every link, including the resume PDF.
-- Update the "Last updated" date in the Next section.
-- Paste the URL into LinkedIn's Post Inspector to check the preview card.
 
 ## Credits
 
