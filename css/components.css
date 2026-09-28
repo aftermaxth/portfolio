@@ -245,40 +245,6 @@
     color: var(--color-ink-muted);
   }
 
-  /* Heat text: colored like a temperature field around the engine, red on the words closest
-     to it and blue on the farthest. js/heat-text.js measures the real distances; without it,
-     the warm end sits along the bottom, toward the engine below. */
-  .heat-text {
-    --heat-x: 50%;
-    --heat-y: 140%;
-    --heat-near: 0px;
-    --heat-far: 36rem;
-    --heat-span: calc(var(--heat-far) - var(--heat-near));
-    color: var(--heat-3);
-  }
-
-  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-    .heat-text {
-      background-image: radial-gradient(circle at var(--heat-x) var(--heat-y),
-        var(--heat-1) var(--heat-near),
-        var(--heat-2) calc(var(--heat-near) + var(--heat-span) * 0.2),
-        var(--heat-3) calc(var(--heat-near) + var(--heat-span) * 0.4),
-        var(--heat-4) calc(var(--heat-near) + var(--heat-span) * 0.6),
-        var(--heat-5) calc(var(--heat-near) + var(--heat-span) * 0.8),
-        var(--heat-6) var(--heat-far));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .heat-text {
-      background: none;
-      color: CanvasText;
-    }
-  }
-
   /* Colorbar for the Mach-number contours behind the plume. */
   .mach-legend {
     position: relative;

@@ -4,13 +4,9 @@
 const root = document.documentElement;
 
 // ---------- Hero ----------
-// The heat text and the animation load on their own, so the rest of the page never waits
-// on WebGL.
+// The animation loads on its own, so the rest of the page never waits on WebGL.
 const hero = document.querySelector("[data-hero]");
 if (hero) {
-  import("./heat-text.js")
-    .then(({ initHeatText }) => initHeatText(hero))
-    .catch((error) => console.warn("Heat text unavailable:", error));
   import("./hero-engine.js")
     .then(({ initHeroEngine }) => initHeroEngine(hero))
     .catch((error) => console.warn("Hero animation unavailable:", error));

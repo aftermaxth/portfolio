@@ -74,15 +74,6 @@
     --color-focus: #7cc4ff;
     --color-grid: rgb(255 255 255 / 0.045);
 
-    /* Heat scale for the hero intro: red nearest the nozzle, blue farthest. Lighter than a
-       solver's pure blue and red so every stop keeps at least 6:1 contrast on the page. */
-    --heat-1: #ff4d3d;
-    --heat-2: #ff8100;
-    --heat-3: #ffd34d;
-    --heat-4: #5ee08a;
-    --heat-5: #4fd8ff;
-    --heat-6: #6ea8ff;
-
     /* Colorbar for the Mach-number contours: the same 16 jet-colormap steps as
        tools/mach_field.py, so the legend matches the picture band for band. */
     --mach-scale: linear-gradient(90deg,
