@@ -247,10 +247,23 @@
           <article class="project project--compact grid" id="training-hub" data-reveal>
             <div class="project__media">
               <figure class="figure">
-                <div class="figure__frame figure__frame--wide">
-                  <p class="figure__placeholder">Screenshot to add: dashboard</p>
+                <div class="figure__frame figure__frame--video">
+                  <div class="video-pair">
+                    <div class="video-pair__item">
+                      <video src="assets/video/coach-demo.mp4" poster="assets/img/coach-poster.webp"
+                             width="720" height="1280" controls muted loop playsinline preload="none"
+                             aria-label="Screen recording of the coach view, which can switch between athletes and edit prescribed workouts."></video>
+                      <p class="video-pair__label">Coach view</p>
+                    </div>
+                    <div class="video-pair__item">
+                      <video src="assets/video/athlete-demo.mp4" poster="assets/img/athlete-poster.webp"
+                             width="720" height="1280" controls muted loop playsinline preload="none"
+                             aria-label="Screen recording of the athlete view, which sees only its own rows and can log against a workout but not change it."></video>
+                      <p class="video-pair__label">Athlete view</p>
+                    </div>
+                  </div>
                 </div>
-                <figcaption><span class="figure__tag">FIG 3.1</span>Training Hub dashboard, desktop view</figcaption>
+                <figcaption><span class="figure__tag">FIG 3.1</span>Same app, two permission scopes: the coach can switch athletes, the athlete cannot</figcaption>
               </figure>
             </div>
 

@@ -657,6 +657,41 @@
     object-fit: contain;
   }
 
+  /* Two portrait screen recordings shown side by side. The frame grows with
+     the clips instead of holding a fixed ratio. */
+  .figure__frame--video {
+    aspect-ratio: auto;
+    padding: var(--space-xs);
+  }
+
+  .video-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xs);
+    width: 100%;
+  }
+
+  .video-pair__item {
+    display: grid;
+    gap: var(--space-3xs);
+  }
+
+  .video-pair video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 9 / 16;
+    background: var(--color-bg);
+    border-radius: var(--radius-s);
+  }
+
+  .video-pair__label {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+  }
+
   /* Shown until a real photo or render replaces it */
   .figure__placeholder {
     padding: var(--space-s);
