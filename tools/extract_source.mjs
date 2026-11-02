@@ -12,14 +12,10 @@ const outPath = resolve(here, "../content/projects.json");
 const lines = readFileSync(srcPath, "utf8").split(/\r?\n/);
 
 // ---- Editorial rules -------------------------------------------------------
-const META = {
-  1: { slug: "nasa-student-launch", title: "NASA Student Launch", kicker: "USLI" },
-  2: { slug: "sae-aero-design", title: "SAE Aero Design", kicker: "Micro Class" },
-  3: { slug: "robot-arena", title: "Robot Arena", kicker: "ENGR 122" },
-  4: { slug: "plant-watering", title: "Automatic Plant Watering", kicker: "ENGR 111" },
-  5: { slug: "training-hub-v2", title: "Training Hub V2", kicker: "Software" },
-  6: { slug: "mocore-lab", title: "MOCORE Lab", kicker: "Research" },
-};
+// Slugs only. Titles and kickers come verbatim from the source headings.
+const SLUGS = { 1: "nasa-student-launch", 2: "sae-aero-design", 3: "robot-arena", 4: "plant-watering", 5: "training-hub-v2", 6: "mocore-lab" };
+// Project 6's heading carries a builder note in parentheses ("small card, no photos"), not a name.
+const HEADING_NOTE_ONLY = new Set([6]);
 // Source headings carry builder notes in parentheses; the page shows the clean label.
 const HEADING = {
   "Short version (card)": "Overview",
@@ -62,7 +58,11 @@ for (const raw of lines) {
   const h2 = line.match(/^## (\d)\. (.+)$/);
   if (h2) {
     const n = Number(h2[1]);
-    cur = { n, ...META[n], sourceTitle: h2[2], role: "", org: "", timeline: "", tools: [], oneLiner: "", numbers: [], sections: [] };
+    // "Robot Arena (ENGR 122)" -> title "Robot Arena", kicker "ENGR 122" (both verbatim).
+    const split = h2[2].match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+    const title = split ? split[1] : h2[2];
+    const kicker = split && !HEADING_NOTE_ONLY.has(n) ? split[2] : "";
+    cur = { n, slug: SLUGS[n], title, kicker, sourceTitle: h2[2], role: "", org: "", timeline: "", tools: [], oneLiner: "", numbers: [], sections: [] };
     projects.push(cur);
     section = null;
     continue;

@@ -166,7 +166,7 @@ export default function sitePlugin() {
             <p class="hero__lede">${esc(h.lede)}</p>
             <div class="button-row">${h.buttons.map(btn).join("")}</div>
           </div>
-          <dl class="specs" data-intro>${h.specs.map((s) => `<div class="specs__row"><dt class="label">${esc(s.label)}</dt><dd>${esc(s.value)}</dd></div>`).join("")}</dl>
+          <dl class="specs" data-intro>${h.specs.map((s) => `<div class="specs__row"><dt class="label">${esc(s.label)}</dt><dd>${s.values.map((v) => `<span class="specs__line">${esc(v)}</span>`).join("")}</dd></div>`).join("")}</dl>
         </div>
       </div>
       <figure class="hero__stage" data-hero-stage>
@@ -182,7 +182,7 @@ export default function sitePlugin() {
 
     <section class="section" id="next" aria-labelledby="next-title">
       ${head("03", site.next, "next-title")}
-      <div class="container grid"><ul class="next-list">${site.next.cards.map((c) => `<li class="next-card" data-reveal><p class="label next-card__tag">${esc(c.tag)}</p><h3 class="next-card__title">${esc(c.title)}</h3></li>`).join("")}</ul></div>
+      <div class="container grid"><ul class="next-list">${site.next.cards.map((c) => `<li class="next-card" data-reveal><p class="label next-card__tag">${esc(c.tag)}${c.date ? ` / ${esc(c.date)}` : ""}</p><h3 class="next-card__title">${esc(c.title)}</h3></li>`).join("")}</ul></div>
     </section>
 
     <section class="section" id="about" aria-labelledby="about-title">

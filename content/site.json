@@ -17,9 +17,9 @@
       { "label": "Resume (PDF)", "href": "assets/resume/Thorn_Charles_Resume.pdf", "external": true, "glyph": "↗" }
     ],
     "specs": [
-      { "label": "Degree", "value": "B.E. Mechanical, May 2029", "origin": "existing hero copy" },
-      { "label": "Minor", "value": "Aerospace (planned)", "origin": "default pending Charles" },
-      { "label": "Seeking", "value": "Summer 2027 internship", "origin": "existing hero copy" }
+      { "label": "Degree", "values": ["Bachelor of Engineering, Mechanical Engineering", "Minor in Aerospace Engineering"], "origin": "resume docx, Education" },
+      { "label": "Expected", "values": ["May 2029"], "origin": "resume docx, Education" },
+      { "label": "Seeking", "values": ["Summer 2027 internship"], "origin": "existing hero copy" }
     ],
     "poster": {
       "src": "images/hero/engine.webp",
@@ -34,7 +34,7 @@
     "eyebrow": "Next",
     "heading": "What I'm building next",
     "cards": [
-      { "tag": "Upcoming", "title": "Pocket engine build", "origin": "source: Other material" }
+      { "tag": "Upcoming", "title": "pocket engine build", "date": "winter 2026", "origin": "source: Other material" }
     ]
   },
   "about": {
@@ -42,7 +42,7 @@
     "heading": "About",
     "rows": [
       { "label": "Education", "items": ["Stevens ME, Class of 2029, GPA 3.5"], "fromSource": true },
-      { "label": "Minor", "items": ["Aerospace (planned)"], "fromSource": false },
+      { "label": "Minor", "items": ["Minor in Aerospace Engineering"], "fromSource": false, "fromResume": true },
       { "label": "Goal", "items": ["propulsion and engine design, supersonic flight"], "fromSource": true },
       { "label": "Skills", "items": ["SolidWorks (proficient)", "FDM 3D printing", "OpenRocket", "Arduino IDE (proficient)", "C++ (basic)", "Claude Code", "DFM", "iterative prototyping", "FMEA", "risk assessment"], "fromSource": true },
       { "label": "Involvement", "items": ["AIAA Secretary, AY 2026-2027 (minutes, presentations, scheduling forms)", "Varsity cross country and track, NCAA D3", "Lifeguard, Blue Line Pool Management, Jul 2024 to present"], "fromSource": true }

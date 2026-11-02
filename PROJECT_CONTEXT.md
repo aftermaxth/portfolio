@@ -1,7 +1,7 @@
 # PROJECT_CONTEXT
 
 Always-current truth. Edit in place. History lives in BUILD_LOG.md.
-Last updated: 2026-11-02 (end of Phase A)
+Last updated: 2026-11-02 (end of Phase A, content flags resolved)
 
 ## Goal
 Rebuild Charles Thorn's portfolio so it stops reading as vibe coded: solid color, real depth, restrained motion, a real-time 3D hero engine (Phase B), pinned 3D viewers for projects with models. Owner: mechanical engineering at Stevens, seeking Summer 2027 internships (propulsion, thermal, structures, vehicle systems). Long-term goal: engine design for supersonic flight.
@@ -29,8 +29,11 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | Work in Downloads\portfolio2 | It is the clone of aftermaxth/portfolio; training-hubV1 is a different repo |
 | Static HTML rendered at build, JS only enhances | Fast, works with JS off, good for Lighthouse |
 | Generate projects.json from the source file, verify with a script | Verbatim rule; proves it |
-| Source wins over live site; live fills only [add] gaps (Plant, Training Hub) | Task rule |
-| Defaults pending Charles: minor "Aerospace (planned)"; USLI Safety Officer wording from source; pocket engine no date; Robot Arena states the final honestly; MOCORE states leak and unmet 8 psi goal; SAE never names or blames | Task defaults |
+| /toDo wins over the old live site everywhere (titles, roles, names, minor wording, dates); live text fills only [add] gaps (Plant, Training Hub). If two /toDo files disagree, Portfolio_Source_Material.md wins and it is logged | Charles, chat 2026-11-02: the old live site is wrong |
+| Titles and role lines verbatim from the source headings (kicker = the heading's parenthetical, except project 6's builder note) | Charles, chat 2026-11-02 |
+| Minor shown as "Minor in Aerospace Engineering", degree "Bachelor of Engineering, Mechanical Engineering", "Expected May 2029" (resume docx wording) | Charles, chat 2026-11-02 |
+| Pocket engine card: "Upcoming / winter 2026 / pocket engine build" (source line) | Charles, chat 2026-11-02 |
+| USLI, SAE, MOCORE and Robot Arena wording stays exactly as the source has it (MOCORE states the leaks and unmet 8 psi goal; SAE never names or blames; Robot Arena states the final honestly) | Resolved 2026-11-02 |
 | Robot Arena: finalist is true, 31 s was the prelim run (not shown, not in source), never state "3 of 12 finished" | Charles, chat 2026-11-02 |
 | Keep hero copy, contact links, resume PDF (public/assets/resume/..., identical bytes to assets/resume/...) | Task rule |
 | Viewer: yaw-only drag, no zoom/pan, canvas touch-action pan-y, lazy chunk, render only while visible | Touch must never hijack page scroll |
@@ -38,12 +41,13 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | Pages workflow written but triggers on main only | Branch pushes never deploy; settings change needs approval |
 
 ## Content rules and precedence
-1. Source file (verbatim) > live site text (only for [add] gaps) > nothing.
+1. /toDo wins over the old live site. Portfolio_Source_Material.md (verbatim) beats other /toDo files (resume docx is used only for degree, minor and graduation wording) > live site text (only for [add] gaps) > nothing.
 2. Never render [bracket] placeholders; log them in TODO_CHARLES.md.
 3. No em dashes anywhere (site text, docs). No invented facts.
-4. Order: NASA Student Launch, SAE Aero Design, Robot Arena, Automatic Plant Watering, Training Hub V2, MOCORE Lab; then Next (pocket engine build), About, Contact.
+4. Order: NASA University Student Launch Initiative, SAE Aero Design, Robot Arena, Automatic Plant Watering System, Training Hub V2, MOCORE Lab; then Next (pocket engine build, winter 2026), About, Contact.
 5. Cards show one-liner, role, org, timeline, tools, numbers, in-card sections; the toggle opens the rest of the write-up.
-6. Editorial rules applied by tools/extract_source.mjs: builder notes in headings dropped; short titles; Robot Arena "3 of 12" sentence and number dropped.
+6. Editorial rules applied by tools/extract_source.mjs: builder notes in section headings dropped; Robot Arena "3 of 12" sentence and number dropped. tools/verify_content.mjs now also checks titles against the source headings, the Next card against its source line, and degree, minor and graduation against the resume docx (PORTFOLIO_RESUME env, default toDO\Claude outputs).
+7. Known /toDo disagreements (source wins, logged in TODO_CHARLES.md): resume "Vehicle Team (Recovery Subgroup)" and "1 of 2 safety officers" vs source; resume MOCORE line omits the leaks; resume lists ASME, NSBE, Commuter Student Union and "Claude Code (proficient)", source does not.
 
 ## Asset status
 | Project | Model | Images | Layout now |
@@ -54,7 +58,7 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | Automatic Plant Watering | plant-watering.glb 8 kB | plant-enclosure, plant-wiring, plant-final | pinned viewer + gallery |
 | Training Hub V2 | n/a | coach-demo.mp4/.webp, athlete-demo.mp4/.webp | video gallery |
 | MOCORE Lab | n/a | none by design | text-only small card |
-| Pocket engine (Next) | n/a | none | text card, no date |
+| Pocket engine (Next) | n/a | none | text card with date "winter 2026" |
 | Hero engine | Phase B | images/hero/engine.webp (poster, credit unconfirmed) | static poster until Phase B |
 
 ## How to run / build / deploy

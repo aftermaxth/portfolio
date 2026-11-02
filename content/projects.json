@@ -2,7 +2,7 @@
   "projects": [
     {
       "slug": "nasa-student-launch",
-      "title": "NASA Student Launch",
+      "title": "NASA University Student Launch Initiative",
       "kicker": "USLI",
       "sourceTitle": "NASA University Student Launch Initiative (USLI)",
       "role": "Safety Officer (Cross-Team), Vehicle Team, Recovery Subgroup",
@@ -181,7 +181,7 @@
     },
     {
       "slug": "plant-watering",
-      "title": "Automatic Plant Watering",
+      "title": "Automatic Plant Watering System",
       "kicker": "ENGR 111",
       "sourceTitle": "Automatic Plant Watering System (ENGR 111)",
       "role": "Led SolidWorks and Arduino development",
@@ -221,7 +221,7 @@
     {
       "slug": "training-hub-v2",
       "title": "Training Hub V2",
-      "kicker": "Software",
+      "kicker": "software",
       "sourceTitle": "Training Hub V2 (software)",
       "role": "Solo builder, AI-assisted",
       "org": "",
@@ -267,7 +267,7 @@
     {
       "slug": "mocore-lab",
       "title": "MOCORE Lab",
-      "kicker": "Research",
+      "kicker": "",
       "sourceTitle": "MOCORE Lab (small card, no photos)",
       "role": "Undergraduate Student Researcher under Dr. Raviraj Nataraj",
       "org": "",
