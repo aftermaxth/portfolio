@@ -141,3 +141,12 @@
 - Live check: / 200; assets/resume/Thorn_Charles_Resume.pdf 200 and sha256 1ab632710632010d0fccae472766bba304e09e078a00101c1b87af378d141b5b (same as the original); og-image.png 200 (210,687 bytes, the new render); models/hero/jet-engine.glb 200; images/hero/engine-render.webp 200; a bad path returns the new 404 page; title and the "Small combustion engine (side project)" card present. Browser pane at the live URL: hero engine with the Mach plume renders (reduced-motion poster path in that pane), console has no errors.
 - Not done: Lighthouse and audits were run on the local preview build, not re-run on the live URL; real-phone frame rate.
 - Next: Charles reviews the live site; follow-ups go on a branch and a PR.
+
+### 2026-11-02 Resume update | new PDF, verifier fix (branch resume/update-2026-11)
+- Charles (chat): update the resume from C:\Users\thorn\Downloads\Charles_Thorn_Resume_Mechanical.docx and delete the old one. That docx is byte-identical (sha256 65b6c7c9...) to toDO\Claude outputs\Charles_Thorn_Resume_Mechanical.docx, the file verify_content already checks the hero and About wording against, so those checks need no change.
+- Done: exported the docx to PDF with Word (COM ExportAsFixedFormat), 1 page, text and layout checked (rendered to an image with LibreOffice and read; pdftotext compared with the old PDF). The old PDF was an earlier version (had Dean's List, Python, Java, ChatGPT; no NASA USLI entry, no Minor line). Copied over public/assets/resume/Thorn_Charles_Resume.pdf (same path, so links on the site and any external links still work); the old file is replaced, history keeps it. New sha256 80daf2d54b40a397306194331392a304f134f815d6eaba42e8739d6a0143af39, 171,610 bytes. dist carries it at assets/resume/.
+- Also fixed: tools/verify_content.mjs read the old live site from origin/main:index.html, which after the merge is the new page shell, so 9 strings failed (Plant Details, Training Hub features, Next card). It now reads commit f543189 (the last pre-redesign main). Back to OK, 148 strings.
+- Commands: `npm run build` ok; `node tools/verify_content.mjs` OK; `npm run check` 0 em dashes, 0 brackets.
+- Failed attempts: no pdftoppm, so the page image came from LibreOffice (soffice --convert-to png on the PDF).
+- Not done: publishing. The branch needs a PR and a merge to main (deploys automatically); waiting on Charles.
+- Note: the resume says "1 of 12 teams from roughly 650 first-year engineers" and "1 of 2 safety officers"; the site follows the source file instead (logged earlier). Not changed.

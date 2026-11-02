@@ -32,7 +32,9 @@ function docxText(path) {
 }
 const norm = (s) => s.replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, "&").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
 const source = norm(readFileSync(srcPath, "utf8").replace(/\*\*/g, ""));
-const live = norm(execSync("git show origin/main:index.html", { cwd: resolve(here, ".."), encoding: "utf8" }));
+// The old live site: the last commit before the redesign was merged (origin/main now holds the new site).
+const OLD_SITE = "f543189";
+const live = norm(execSync(`git show ${OLD_SITE}:index.html`, { cwd: resolve(here, ".."), encoding: "utf8" }));
 const { projects } = JSON.parse(readFileSync(resolve(here, "../content/projects.json"), "utf8"));
 
 let checked = 0;
