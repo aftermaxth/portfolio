@@ -1,8 +1,9 @@
-// Real-time hero: the engine runs at full afterburner inside .hero__stage.
-// The poster image stays underneath and is shown whenever this cannot run (no WebGL, reduced motion, no JS).
-// Decorative only: no pointer input, so the page always scrolls normally.
+// Real-time hero. The engine is framed into .hero__frame (an empty zone in the hero layout that bleeds
+// past the right edge of the viewport): inlet up and right, off the edge; exhaust trailing down and
+// left toward the Projects section. The canvas is transparent, so the engine sits on the page itself.
+// The poster image underneath is shown whenever this cannot run (no WebGL, reduced motion, no JS).
 //
-// Engine model: "Jet Engine" by shogo.gfx, CC BY 4.0 (credited in the hero caption and THIRD_PARTY.md).
+// Engine model: "Jet Engine" by shogo.gfx, CC BY 4.0 (credited in the hero and THIRD_PARTY.md).
 // Changes made here: simplified and compressed (tools/build_hero_model.mjs), fan color set to the site
 // accent, afterburner plume added. If the model cannot load, the procedural engine in engine.js is used.
 import { AnimationMixer, Box3, Color, Group, MathUtils, PointLight, Vector3 } from "three";
@@ -10,10 +11,27 @@ import { createStage } from "./render.js";
 import { buildPlume } from "./plume.js";
 
 const MODEL_URL = `${import.meta.env.BASE_URL}models/hero/jet-engine.glb`;
-const PITCH = MathUtils.degToRad(10);
 const ACCENT = new Color("#ff8100");
+const deg = MathUtils.degToRad;
 
-// Loads the model and puts it in the same frame as the procedural engine: axis on +x, inlet at x = 0.
+// Pose: yaw shows the cut side at three quarters; roll turns the inlet up and to the right.
+const YAW = deg(18);
+const ROLL = Math.PI + deg(33);
+const ELEVATION = deg(6);
+const THROTTLE_PERIOD = 6.5; // seconds per throttle cycle
+
+// Where the engine sits inside the zone (fractions of its width and height) and how long it is.
+// "wide" is the side-by-side layout (900 px and up); "medium" (600 to 899) and "narrow" are stacked.
+// fade: plume fade widths toward the left, bottom and top canvas edges (fractions of width/height).
+const LAYOUT = {
+  wide: { cx: 0.7, cy: 0.38, length: 0.58, fade: [0.22, 0.24, 0] },
+  medium: { cx: 0.6, cy: 0.53, length: 0.48, fade: [0, 0.24, 0] },
+  narrow: { cx: 0.6, cy: 0.42, length: 0.58, fade: [0, 0.24, 0] },
+};
+const wideQuery = matchMedia("(min-width: 900px)");
+const mediumQuery = matchMedia("(min-width: 600px)");
+const currentLayout = () => (wideQuery.matches ? "wide" : mediumQuery.matches ? "medium" : "narrow");
+
 async function loadModel() {
   const [{ GLTFLoader }, { MeshoptDecoder }] = await Promise.all([
     import("three/addons/loaders/GLTFLoader.js"),
@@ -24,18 +42,20 @@ async function loadModel() {
   model.traverse((node) => {
     if (node.isMesh && node.material.name === "accent-yellow") node.material.color.copy(ACCENT);
   });
+  // Same frame as the procedural engine: axis on +x, inlet at x = 0.
   const box = new Box3().setFromObject(model);
   model.position.set(-box.min.x, -(box.min.y + box.max.y) / 2, -(box.min.z + box.max.z) / 2);
   const engine = new Group();
   engine.add(model);
+  // The model's own clip spins the fan, compressor and turbine; it loops continuously.
   const mixer = new AnimationMixer(model);
   gltf.animations.forEach((clip) => mixer.clipAction(clip).play());
   return {
     engine,
+    length: box.max.x - box.min.x,
     exit: box.max.x - box.min.x - 0.04, // flame starts just inside the exhaust rim
     exitRadius: 0.5,
-    yaw: MathUtils.degToRad(28),
-    update: (dt) => mixer.update(dt),
+    update: (dt, rate) => { mixer.timeScale = rate; mixer.update(dt); },
   };
 }
 
@@ -43,93 +63,120 @@ async function proceduralEngine() {
   const { buildEngine, EXIT, EXIT_RADIUS } = await import("./engine.js");
   const engine = buildEngine();
   const fan = engine.userData.fan;
-  return { engine, exit: EXIT, exitRadius: EXIT_RADIUS, yaw: MathUtils.degToRad(40), update: (dt) => { fan.rotation.x += dt * 1.6; } };
+  return { engine, length: EXIT, exit: EXIT, exitRadius: EXIT_RADIUS, update: (dt, rate) => { fan.rotation.x += dt * 6 * rate; } };
 }
 
 export async function createHero(root) {
-  const stage = await createStage(root, { fov: 22, exposure: 1.05, canvasClass: "hero__canvas" });
+  const stage = await createStage(root, { fov: 24, exposure: 1.05, canvasClass: "hero__canvas" });
   const { canvas, scene, camera, renderer } = stage;
   canvas.setAttribute("aria-hidden", "true");
+  const hero = root.closest(".hero") || root;
 
   let source;
   try { source = await loadModel(); } catch (error) {
     console.info("Hero model unavailable, using the procedural engine:", error.message);
     source = await proceduralEngine();
   }
-  const { engine, exit, exitRadius } = source;
-  const BASE_YAW = source.yaw;
+  const { engine, exit, exitRadius, length } = source;
 
-  const box = new Box3().setFromObject(engine);
-  const size = box.getSize(new Vector3());
-  stage.contactShadow(engine, {
-    size: [size.x * 1.15, size.z * 2.4],
-    center: [(box.min.x + box.max.x) / 2, (box.min.z + box.max.z) / 2],
-    bottom: box.min.y - size.y * 0.3,
-    height: size.y * 1.2,
-    darkness: 1.1, blur: 5, opacity: 0.7,
-  });
+  const plume = buildPlume({ exit, radius: exitRadius, steps: root.clientWidth < 600 ? 32 : 48 });
+  const flameLight = new PointLight(0xc8a8ff, 5, 3, 1.5);
+  flameLight.position.set(exit + 0.6, 0, 0);
 
-  const plume = buildPlume({ exit, radius: exitRadius });
-  const flameLight = new PointLight(0xff7a2a, 6, 3, 1.5);
-  flameLight.position.set(exit + 0.5, 0, 0);
-
-  // Center the whole thing (engine plus plume) on the pivot.
+  // Pivot at the middle of the engine body (the plume hangs off it).
   const body = new Group();
   body.add(engine, plume, flameLight);
-  const length = plume.userData.visibleExtent;
   body.position.x = -length / 2;
   const pivot = new Group();
+  pivot.rotation.order = "ZYX";
   pivot.add(body);
   scene.add(pivot);
-  stage.key.position.set(-2, 5, 6);
+  stage.key.position.set(3, 5, 6);
 
-  // ---- fit: search the camera distance so the engine and plume fill the frame with a margin ----
-  const corners = [];
-  const half = new Vector3(length / 2, size.y * 0.6, size.z * 0.6);
-  for (const sx of [-1, 1]) for (const sy of [-1, 1]) for (const sz of [-1, 1]) corners.push(new Vector3(sx * half.x, sy * half.y, sz * half.z));
-  const world = new Vector3();
+  let forcedLayout = null; // set while rendering a poster for a given layout
+  for (const q of [wideQuery, mediumQuery]) q.addEventListener("change", () => stage.resize());
+  const inlet = new Vector3(-length / 2, 0, 0), outlet = new Vector3(length / 2, 0, 0);
+  const a = new Vector3(), b = new Vector3();
+  const pose = (yaw = YAW, roll = ROLL) => { pivot.rotation.set(0, yaw, roll); pivot.updateMatrixWorld(true); };
+
+  // ---- fit: distance sets the engine's on-screen length; a view offset moves it to its spot ----
   stage.setFit((cam) => {
-    const dir = new Vector3(0, Math.sin(PITCH), Math.cos(PITCH));
-    const margin = cam.aspect < 1.2 ? 0.98 : 0.92;
-    let lo = 0.5, hi = 200;
-    pivot.rotation.y = BASE_YAW;
-    pivot.updateMatrixWorld(true);
-    for (let i = 0; i < 24; i++) {
+    const w = renderer.domElement.width, h = renderer.domElement.height;
+    const { cx, cy, length: share, fade: edges } = LAYOUT[forcedLayout || currentLayout()];
+    plume.userData.setEdges(w, h, edges[0] * w, edges[1] * h, edges[2] * h);
+    const dir = new Vector3(0, Math.sin(ELEVATION), Math.cos(ELEVATION));
+    pose();
+    cam.clearViewOffset();
+    let lo = 0.5, hi = 400;
+    for (let i = 0; i < 30; i++) {
       const d = (lo + hi) / 2;
       cam.position.copy(dir).multiplyScalar(d);
       cam.lookAt(0, 0, 0);
-      cam.near = 0.1; cam.far = d * 2;
+      cam.near = 0.1; cam.far = d * 3;
       cam.updateProjectionMatrix(); cam.updateMatrixWorld();
-      const fits = corners.every((c) => {
-        world.copy(c).applyMatrix4(pivot.matrixWorld).project(cam);
-        return Math.abs(world.x) <= margin && Math.abs(world.y) <= margin;
-      });
-      if (fits) hi = d; else lo = d;
+      a.copy(inlet).applyMatrix4(pivot.matrixWorld).project(cam);
+      b.copy(outlet).applyMatrix4(pivot.matrixWorld).project(cam);
+      const px = Math.hypot((a.x - b.x) * w / 2, (a.y - b.y) * h / 2);
+      if (px > share * w) lo = d; else hi = d;
     }
     cam.position.copy(dir).multiplyScalar(hi);
     cam.lookAt(0, 0, 0);
-    const reach = half.length();
-    cam.near = Math.max(hi - reach * 1.3, 0.05);
-    cam.far = hi + reach * 1.3;
+    const reach = length / 2 + plume.userData.length + 1;
+    cam.near = Math.max(hi - reach, 0.05);
+    cam.far = hi + reach;
+    cam.setViewOffset(w, h, w / 2 - cx * w, h / 2 - cy * h, w, h);
     cam.updateProjectionMatrix();
   });
 
-  // ---- per frame: blades turn, flame flickers, the engine yaws a little as the hero scrolls away ----
-  let yaw = BASE_YAW, last = 0;
-  const pose = (t, dt) => {
-    source.update(dt);
-    plume.userData.tick(t);
-    flameLight.intensity = 6 * (0.94 + 0.06 * Math.sin(t * 29) * Math.sin(t * 13));
+  // ---- drag to rotate (yaw only). Vertical swipes still scroll the page (touch-action: pan-y). ----
+  let dragYaw = 0, velocity = 0, dragging = false, lastX = 0;
+  canvas.addEventListener("pointerdown", (e) => {
+    dragging = true; lastX = e.clientX; velocity = 0;
+    canvas.setPointerCapture?.(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const step = (e.clientX - lastX) * 0.006;
+    lastX = e.clientX; dragYaw += step; velocity = step;
+  });
+  const end = () => { dragging = false; };
+  canvas.addEventListener("pointerup", end);
+  canvas.addEventListener("pointercancel", end);
+
+  // ---- per frame ----
+  let last = 0, scrollYaw = 0, fade = 1;
+  const state = (t) => {
+    const cycle = 0.5 - 0.5 * Math.cos((t / THROTTLE_PERIOD) * Math.PI * 2); // 0 .. 1
+    return { cycle, throttle: 0.86 + 0.14 * cycle };
+  };
+  const drive = (t, dt) => {
+    const { cycle, throttle } = state(t);
+    source.update(dt, 0.75 + 0.5 * cycle);
+    plume.userData.update({ time: t, throttle, pulse: cycle, fade });
+    flameLight.intensity = 5 * fade * (0.8 + 0.2 * cycle) * (0.95 + 0.05 * Math.sin(t * 31));
   };
   stage.setStep((ms) => {
     const t = ms / 1000;
     const dt = last ? Math.min(t - last, 0.1) : 0;
     last = t;
-    pose(t, dt);
-    const p = MathUtils.clamp(window.scrollY / Math.max(root.offsetTop + root.offsetHeight, 1), 0, 1);
-    const target = BASE_YAW + p * MathUtils.degToRad(14);
-    yaw += (target - yaw) * 0.08;
-    pivot.rotation.y = yaw;
+
+    // Scroll: the engine yaws slowly and the plume fades as the hero leaves the screen.
+    const rect = hero.getBoundingClientRect();
+    const p = MathUtils.clamp(-rect.top / Math.max(rect.height, 1), 0, 1);
+    scrollYaw += (deg(16) * p - scrollYaw) * 0.08;
+    fade = 1 - MathUtils.smoothstep(p, 0.15, 0.75);
+
+    // Drag inertia, then a slow spring back to the composed pose.
+    if (!dragging) {
+      dragYaw += velocity; velocity *= 0.92;
+      if (Math.abs(velocity) < 0.0005) dragYaw *= 0.97;
+    }
+
+    // Idle drift: a slow, small sway that never repeats exactly.
+    const drift = deg(2.5) * Math.sin(t * 0.27) + deg(1.2) * Math.sin(t * 0.61 + 1.3);
+    const sway = deg(1.2) * Math.sin(t * 0.21 + 0.4);
+    pose(YAW + drift + dragYaw + scrollYaw, ROLL + sway);
+    drive(t, dt);
     return true;
   });
 
@@ -137,23 +184,61 @@ export async function createHero(root) {
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   root.dataset.state = "ready";
 
-  return {
+  // Screen rectangles of the engine (from sampled mesh vertices) and the plume volume, in CSS px,
+  // viewport space. Used by the QA script tools/hero_frames.mjs.
+  const toScreen = (points) => {
+    const r = canvas.getBoundingClientRect();
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const v of points) {
+      v.project(camera);
+      const px = (v.x + 1) / 2 * r.width, py = (1 - v.y) / 2 * r.height;
+      x0 = Math.min(x0, px); y0 = Math.min(y0, py); x1 = Math.max(x1, px); y1 = Math.max(y1, py);
+    }
+    return { left: r.left + x0, top: r.top + y0, right: r.left + x1, bottom: r.top + y1 };
+  };
+  const engineRect = () => {
+    const points = [];
+    engine.traverse((m) => {
+      const pos = m.isMesh && m.geometry.attributes.position;
+      if (!pos) return;
+      const stride = Math.max(1, Math.floor(pos.count / 600));
+      for (let i = 0; i < pos.count; i += stride) points.push(new Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld));
+    });
+    return toScreen(points);
+  };
+  const plumeRect = () => {
+    const box = new Box3().setFromObject(plume), points = [];
+    for (const x of [box.min.x, box.max.x]) for (const y of [box.min.y, box.max.y]) for (const z of [box.min.z, box.max.z]) points.push(new Vector3(x, y, z));
+    return toScreen(points);
+  };
+
+  const api = {
     camera,
-    // Renders one still at a fixed size on the stage color (used to make the poster image).
-    async snapshot(width, height, type = "image/webp", quality = 0.9) {
+    engineRect,
+    plumeRect,
+    frames: stage.frames,
+    // Renders one still at a fixed size and pose on the page color (used to make the poster images).
+    async snapshot(width, height, which = "wide", type = "image/webp", quality = 0.9) {
+      const saveFade = fade;
+      forcedLayout = which;
       renderer.setPixelRatio(1);
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       stage.frame();
-      pivot.rotation.y = BASE_YAW;
-      pose(1.3, 0);
-      renderer.setClearColor(0x111317, 1);
+      pose();
+      fade = 1;
+      drive(2.4, 0);
+      renderer.setClearColor(0x0a0b0d, 1);
       renderer.render(scene, camera);
       const blob = await new Promise((resolve) => canvas.toBlob(resolve, type, quality));
       renderer.setClearColor(0x000000, 0);
+      fade = saveFade;
+      forcedLayout = null;
       stage.resize();
       return blob;
     },
     dispose: () => stage.dispose(),
   };
+  root.__hero = api;
+  return api;
 }

@@ -91,11 +91,12 @@ export async function createStage(root, { fov = 28, exposure = 1, label = "", ca
 
   // ---- loop: `step(time)` returns true to keep animating; stops when off screen ----
   let step = () => false;
-  let raf = 0, visible = false;
+  let raf = 0, visible = false, frames = 0;
   const tick = (time) => {
     raf = 0;
     const more = step(time);
     renderer.render(scene, camera);
+    frames++;
     if (more && visible) raf = requestAnimationFrame(tick);
   };
   function wake() { if (visible && !raf) raf = requestAnimationFrame(tick); }
@@ -115,6 +116,7 @@ export async function createStage(root, { fov = 28, exposure = 1, label = "", ca
   return {
     canvas, renderer, scene, camera, key, frame, resize, wake,
     setStep(fn) { step = fn; wake(); },
+    frames: () => frames, // frames drawn so far (QA: proves the loop pauses off screen)
     setFit(fn) { fit = fn; frame(); wake(); },
     contactShadow: (object, options) => bakeContactShadow(renderer, object, options),
     dispose() {

@@ -150,6 +150,22 @@ export default function sitePlugin() {
     </li>`;
   }
 
+  // Hero poster: the wide render, plus "<name>-narrow" (under 600 px) and "<name>-medium" (600 to 899 px)
+  // renders for the stacked layouts when they exist. Sizes come from the files, so the markup always
+  // matches the renders.
+  function heroPoster(poster) {
+    const size = (rel) => imageSize(readFileSync(resolve(root, rel)), rel);
+    const wide = size(poster.src);
+    const variant = (suffix, media) => {
+      const rel = poster.src.replace(/(\.[a-z]+)$/i, `${suffix}$1`);
+      if (!existsSync(resolve(root, rel))) return "";
+      const s = size(rel);
+      return `<source media="${media}" srcset="${url(rel)}" width="${s.width}" height="${s.height}">`;
+    };
+    const sources = variant("-narrow", "(max-width: 599px)") + variant("-medium", "(min-width: 600px) and (max-width: 899px)");
+    return `<picture class="hero__picture">${sources}<img class="hero__poster" src="${url(poster.src)}" width="${wide.width}" height="${wide.height}" alt="${esc(poster.alt)}" fetchpriority="high" decoding="async"></picture>`;
+  }
+
   function bodyHTML(site, projects, assets) {
     const h = site.hero;
     const btn = (b) => `<a class="button ${b.primary ? "button--primary" : "button--ghost"}" href="${esc(b.href)}"${b.external ? ' target="_blank" rel="noopener"' : ""}>${esc(b.label)} <span aria-hidden="true">${b.glyph}</span></a>`;
@@ -164,23 +180,19 @@ export default function sitePlugin() {
   </header>
   <main id="main">
     <section class="hero" id="top" aria-labelledby="hero-title" data-hero>
-      <div class="container hero__top">
+      <div class="container hero__grid">
         <p class="label hero__eyebrow" data-intro><span>01</span> / ${esc(h.eyebrow)}</p>
         <h1 class="hero__title" id="hero-title" data-intro>${esc(site.name)}</h1>
-        <div class="grid hero__lower">
-          <div class="hero__copy" data-intro>
-            <p class="hero__lede">${esc(h.lede)}</p>
-            <div class="button-row">${h.buttons.map(btn).join("")}</div>
-          </div>
+        <div class="hero__copy" data-intro>
+          <p class="hero__lede">${esc(h.lede)}</p>
+          <div class="button-row">${h.buttons.map(btn).join("")}</div>
+        </div>
+        <div class="hero__frame" data-hero-stage>${heroPoster(h.poster)}</div>
+        <div class="hero__meta">
           <dl class="specs" data-intro>${h.specs.map((s) => `<div class="specs__row"><dt class="label">${esc(s.label)}</dt><dd>${s.values.map((v) => `<span class="specs__line">${esc(v)}</span>`).join("")}</dd></div>`).join("")}</dl>
+          <p class="hero__credit">${creditHTML(h.poster.credit)}</p>
         </div>
       </div>
-      <figure class="hero__stage">
-        <div class="hero__frame" data-hero-stage>
-          <img class="hero__poster" src="${url(h.poster.src)}" width="${h.poster.width}" height="${h.poster.height}" alt="${esc(h.poster.alt)}" fetchpriority="high" decoding="async">
-        </div>
-        <figcaption class="hero__credit label">${creditHTML(h.poster.credit)}</figcaption>
-      </figure>
     </section>
 
     <section class="section" id="projects" aria-labelledby="projects-title">
