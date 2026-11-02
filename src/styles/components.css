@@ -37,9 +37,14 @@
 .specs__row { padding-block: var(--sp-2); border-top: 1px solid var(--color-rule); }
 .specs__row dd { margin-top: 4px; }
 .specs__line { display: block; }
-.hero__stage { position: relative; margin-top: var(--sp-6); background: var(--color-surface); }
-.hero__poster { width: 100%; aspect-ratio: 2040 / 630; min-height: 14rem; object-fit: cover; }
+.hero__stage { position: relative; margin-top: var(--sp-6); background: var(--color-surface); overflow: hidden; }
+.hero__poster { width: 100%; aspect-ratio: 2040 / 630; min-height: 14rem; object-fit: cover; transition: opacity var(--dur-3) var(--ease); }
 .hero__credit { position: absolute; right: var(--gutter); bottom: var(--sp-2); }
+/* Live engine: drawn over the poster, fades in once its first frame exists. Never takes pointer input. */
+.hero__canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity var(--dur-3) var(--ease); }
+.hero__stage[data-state="ready"] .hero__canvas { opacity: 1; }
+.hero__stage[data-state="ready"] .hero__poster { opacity: 0; }
+.hero__stage[data-state="ready"] .hero__credit { display: none; }
 @media (min-width: 900px) {
   .hero__copy { grid-column: 1 / span 7; }
   .specs { grid-column: 9 / span 4; align-self: end; }
