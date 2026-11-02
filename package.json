@@ -1,0 +1,25 @@
+{
+  "name": "portfolio",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "content": "node tools/extract_source.mjs && node tools/verify_content.mjs",
+    "models": "node tools/build_models.mjs",
+    "check": "node tools/check_site.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/archivo": "5.3.0",
+    "@fontsource/dm-mono": "5.3.0",
+    "gsap": "3.15.0",
+    "lenis": "1.3.27",
+    "three": "0.187.0",
+    "vite": "8.3.5"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "4.5.1"
+  }
+}
