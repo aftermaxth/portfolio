@@ -1,0 +1,58 @@
+/* tokens.css: every color, size, space and motion value on the site comes from here. */
+:root {
+  color-scheme: dark;
+
+  /* Color: solid fills only. Graphite surfaces and one afterburner-orange accent. */
+  --color-bg: #0a0b0d;
+  --color-surface: #111317;
+  --color-surface-2: #171a1f;
+  --color-ink: #f2f1ee;
+  --color-ink-muted: #a0a6ad;
+  --color-rule: #23272d;
+  --color-accent: #ff8100;
+  --color-accent-ink: #0a0b0d;
+  --color-focus: #7cc4ff;
+
+  /* Type: one variable sans, one mono for labels and data */
+  --font-sans: "Archivo Variable", "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --text-label: 0.8125rem;
+  --text-body: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);
+  --text-lede: clamp(1.25rem, 1.05rem + 0.9vw, 1.75rem);
+  --text-h3: clamp(2rem, 1.2rem + 3.4vw, 4.5rem);
+  --text-h2: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
+  --text-h1: clamp(3.5rem, 1rem + 12vw, 11rem);
+
+  /* Space: 8px scale */
+  --sp-1: 0.5rem;
+  --sp-2: 1rem;
+  --sp-3: 1.5rem;
+  --sp-4: 2rem;
+  --sp-5: 3rem;
+  --sp-6: 4rem;
+  --sp-7: 6rem;
+  --sp-8: 8rem;
+
+  /* Layout: 12 columns */
+  --container: 80rem;
+  --gutter: var(--sp-2);
+  --col-gap: var(--sp-2);
+  --header-h: 4rem;
+  --tap: 2.75rem;
+  --measure: 62ch;
+  --radius: 2px;
+
+  /* Motion: one curve, three durations (read by js/motion.js too) */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-1: 200ms;
+  --dur-2: 500ms;
+  --dur-3: 900ms;
+}
+
+@media (min-width: 640px) {
+  :root { --gutter: var(--sp-3); --col-gap: var(--sp-3); }
+}
+@media (min-width: 1024px) {
+  :root { --gutter: var(--sp-4); }
+}
