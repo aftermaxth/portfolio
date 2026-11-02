@@ -171,6 +171,13 @@
 /* ---------- Gallery ---------- */
 .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--sp-3); }
 .project__gallery { margin-top: var(--sp-6); }
+/* Under a viewer the stills sit in one even row (3 across, or 2), all the same frame shape. */
+.project__gallery .figure__frame { aspect-ratio: 4 / 3; }
+.project__gallery .figure__frame img { height: 100%; object-fit: cover; }
+@media (min-width: 37.5rem) {
+  .project__gallery[data-count="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project__gallery[data-count="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 .figure { min-width: 0; }
 .figure--wide { grid-column: 1 / -1; }
 .figure__frame { background: var(--color-surface); border-radius: var(--radius); overflow: hidden; }
@@ -184,6 +191,7 @@
 .next-card__tag { color: var(--color-accent); }
 .next-card__title { margin-top: var(--sp-1); font-size: var(--text-lede); font-weight: 650; line-height: 1.2; }
 .next-card__title::first-letter { text-transform: uppercase; }
+.next-card__text { margin-top: var(--sp-2); color: var(--color-ink-muted); max-width: 60ch; }
 .rows { grid-column: 1 / -1; }
 .rows__row { display: grid; gap: var(--sp-1); padding-block: var(--sp-3); border-top: 1px solid var(--color-rule); }
 .rows__row dd p + p { margin-top: var(--sp-1); }

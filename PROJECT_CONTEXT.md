@@ -32,7 +32,7 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | /toDo wins over the old live site everywhere (titles, roles, names, minor wording, dates); live text fills only [add] gaps (Plant, Training Hub). If two /toDo files disagree, Portfolio_Source_Material.md wins and it is logged | Charles, chat 2026-11-02: the old live site is wrong |
 | Titles and role lines verbatim from the source headings (kicker = the heading's parenthetical, except project 6's builder note) | Charles, chat 2026-11-02 |
 | Minor shown as "Minor in Aerospace Engineering", degree "Bachelor of Engineering, Mechanical Engineering", "Expected May 2029" (resume docx wording) | Charles, chat 2026-11-02 |
-| Pocket engine card: "Upcoming / winter 2026 / pocket engine build" (source line) | Charles, chat 2026-11-02 |
+| Next card = the old site's engine card, verbatim: tag "Exploring", title "Small engine (side project)", text "Winter 2027. Design not started. Open between a plastic print with a water-cooled setup to keep it from melting, or metal, either printed by an outside company or machined by hand." Replaces the source-line card ("pocket engine build, winter 2026", called weak) | Charles, chat 2026-11-02 (second request, overrides the earlier source-line decision). The source says winter 2026, the old text says Winter 2027: flagged in TODO_CHARLES.md |
 | USLI, SAE, MOCORE and Robot Arena wording stays exactly as the source has it (MOCORE states the leaks and unmet 8 psi goal; SAE never names or blames; Robot Arena states the final honestly) | Resolved 2026-11-02 |
 | Robot Arena: finalist is true, 31 s was the prelim run (not shown, not in source), never state "3 of 12 finished" | Charles, chat 2026-11-02 |
 | Keep hero copy, contact links, resume PDF (public/assets/resume/Thorn_Charles_Resume.pdf, same public URL path as the old site, sha256 1ab63271...) | Task rule |
@@ -53,7 +53,7 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 1. /toDo wins over the old live site. Portfolio_Source_Material.md (verbatim) beats other /toDo files (resume docx is used only for degree, minor and graduation wording) > live site text (only for [add] gaps) > nothing.
 2. Never render [bracket] placeholders; log them in TODO_CHARLES.md.
 3. No em dashes anywhere (site text, docs). No invented facts.
-4. Order: NASA University Student Launch Initiative, SAE Aero Design, Robot Arena, Automatic Plant Watering System, Training Hub V2, MOCORE Lab; then Next (pocket engine build, winter 2026), About, Contact.
+4. Order: NASA University Student Launch Initiative, SAE Aero Design, Robot Arena, Automatic Plant Watering System, Training Hub V2, MOCORE Lab; then Next (small engine side project, old-site wording), About, Contact.
 5. Cards show one-liner, role, org, timeline, tools, numbers, in-card sections; the toggle opens the rest of the write-up.
 6. Editorial rules applied by tools/extract_source.mjs: builder notes in section headings dropped; Robot Arena "3 of 12" sentence and number dropped. tools/verify_content.mjs now also checks titles against the source headings, the Next card against its source line, and degree, minor and graduation against the resume docx (PORTFOLIO_RESUME env, default toDO\Claude outputs).
 7. Known /toDo disagreements (source wins, logged in TODO_CHARLES.md): resume "Vehicle Team (Recovery Subgroup)" and "1 of 2 safety officers" vs source; resume MOCORE line omits the leaks; resume lists ASME, NSBE, Commuter Student Union and "Claude Code (proficient)", source does not.
@@ -63,11 +63,11 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 |---|---|---|---|
 | NASA Student Launch | none | none | text-only. Needs CAD renders, OpenRocket sim, photos, FMEA screenshot |
 | SAE Aero Design | none | none | text-only. Needs forward fuselage CAD, renders |
-| Robot Arena | robot-arena--housing.glb 24 kB, robot-arena--assembly.glb 17 kB (housing + ArUco panel only) | robot-build, robot-housing, robot-assembly (.webp) | pinned viewer (2 tabs) + gallery. Sensor count (3 vs 5) still open; robot-assembly.webp render and its alt text still show the full assembly |
-| Automatic Plant Watering | plant-watering.glb 8 kB | plant-enclosure, plant-wiring, plant-final | pinned viewer + gallery |
+| Robot Arena | robot-arena--housing.glb 24 kB, robot-arena--assembly.glb 17 kB (housing + ArUco panel only) | robot-housing, robot-assembly, robot-build (.webp), shown as an equal row of 3 under the viewer (no full-width image) | pinned viewer (2 tabs) + gallery. Sensor count (3 vs 5) still open; robot-assembly.webp render and its alt text still show the full assembly |
+| Automatic Plant Watering | plant-watering.glb 8 kB | plant-final, plant-wiring (plant-enclosure.webp deleted, Charles: ugly) | pinned viewer + row of 2 |
 | Training Hub V2 | n/a | coach-demo.mp4/.webp, athlete-demo.mp4/.webp | video gallery |
 | MOCORE Lab | n/a | none by design | text-only small card |
-| Pocket engine (Next) | n/a | none | text card with date "winter 2026" |
+| Pocket engine (Next) | n/a | none | text card, old-site wording |
 | Hero engine | models/hero/jet-engine.glb 1.49 MB ("Jet Engine" by shogo.gfx, CC BY 4.0, source toDO\portfolio_update\jet_engine.glb); procedural engine.js is the fallback | posters images/hero/engine-render.webp (wide), -medium, -narrow (renders of the live scene). Old photo engine.webp deleted | live canvas in the engine zone; poster for reduced motion, no WebGL, no JS; credit on the meta row |
 
 ## How to run / build / deploy

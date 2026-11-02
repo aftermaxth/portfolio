@@ -1,6 +1,6 @@
 {
   "robot-arena": {
-    "order": ["robot-build.webp", "robot-housing.webp", "robot-assembly.webp"],
+    "order": ["robot-housing.webp", "robot-assembly.webp", "robot-build.webp"],
     "files": {
       "robot-build.webp": { "alt": "The finished robot on a lab bench: tracked drive base, ultrasonic sensors, and the 3D-printed frame carrying the control boards.", "caption": "Competition robot, final build" },
       "robot-housing.webp": { "alt": "SolidWorks model of the printed chassis frame: vertical column posts, angled braces, and two circular lightening cutouts through the front sensor panel.", "caption": "Main housing, SolidWorks model" },
@@ -12,9 +12,8 @@
     }
   },
   "plant-watering": {
-    "order": ["plant-enclosure.webp", "plant-wiring.webp", "plant-final.webp"],
+    "order": ["plant-final.webp", "plant-wiring.webp"],
     "files": {
-      "plant-enclosure.webp": { "alt": "SolidWorks model of the final enclosure seen from behind: the dividing wall with its wire-routing cutouts, the bottle slot at the base, and the pump in its side slot.", "caption": "Final enclosure, wire routing and pump slot" },
       "plant-wiring.webp": { "alt": "Bench wiring: capacitive soil moisture sensor, DHT11 temperature and humidity sensor and a photocell on a breadboard, all wired to an ESP32.", "caption": "Wiring: moisture sensor, DHT11, photocell, ESP32" },
       "plant-final.webp": { "alt": "The same enclosure from the front, with the motor controller, ESP32 and breadboard each seated in their own slot on the rear shelf.", "caption": "Every board in its own slot on the rear shelf" }
     },

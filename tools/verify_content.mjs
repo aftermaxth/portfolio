@@ -63,8 +63,12 @@ projects.forEach((p, i) => {
   const full = p.kicker ? `${p.title} (${p.kicker})` : p.title;
   check(`${p.slug} heading`, `${i + 1}. ${full}`, source);
 });
-// Next card: the source line "Upcoming: pocket engine build, winter 2026".
-for (const c of site.next.cards) check("next card", `${c.tag}: ${c.title}, ${c.date}`, source);
+// Next card: the old site's wording (Charles chose it over the source line, 2026-11-02).
+for (const c of site.next.cards) {
+  check("next card tag", c.tag, live);
+  check("next card title", c.title, live);
+  check("next card text", c.text, live);
+}
 // Degree, minor and graduation: exact resume wording.
 const resume = norm(docxText(resumePath));
 for (const s of site.hero.specs.filter((x) => /resume/.test(x.origin))) s.values.forEach((v) => check(`hero / ${s.label}`, v, resume));

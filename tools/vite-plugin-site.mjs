@@ -86,8 +86,8 @@ export default function sitePlugin() {
     return { models, media };
   }
 
-  const figure = (m) => {
-    const wide = m.width / m.height >= 1.4 ? " figure--wide" : "";
+  const figure = (m, allowWide = true) => {
+    const wide = allowWide && m.width / m.height >= 1.4 ? " figure--wide" : "";
     const cap = m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : "";
     const dims = m.width ? ` width="${m.width}" height="${m.height}"` : "";
     const inner = m.type === "video"
@@ -123,7 +123,7 @@ export default function sitePlugin() {
     } else if (layout === "gallery") {
       mediaCol = `<div class="project__media project__media--gallery gallery">${media.map(figure).join("")}</div>`;
     }
-    const galleryRow = layout === "model" && media.length ? `<div class="project__gallery gallery">${media.map(figure).join("")}</div>` : "";
+    const galleryRow = layout === "model" && media.length ? `<div class="project__gallery gallery" data-count="${media.length}">${media.map((m) => figure(m, false)).join("")}</div>` : "";
     const toggle = moreSecs.length
       ? `<button type="button" class="project__toggle" data-toggle aria-expanded="false" aria-controls="more-${p.slug}" hidden><span data-toggle-label>Read the full write-up</span><span aria-hidden="true" class="project__toggle-glyph">+</span></button>`
       : "";
@@ -202,7 +202,7 @@ export default function sitePlugin() {
 
     <section class="section" id="next" aria-labelledby="next-title">
       ${head("03", site.next, "next-title")}
-      <div class="container grid"><ul class="next-list">${site.next.cards.map((c) => `<li class="next-card" data-reveal><p class="label next-card__tag">${esc(c.tag)}${c.date ? ` / ${esc(c.date)}` : ""}</p><h3 class="next-card__title">${esc(c.title)}</h3></li>`).join("")}</ul></div>
+      <div class="container grid"><ul class="next-list">${site.next.cards.map((c) => `<li class="next-card" data-reveal><p class="label next-card__tag">${esc(c.tag)}${c.date ? ` / ${esc(c.date)}` : ""}</p><h3 class="next-card__title">${esc(c.title)}</h3>${c.text ? `<p class="next-card__text">${esc(c.text)}</p>` : ""}</li>`).join("")}</ul></div>
     </section>
 
     <section class="section" id="about" aria-labelledby="about-title">

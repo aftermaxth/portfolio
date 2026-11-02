@@ -40,7 +40,7 @@
     "eyebrow": "Next",
     "heading": "What I'm building next",
     "cards": [
-      { "tag": "Upcoming", "title": "pocket engine build", "date": "winter 2026", "origin": "source: Other material" }
+      { "tag": "Exploring", "title": "Small engine (side project)", "text": "Winter 2027. Design not started. Open between a plastic print with a water-cooled setup to keep it from melting, or metal, either printed by an outside company or machined by hand.", "origin": "live: old site Next card, Charles asked for it 2026-11-02" }
     ]
   },
   "about": {
