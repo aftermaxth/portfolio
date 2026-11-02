@@ -11,7 +11,9 @@ Interaction references (pattern only, never copy code, copy or layout): chadjfra
 - Repo (local): C:\Users\thorn\Downloads\portfolio2 (origin https://github.com/aftermaxth/portfolio). Work branch: `redesign` (cut from origin/main f543189). Never push or merge to main without Charles.
 - Live: https://aftermaxth.github.io/portfolio/ . Pages is currently "legacy", source = main branch, path /. Moving to GitHub Actions deploy needs a Pages settings change: ASK FIRST.
 - Source of truth for content: C:\Users\thorn\toDO\Portfolio Source Material.md (digest below; do not reread in full). Raw backups for cross-check only: same folder (Brain Dump - Oct 29.txt, Application Context.md, Application Workflow Notes.md) and `Claude outputs\Charles_Thorn_Resume_Mechanical.docx`.
-- No /models folder exists anywhere. Only SolidWorks native files (.SLDPRT/.SLDASM) were found in C:\Users\thorn\Downloads (ENGR111 kit, children's chair). See TODO_CHARLES.md.
+- Model sources: C:\Users\thorn\toDO\portfolio_update\solidworks_files (engr_111 plant, engr_122 robot; STEP + per-part STL, mm, shared assembly coords). Kept OUT of the repo (STEP up to 61 MB). Only compressed GLBs are committed.
+- Content pipeline: tools/extract_source.mjs -> content/projects.json (verbatim); tools/verify_content.mjs proves it; content/site.json = hero, Next, About, Contact, footer.
+- Robot Arena rule (Charles, chat): finalist is true, 31 s was the prelim run, never state "3 of 12 finished".
 
 ## Stack (current -> target)
 - Current: plain HTML/CSS/JS, no build. css/{tokens,base,layout,components,utilities}.css, js/{main,hero-engine,hero-shaders,hero-plume}.js, assets/{fonts,img,video,resume}, tools/ (python hero art scripts). Hosted from main root.
@@ -58,8 +60,8 @@ Each project block has: Role line (title | org | dates), Tools, One-liner, then 
 |---|---|---|---|
 | NASA Student Launch | none | none | Text-only. Needs CAD renders, OpenRocket sim, photos, FMEA screenshot (TODO) |
 | SAE Aero Design | none | none | Text-only. Needs forward fuselage CAD, assembly renders (TODO) |
-| Robot Arena | housing, assembly: STEP/STL not found locally | robot-build.webp, robot-housing.webp, robot-assembly.webp exist | Blocked on model source files (TODO). Images exist as fallback |
-| Automatic Plant Watering | enclosure: STEP/STL not found locally | plant-enclosure.webp, plant-wiring.webp, plant-final.webp exist | Blocked on model source file (TODO). Images exist as fallback |
+| Robot Arena | housing (bodytry3-1.STL), assembly (all engr_122 STLs): sources found | robot-build.webp, robot-housing.webp, robot-assembly.webp exist | GLB build in Step 5. Images shown in write-up |
+| Automatic Plant Watering | enclosure (revisedhd-1.STL): source found | plant-enclosure.webp, plant-wiring.webp, plant-final.webp exist | GLB build in Step 5. Images shown in write-up |
 | Training Hub V2 | n/a | coach-poster.webp, athlete-poster.webp, coach-demo.mp4, athlete-demo.mp4 | Have media |
 | MOCORE Lab | n/a | none (by design) | Text-only small card |
 | Pocket engine (Next) | n/a | none | Teaser, no date |

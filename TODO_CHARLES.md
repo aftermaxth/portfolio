@@ -20,7 +20,14 @@ Every open item for Charles. Check off when resolved. Source = Portfolio Source 
 - [ ] Other material: aerospace minor "planned vs declared" (same as minor flag above)
 
 ## Content conflicts (live site vs source; source wins)
-- [ ] Robot Arena outcome: live site says "made the finals", "finalist", "31 s competition run". Source says 3 of 12 robots finished the final lap and ours did not finish. Site will follow source. Confirm the 31 s figure is dropped or explain what it was.
+- [x] Robot Arena outcome: RESOLVED in chat 2026-11-02. "Finalist" is true; 31 s was the prelim run; the robot malfunctioned in the final and did not finish; do NOT state "3 of 12 finished". Site follows this. Open: the 31 s figure is not in the source, so it is not shown unless you ask (say "add 31 s prelim run").
+
+## New items from step 2
+- [ ] Training Hub timeline: source has none; live said "Three days, September 2026". Card shows no timeline until you confirm.
+- [ ] Pocket engine card: source gives only "pocket engine build" (no description). Live site had longer text (plastic print with water cooling vs metal). Allowed to use it? Off by default (not an [add] gap).
+- [ ] Plant Watering: [add] gaps filled from live-site sentences (wireless reporting, 20 mL every 24 h, readings every 10 min, deployed 5 days). Confirm still accurate. Team size and sensor model still missing.
+- [ ] Training Hub: one live-site sentence fills "key features". Athlete count and public link still missing.
+- [ ] SAE text says "his part" about a partner (verbatim from source, no name). Confirm that is fine under "never names or blames anyone".
 - [ ] Robot Arena role: live says "Led the housing design and printing"; source says lead and sole SolidWorks designer, team of 3. Site follows source.
 - [ ] Pocket engine date: live says "Winter 2027", source says winter 2026. Default: no date shown.
 - [ ] Live "Next" cards (SAE electronics bay, USLI "NASA announces selections October 1") are outdated against source (USLI and SAE are now full projects). Removed unless you say otherwise.
@@ -29,7 +36,7 @@ Every open item for Charles. Check off when resolved. Source = Portfolio Source 
 - [ ] Source header says built Nov 2, 2026; live footer/updated line says September 2026. Footer will be refreshed.
 
 ## Needed assets
-- [ ] STEP or STL exports: robot housing, robot assembly, plant enclosure (no /models folder exists; only .SLDPRT/.SLDASM in Downloads, which cannot be converted without SolidWorks). Export steps: SolidWorks > File > Save As > STEP (AP214) for the assembly/part, or STL (binary, fine resolution), into C:\Users\thorn\Downloads\portfolio2\models-src\ .
+- [x] STEP/STL exports: received 2026-11-02 in C:\Users\thorn\toDO\portfolio_update\solidworks_files (engr_111, engr_122). Using the STLs.
 - [ ] USLI visuals (CAD renders, OpenRocket sim, photos, FMEA screenshot)
 - [ ] SAE visuals (forward fuselage CAD, assembly renders)
 - [ ] Pocket engine: any image or CAD (optional)
