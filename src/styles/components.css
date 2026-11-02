@@ -103,6 +103,7 @@
 .viewer__status { position: absolute; left: var(--sp-2); top: var(--sp-2); }
 .viewer[data-state="ready"] .viewer__status, .viewer[data-state="idle"] .viewer__status { display: none; }
 .viewer__ui { position: absolute; inset: auto var(--sp-2) var(--sp-2) var(--sp-2); display: flex; align-items: flex-end; justify-content: space-between; gap: var(--sp-2); pointer-events: none; }
+.viewer__hint { white-space: nowrap; }
 .viewer[data-state="fallback"] .viewer__hint { display: none; }
 .viewer__tabs { display: flex; gap: 4px; pointer-events: auto; }
 .viewer__tab {

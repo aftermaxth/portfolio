@@ -35,6 +35,10 @@ Every open item for Charles. Check off when resolved. Source = Portfolio Source 
 - [ ] Live Training Hub "Three days, September 2026" vs source "three days" with no month. Use source only unless confirmed.
 - [ ] Source header says built Nov 2, 2026; live footer/updated line says September 2026. Footer will be refreshed.
 
+## Model check (step 5)
+- [ ] Robot assembly GLB shows 3 sensor parts (engr_122 STL files 1-2, 1-3, HCSR04-2) and the old render shows 5 ultrasonic sensors. Was the assembly export complete? If not, re-export with all components and rerun `npm run models`. Part names 1-2 and 1-3 were guessed to be sensors from their triangle counts.
+- [ ] Plant enclosure GLB is the printed enclosure only (revisedhd-1.STL). Want the electronics (pump, boards) added as a second tab?
+
 ## Needed assets
 - [x] STEP/STL exports: received 2026-11-02 in C:\Users\thorn\toDO\portfolio_update\solidworks_files (engr_111, engr_122). Using the STLs.
 - [ ] USLI visuals (CAD renders, OpenRocket sim, photos, FMEA screenshot)
