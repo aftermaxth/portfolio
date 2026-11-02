@@ -1,7 +1,7 @@
 # PROJECT_CONTEXT
 
 Always-current truth. Edit in place. History lives in BUILD_LOG.md.
-Last updated: 2026-11-02 (Phase B in progress: renderer done, hero model pick pending)
+Last updated: 2026-11-02 (Phase B in progress: renderer and HDRI done, waiting on the engine model file)
 
 ## Goal
 Rebuild Charles Thorn's portfolio so it stops reading as vibe coded: solid color, real depth, restrained motion, a real-time 3D hero engine (Phase B), pinned 3D viewers for projects with models. Owner: mechanical engineering at Stevens, seeking Summer 2027 internships (propulsion, thermal, structures, vehicle systems). Long-term goal: engine design for supersonic flight.
@@ -41,6 +41,9 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | Pages workflow written but triggers on main only | Branch pushes never deploy; settings change needs approval |
 | One shared renderer (src/js/render.js) for hero and viewers: MSAA, DPR 2, AgX, sRGB, baked contact shadow | Step 7; MSAA meets the AA rule, so `postprocessing` was not added (smaller lazy chunk) |
 | Hero is decorative: no pointer input, lazy after load and idle, never under reduced motion, poster underneath | Must not block LCP or hijack scroll |
+| Hero model: shogo.gfx "Jet Engine" (CC BY 4.0) with the procedural plume at its exhaust; visible credit required | Charles, chat 2026-11-02 |
+| Poster: replace the Air Force photo with a still render of the hero engine, drop the unconfirmed credit | Charles, chat 2026-11-02 |
+| HDRI: Poly Haven Studio Small 09 (CC0), halved to 512x256 (410 kB) in public/env/ | Charles approved the download, chat 2026-11-02 |
 
 ## Content rules and precedence
 1. /toDo wins over the old live site. Portfolio_Source_Material.md (verbatim) beats other /toDo files (resume docx is used only for degree, minor and graduation wording) > live site text (only for [add] gaps) > nothing.
@@ -61,9 +64,10 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | Training Hub V2 | n/a | coach-demo.mp4/.webp, athlete-demo.mp4/.webp | video gallery |
 | MOCORE Lab | n/a | none by design | text-only small card |
 | Pocket engine (Next) | n/a | none | text card with date "winter 2026" |
-| Hero engine | procedural (src/js/engine.js, plume.js) until Charles picks; 3 CC BY Sketchfab candidates listed in BUILD_LOG | images/hero/engine.webp (poster, credit unconfirmed) | live canvas over the poster; poster for reduced motion, no WebGL, no JS |
+| Hero engine | Picked: "Jet Engine" by shogo.gfx, CC BY 4.0 (Charles downloads it to toDO\portfolio_update\hero_engine). Procedural engine.js is the fallback | images/hero/engine.webp (photo, credit unconfirmed; to be replaced by a render, Charles OK) | live canvas over the poster; poster for reduced motion, no WebGL, no JS |
 
 ## How to run / build / deploy
+- `node tools/build_env.mjs <in.hdr> <out.hdr>` halves an HDRI for public/env/.
 - `npm install`, `npm run dev` (http://localhost:5173/portfolio/), `npm run build` (dist/), `npm run preview`.
 - `npm run content` regenerates and verifies content. `npm run models` rebuilds GLBs from STL (MODELS_SRC env). `npm run check` or `node tools/check_site.mjs` = em dash and bracket check on src and dist.
 - Deploy: .github/workflows/pages.yml (main only). Needs Pages source = GitHub Actions (not switched).
@@ -75,4 +79,4 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 - Repo has no LICENSE file (TODO_CHARLES.md).
 
 ## Phase status
-- Phase A (Sonnet): steps 1 to 5, 8, 9 done. Phase B (Opus, steps 6 and 7): step 7 renderer done, step 6 hero built procedurally, waiting on Charles for model pick, HDRI download and poster swap (see RESUME HERE). Phase C (Sonnet): QA, Lighthouse, accessibility, screenshots, TODO review.
+- Phase A (Sonnet): steps 1 to 5, 8, 9 done. Phase B (Opus, steps 6 and 7): step 7 done (renderer, HDRI); step 6 waiting on the model file from Charles, then model swap, credit, poster render (see RESUME HERE). Phase C (Sonnet): QA, Lighthouse, accessibility, screenshots, TODO review.

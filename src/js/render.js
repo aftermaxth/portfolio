@@ -10,8 +10,9 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { HorizontalBlurShader } from "three/addons/shaders/HorizontalBlurShader.js";
 import { VerticalBlurShader } from "three/addons/shaders/VerticalBlurShader.js";
 
-// Self-hosted studio HDRI (Poly Haven, CC0). Null means the procedural room light is used instead.
-export const HDRI_URL = null;
+// Self-hosted studio HDRI: Poly Haven "Studio Small 09" (CC0), halved to 512x256 by tools/build_env.mjs.
+// If it fails to load, the procedural room light is used instead.
+export const HDRI_URL = `${import.meta.env.BASE_URL}env/studio_small_09_512.hdr`;
 
 let hdriData = null;
 const loadHdri = () => {
