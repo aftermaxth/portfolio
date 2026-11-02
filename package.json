@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "content": "node tools/extract_source.mjs && node tools/verify_content.mjs",
-    "models": "node tools/build_models.mjs"
+    "models": "node tools/build_models.mjs",
+    "check": "node tools/check_site.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "5.3.0",

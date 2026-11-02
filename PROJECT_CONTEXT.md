@@ -1,78 +1,72 @@
 # PROJECT_CONTEXT
 
 Always-current truth. Edit in place. History lives in BUILD_LOG.md.
-Last updated: 2026-11-02 (Step 1)
+Last updated: 2026-11-02 (end of Phase A)
 
 ## Goal
-Rebuild Charles Thorn's portfolio so it stops reading as vibe coded: solid color, real depth, restrained motion, a real-time 3D hero engine, pinned 3D viewers for projects that have models. Owner: mechanical engineering at Stevens, seeking Summer 2027 internships (propulsion, thermal, structures, vehicle systems). Long-term goal: engine design for supersonic flight.
+Rebuild Charles Thorn's portfolio so it stops reading as vibe coded: solid color, real depth, restrained motion, a real-time 3D hero engine (Phase B), pinned 3D viewers for projects with models. Owner: mechanical engineering at Stevens, seeking Summer 2027 internships (propulsion, thermal, structures, vehicle systems). Long-term goal: engine design for supersonic flight.
 Interaction references (pattern only, never copy code, copy or layout): chadjfrancis.com (scroll-driven 3D viewer), ziyuw.framer.website (clean, spacious structure).
 
 ## Where things are
-- Repo (local): C:\Users\thorn\Downloads\portfolio2 (origin https://github.com/aftermaxth/portfolio). Work branch: `redesign` (cut from origin/main f543189). Never push or merge to main without Charles.
-- Live: https://aftermaxth.github.io/portfolio/ . Pages is currently "legacy", source = main branch, path /. Moving to GitHub Actions deploy needs a Pages settings change: ASK FIRST.
-- Source of truth for content: C:\Users\thorn\toDO\Portfolio Source Material.md (digest below; do not reread in full). Raw backups for cross-check only: same folder (Brain Dump - Oct 29.txt, Application Context.md, Application Workflow Notes.md) and `Claude outputs\Charles_Thorn_Resume_Mechanical.docx`.
+- Repo (local): C:\Users\thorn\Downloads\portfolio2 (origin https://github.com/aftermaxth/portfolio). Work branch `redesign` (cut from origin/main f543189). Nothing pushed. Never push or merge to main without Charles.
+- Live: https://aftermaxth.github.io/portfolio/ . Pages source is still "Deploy from branch (main /)". Moving to GitHub Actions is a settings change: ASK FIRST.
+- Content source of truth: C:\Users\thorn\toDO\Portfolio Source Material.md (do not reread in full; tools/extract_source.mjs reads it). Raw backups for cross-check only: same folder (Brain Dump - Oct 29.txt etc.), `Claude outputs\Charles_Thorn_Resume_Mechanical.docx`.
 - Model sources: C:\Users\thorn\toDO\portfolio_update\solidworks_files (engr_111 plant, engr_122 robot; STEP + per-part STL, mm, shared assembly coords). Kept OUT of the repo (STEP up to 61 MB). Only compressed GLBs are committed.
-- Content pipeline: tools/extract_source.mjs -> content/projects.json (verbatim); tools/verify_content.mjs proves it; content/site.json = hero, Next, About, Contact, footer.
-- Robot Arena rule (Charles, chat): finalist is true, 31 s was the prelim run, never state "3 of 12 finished".
 
-## Stack (current -> target)
-- Current: plain HTML/CSS/JS, no build. css/{tokens,base,layout,components,utilities}.css, js/{main,hero-engine,hero-shaders,hero-plume}.js, assets/{fonts,img,video,resume}, tools/ (python hero art scripts). Hosted from main root.
-- Target: Vite (base '/portfolio/'), three, gsap + ScrollTrigger, lenis, Fontsource fonts, @gltf-transform/cli, pmndrs/postprocessing. Deploy via GitHub Actions to Pages. Node v24.20.0, npm 11.19.0 present.
-- Approved dependency list is exactly the one above (task step 8). Anything else (e.g. a STEP-to-GLB converter, Playwright, Lighthouse CLI) needs Charles's OK first.
+## Stack
+Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger + CustomEase, lenis 1.3, Fontsource (@fontsource-variable/archivo, @fontsource/dm-mono), dev: @gltf-transform/cli 4.5. Node 24, npm 11. Approved list only; anything else (e.g. `postprocessing` for Phase B is approved; Playwright or Lighthouse CLI are NOT) needs Charles's OK.
+- Build-time render: tools/vite-plugin-site.mjs makes the static HTML from content/*.json and scans models/ and images/<slug>/. index.html is just a shell.
+- Old site files (index.html replaced; css/, js/, assets/, tools/*.py, tools/source/) still in the repo root, unused. Deleting them needs Charles's OK.
 
-## Design tokens (current profile to keep, from css/tokens.css)
-- bg #0a0b0d, surface #111317, surface-raised #171a1f, ink #f2f1ee, ink-muted #a0a6ad, rule #23272d, rule-strong #343a42, accent #ff8100 (afterburner orange), accent-ink #0a0b0d, focus #7cc4ff.
-- Removed in redesign: --color-grid, hero grid vars, gradients (heat text, mach-scale bar), background texture, glass blur.
-- Fonts today: Anybody (display), Archivo (text), DM Mono (labels). Target: one variable sans + one mono via Fontsource. Tentative: Archivo Variable + DM Mono (both on Fontsource). Final choice recorded in Step 3.
-- Spacing: move to 8px scale, 12-column grid. Motion: one easing curve, three durations. Final values recorded in Step 3.
+## Design tokens (src/styles/tokens.css)
+- Color (kept from old site): bg #0a0b0d, surface #111317, surface-2 #171a1f, ink #f2f1ee, ink-muted #a0a6ad, rule #23272d, accent #ff8100, accent-ink #0a0b0d, focus #7cc4ff. Solid fills only: no gradients, glass blur, grid or box texture.
+- Type: Archivo Variable (sans) + DM Mono (labels). Space: 8px scale (--sp-1..8). Layout: 12-column grid, container 80rem, gutter 16/24/32.
+- Motion: one curve cubic-bezier(0.2,0,0,1), durations 200/500/900 ms (--dur-1..3). Transform and opacity only. prefers-reduced-motion: no Lenis, no GSAP, content simply visible.
 
 ## Decisions (with reasons)
 | Decision | Reason |
 |---|---|
-| Work in Downloads\portfolio2, not training-hubV1 | portfolio2 is the clone of aftermaxth/portfolio; training-hubV1 is a different repo. Session cwd moved here on 2026-11-02. |
-| Branch `redesign` from origin/main | origin/main is 1 commit ahead of local main (README edit). Local main untouched. |
-| Copy is verbatim from source; whole-sentence selection only for cards | Task rule. No paraphrase. |
-| Source wins over live site on any conflict | Task rule. Conflicts logged in TODO_CHARLES.md. |
-| Defaults pending Charles: minor "Aerospace (planned)"; USLI uses Safety Officer wording from source; pocket engine no date; Robot Arena states final outcome honestly; MOCORE states leak + unmet 8 psi goal; SAE never names or blames anyone | Task defaults. |
-| Keep hero copy, contact links, resume PDF (assets/resume/Thorn_Charles_Resume.pdf, do not replace) | Task rule. |
-| Phase A (Sonnet) steps 1-5, 8, 9; Phase B (Opus) steps 6-7; Phase C (Sonnet) QA | Task phases. |
+| Work in Downloads\portfolio2 | It is the clone of aftermaxth/portfolio; training-hubV1 is a different repo |
+| Static HTML rendered at build, JS only enhances | Fast, works with JS off, good for Lighthouse |
+| Generate projects.json from the source file, verify with a script | Verbatim rule; proves it |
+| Source wins over live site; live fills only [add] gaps (Plant, Training Hub) | Task rule |
+| Defaults pending Charles: minor "Aerospace (planned)"; USLI Safety Officer wording from source; pocket engine no date; Robot Arena states the final honestly; MOCORE states leak and unmet 8 psi goal; SAE never names or blames | Task defaults |
+| Robot Arena: finalist is true, 31 s was the prelim run (not shown, not in source), never state "3 of 12 finished" | Charles, chat 2026-11-02 |
+| Keep hero copy, contact links, resume PDF (public/assets/resume/..., identical bytes to assets/resume/...) | Task rule |
+| Viewer: yaw-only drag, no zoom/pan, canvas touch-action pan-y, lazy chunk, render only while visible | Touch must never hijack page scroll |
+| Normals computed at load (creased 35 deg) from positions-only GLBs | Smallest files; machined look |
+| Pages workflow written but triggers on main only | Branch pushes never deploy; settings change needs approval |
 
 ## Content rules and precedence
-1. Source file (verbatim) > live site text > nothing. Live site fills only gaps the source marks [add].
+1. Source file (verbatim) > live site text (only for [add] gaps) > nothing.
 2. Never render [bracket] placeholders; log them in TODO_CHARLES.md.
-3. No em dashes anywhere in site text or docs. No invented facts.
-4. Project order: NASA Student Launch, SAE Aero Design, Robot Arena, Automatic Plant Watering, Training Hub V2, MOCORE Lab (small card, no image). Then Next card (pocket engine), About (source "Other material"), Contact.
-5. Cards show one-liner, role, tools, timeline, numbers. Click expands full write-up.
-
-## Source digest (structure only)
-Each project block has: Role line (title | org | dates), Tools, One-liner, then named sections.
-- USLI: Overview; Recovery: ejection charges; Safety: FMEA and hazard analysis; PDR report; What I learned; Numbers (2-stage deployment, 20% backup safety factor, backups fire 1 s after main, 2-person recovery subteam, 3-person safety team).
-- SAE: Overview; The build (impact version); The redesigns (hard-project version); What I learned. Two story versions exist; SAE never names or blames anyone.
-- Robot Arena: Overview; Design; Software and debugging; The final (3 of 12 finished, ours did not); What I learned; Numbers (2 hr 10 min vs 4 hr limit, 1st in prelims, 12 teams, ~650 first-years, team of 3, 3+ months).
-- Plant Watering: one Overview paragraph only; card stays short.
-- Training Hub V2: Overview; Why it is here.
-- MOCORE: Short version (card); What I learned (optional expand).
-- Other material: ME Class of 2029, GPA 3.5, aerospace minor [planned vs declared]; goal propulsion and engine design; skills list; AIAA Secretary AY 2026-2027; varsity XC and track NCAA D3; lifeguard Blue Line Pool Management Jul 2024 to present; pocket engine build winter 2026 (teaser).
-- Fit order and visual needs table at top of source (USLI/SAE have no visuals yet; Robot Arena and Plant have CAD + photos on current site; Training Hub screenshots; MOCORE none).
+3. No em dashes anywhere (site text, docs). No invented facts.
+4. Order: NASA Student Launch, SAE Aero Design, Robot Arena, Automatic Plant Watering, Training Hub V2, MOCORE Lab; then Next (pocket engine build), About, Contact.
+5. Cards show one-liner, role, org, timeline, tools, numbers, in-card sections; the toggle opens the rest of the write-up.
+6. Editorial rules applied by tools/extract_source.mjs: builder notes in headings dropped; short titles; Robot Arena "3 of 12" sentence and number dropped.
 
 ## Asset status
-| Project | Model (.glb) | Images | Status |
+| Project | Model | Images | Layout now |
 |---|---|---|---|
-| NASA Student Launch | none | none | Text-only. Needs CAD renders, OpenRocket sim, photos, FMEA screenshot (TODO) |
-| SAE Aero Design | none | none | Text-only. Needs forward fuselage CAD, assembly renders (TODO) |
-| Robot Arena | housing (bodytry3-1.STL), assembly (all engr_122 STLs): sources found | robot-build.webp, robot-housing.webp, robot-assembly.webp exist | GLB build in Step 5. Images shown in write-up |
-| Automatic Plant Watering | enclosure (revisedhd-1.STL): source found | plant-enclosure.webp, plant-wiring.webp, plant-final.webp exist | GLB build in Step 5. Images shown in write-up |
-| Training Hub V2 | n/a | coach-poster.webp, athlete-poster.webp, coach-demo.mp4, athlete-demo.mp4 | Have media |
-| MOCORE Lab | n/a | none (by design) | Text-only small card |
-| Pocket engine (Next) | n/a | none | Teaser, no date |
-| Hero engine | to be sourced (Phase B) | current flat engine.webp + mach/flame/bloom layers | Replace in Phase B |
+| NASA Student Launch | none | none | text-only. Needs CAD renders, OpenRocket sim, photos, FMEA screenshot |
+| SAE Aero Design | none | none | text-only. Needs forward fuselage CAD, renders |
+| Robot Arena | robot-arena--housing.glb 24 kB, robot-arena--assembly.glb 509 kB | robot-build, robot-housing, robot-assembly (.webp) | pinned viewer (2 tabs) + gallery. Assembly license UNCLEAR (course CAD parts) |
+| Automatic Plant Watering | plant-watering.glb 8 kB | plant-enclosure, plant-wiring, plant-final | pinned viewer + gallery |
+| Training Hub V2 | n/a | coach-demo.mp4/.webp, athlete-demo.mp4/.webp | video gallery |
+| MOCORE Lab | n/a | none by design | text-only small card |
+| Pocket engine (Next) | n/a | none | text card, no date |
+| Hero engine | Phase B | images/hero/engine.webp (poster, credit unconfirmed) | static poster until Phase B |
 
 ## How to run / build / deploy
-- Today (pre-Vite): `python -m http.server 8000` in repo root, open http://localhost:8000.
-- After Step 9: `npm install`, `npm run dev`, `npm run build` (output dist/), deploy via .github/workflows/pages.yml. Will be filled in at Step 9.
+- `npm install`, `npm run dev` (http://localhost:5173/portfolio/), `npm run build` (dist/), `npm run preview`.
+- `npm run content` regenerates and verifies content. `npm run models` rebuilds GLBs from STL (MODELS_SRC env). `npm run check` or `node tools/check_site.mjs` = em dash and bracket check on src and dist.
+- Deploy: .github/workflows/pages.yml (main only). Needs Pages source = GitHub Actions (not switched).
+- The in-app Browser pane forces prefers-reduced-motion: reduce and does not paint until a screenshot is taken. preview_start picked the wrong project's launch.json, so run Vite with Bash and use navigate.
 
 ## License and attribution state
-- Fonts today: Anybody, Archivo, DM Mono, licenses in assets/fonts/LICENSE-*.txt (all OFL per files; verify when switching to Fontsource).
-- Hero photo "Photo: U.S. Air Force" credit was inferred from stenciling and never confirmed (see tools/source/engine-test-cell.jpg). Being replaced in Phase B; status UNCLEAR until replaced.
-- THIRD_PARTY.md does not exist yet; created in Step 8.
-- Repo has no LICENSE file.
+- THIRD_PARTY.md lists every runtime and build dependency with license (all MIT or OFL, GSAP Standard no-charge). Font OFL texts ship in /licenses/.
+- UNCLEAR: hero photo credit "U.S. Air Force" (inferred, replaced in Phase B); robot assembly GLB includes course/vendor component CAD (Zumo chassis, sensors, boards, display).
+- Repo has no LICENSE file (TODO_CHARLES.md).
+
+## Phase status
+- Phase A (Sonnet): steps 1 to 5, 8, 9 done. Phase B (Opus, steps 6 and 7): see PHASE_B_ENGINE.md. Phase C (Sonnet): QA, Lighthouse, accessibility, screenshots, TODO review.
