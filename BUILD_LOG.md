@@ -132,3 +132,6 @@
 - Checked: browser pane at about 800 px: robot row is three equal frames (housing, sensor array, competition robot), plant row is two, Next card shows the new text. `npm run build` ok, check_site 0 em dashes and 0 brackets, verify_content OK 148 strings, tools/audit_a11y.mjs OK at 1440 and 375.
 - Flag: "Winter 2027" (old site) vs "winter 2026" (source). Shown as the old site has it, per Charles. Also the build photo is cropped from 1.6:1 to 4:3 by object-fit cover (the file is unchanged).
 - Next: Charles decides the open items; merge only on his word.
+
+### 2026-11-02 Phase C addendum 3 | Next card final wording
+- Charles (chat): keep "Winter 2027" and add "combustion engine". Title is now "Small combustion engine (side project)"; text unchanged. verify_content strips the added word before matching the old site. Build, check_site and verify_content ok.

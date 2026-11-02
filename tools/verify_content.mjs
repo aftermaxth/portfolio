@@ -66,7 +66,7 @@ projects.forEach((p, i) => {
 // Next card: the old site's wording (Charles chose it over the source line, 2026-11-02).
 for (const c of site.next.cards) {
   check("next card tag", c.tag, live);
-  check("next card title", c.title, live);
+  check("next card title", c.title.replace(" combustion", ""), live); // "combustion" was added by Charles (chat, 2026-11-02)
   check("next card text", c.text, live);
 }
 // Degree, minor and graduation: exact resume wording.
