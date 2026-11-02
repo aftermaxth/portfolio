@@ -16,7 +16,7 @@ Interaction references (pattern only, never copy code, copy or layout): chadjfra
 ## Stack
 Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger + CustomEase, lenis 1.3, Fontsource (@fontsource-variable/archivo, @fontsource/dm-mono), dev: @gltf-transform/cli 4.5. Node 24, npm 11. Approved list only; anything else needs Charles's OK (Lighthouse was approved for Phase C but lives in a scratch folder, not in package.json; Playwright is NOT approved).
 - Build-time render: tools/vite-plugin-site.mjs makes the static HTML from content/*.json and scans models/ and images/<slug>/. index.html is just a shell.
-- Old site files css/, js/, assets/, tools/*.py and images/hero/engine.webp were deleted on 2026-11-02 (Charles OK; git history keeps them). Still in the root, unused, not on his list: 404.html (old), favicon.*, apple-touch-icon.png, og-image.png (copies of public/), tools/source/.
+- Old site files css/, js/, assets/, tools/*.py, tools/source/, tools/og-image.html, images/hero/engine.webp and the root copies of 404.html, favicon.*, apple-touch-icon.png and og-image.png were deleted on 2026-11-02 (Charles OK; git history keeps them). public/ holds the live copies.
 
 ## Design tokens (src/styles/tokens.css)
 - Color (kept from old site): bg #0a0b0d, surface #111317, surface-2 #171a1f, ink #f2f1ee, ink-muted #a0a6ad, rule #23272d, accent #ff8100, accent-ink #0a0b0d, focus #7cc4ff. Solid fills only: no gradients, glass blur, grid or box texture.

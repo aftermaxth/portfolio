@@ -56,5 +56,5 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [x] STEP-to-GLB converter: not needed, the STL exports were used.
 - [x] Lighthouse for Phase C: Charles asked for it (chat, 2026-11-02). Lighthouse 12.8.2 was installed in a scratch folder outside the repo and is NOT in package.json. Playwright was not used.
 - [x] Old site files deleted 2026-11-02 (Charles OK): css/, js/, assets/, tools/*.py, images/hero/engine.webp, plus tools/og-image.html (replaced by tools/og_image.mjs). Git history keeps them. Resume PDF verified at the same public path, same sha256 as the original.
-- [ ] Not deleted because not on your list: root 404.html (old page, links css/ which is gone; the build ships public/404.html instead), root favicon.*, apple-touch-icon.png and og-image.png (copies of public/), tools/source/engine-test-cell.jpg (the Air Force photo). OK to delete these too?
+- [x] Also deleted 2026-11-02 (Charles OK): root 404.html, favicon.ico, favicon.svg, apple-touch-icon.png, og-image.png (all except 404.html were byte-identical to public/), and tools/source/ (the Air Force photo).
 - [ ] Merge `redesign` to main (never pushed or merged by me): left to do are the sensor-count alt text, the Pages switch at merge time, and the optional items above. Phone frame rate is unmeasured (see BUILD_LOG).

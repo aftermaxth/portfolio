@@ -6,7 +6,7 @@
 // Usage (after `npm run build` and `npx vite preview --port 4173`):
 //   node tools/og_image.mjs [--url http://localhost:4173/portfolio/] [--out <dir>] [--pick <n>]
 // Without --pick it only writes og-<n>.png candidates into --out. With --pick it also writes
-// public/og-image.png and the repo-root og-image.png. CHROME env var overrides the browser path.
+// public/og-image.png. CHROME env var overrides the browser path.
 import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync, copyFileSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
@@ -82,8 +82,7 @@ try {
   if (PICK) {
     const src = join(OUT, `og-${PICK}.png`);
     copyFileSync(src, join(root, "public", "og-image.png"));
-    copyFileSync(src, join(root, "og-image.png"));
-    console.log(`og-${PICK}.png -> public/og-image.png and og-image.png`);
+    console.log(`og-${PICK}.png -> public/og-image.png`);
   }
 } finally {
   try { ws?.close(); } catch {}

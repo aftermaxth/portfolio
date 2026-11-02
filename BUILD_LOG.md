@@ -4,7 +4,7 @@
 - Current phase: Phase C (Sonnet, high) FINISHED on 2026-11-02, except the items that need Charles. Branch `redesign`, nothing pushed or merged. Phase C changes are in the working tree and committed together (see the latest commit).
 - Expected model and effort: none pending. If continuing, Sonnet high.
 - Current state: robot assembly viewer shows only the printed housing and the ArUco panel; old site files deleted; og-image is a render of the live hero; Lighthouse mobile 98/100/100/100, desktop 100 x4; contrast, focus and text-over-canvas audits pass (tools/audit_a11y.mjs). Build, check_site (0 em dashes, 0 brackets) and verify_content (146 strings) ok.
-- Open for Charles: (1) sensor count 3 vs 5 (he checks SolidWorks), then fix the alt text of robot-assembly.webp in content/media.json; also decide whether that full-assembly render stays; (2) switch Pages source to GitHub Actions at merge time (workflow ready, main-only trigger); (3) phone frame rate: NOT measured on a real phone, a risk (see the Phase C log entry); (4) optional deletions not on his list: root 404.html, root favicon.* / apple-touch-icon.png / og-image.png, tools/source/; (5) missing assets and [add] info, GSAP license text, LICENSE file; (6) content/site.json hero.poster width/height (2040x630) are unused. No merge to main until Charles says so.
+- Open for Charles: (1) sensor count 3 vs 5 (he checks SolidWorks), then fix the alt text of robot-assembly.webp in content/media.json; also decide whether that full-assembly render stays; (2) switch Pages source to GitHub Actions at merge time (workflow ready, main-only trigger); (3) phone frame rate: NOT measured on a real phone, a risk (see the Phase C log entry); (4) the optional deletions are done (see the last log entry); (5) missing assets and [add] info, GSAP license text, LICENSE file; (6) content/site.json hero.poster width/height (2040x630) are unused. No merge to main until Charles says so.
 
 ---
 
@@ -121,3 +121,7 @@
 - Failed attempts: first og render at 1200x630 cropped the engine (the hero is taller), fixed with a larger layout and a scaled clip. First audit run reported 358 false failures: reveal-on-scroll text had not faded in (fixed by scrolling the page first) and the focus ring was measured against the orange button instead of the page behind it (fixed). A bash heredoc with an escaped quote failed to parse; used Write for the script.
 - Not done: real-phone frame rate; sensor count; Pages switch; optional extra deletions (see RESUME HERE).
 - Next: Charles decides the open items; merge only on his word.
+
+### 2026-11-02 Phase C addendum | Root leftovers deleted
+- Done (Charles OK, chat): git rm of root 404.html (old page linking the deleted css/), favicon.ico, favicon.svg, apple-touch-icon.png, og-image.png and tools/source/. The four icon and image files were byte-identical to public/ (cmp); public/404.html is the shipped 404. tools/og_image.mjs no longer writes a root og-image.png.
+- Next: Charles decides the remaining open items; merge only on his word.
