@@ -1,0 +1,303 @@
+{
+  "projects": [
+    {
+      "slug": "nasa-student-launch",
+      "title": "NASA Student Launch",
+      "kicker": "USLI",
+      "sourceTitle": "NASA University Student Launch Initiative (USLI)",
+      "role": "Safety Officer (Cross-Team), Vehicle Team, Recovery Subgroup",
+      "org": "Stevens",
+      "timeline": "Sep 2026 to Present",
+      "tools": [
+        "OpenRocket",
+        "SolidWorks"
+      ],
+      "oneLiner": "I owned the ejection charge R&D for our two-stage recovery system and ran safety analysis across every subteam on the rocket.",
+      "numbers": [
+        "2-stage deployment",
+        "20% safety factor on backups",
+        "backups fire 1 s after main",
+        "2-person recovery subteam",
+        "3-person safety team"
+      ],
+      "sections": [
+        {
+          "heading": "Overview",
+          "source": "Overview",
+          "paragraphs": [
+            "On Stevens' NASA Student Launch team I hold two jobs at once. On the recovery subgroup, a team of two, I personally led and owned the research and development of the ejection charges. On the safety team I am the only underclassman, and the three of us are responsible for every safety aspect of the rocket. Both jobs forced me to understand the whole vehicle, not just one subsystem, because recovery and safety touch every part of it."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "Recovery: ejection charges",
+          "source": "Recovery: ejection charges",
+          "paragraphs": [
+            "The rocket uses a two-stage dual-deployment recovery system, and it also has to eject a payload successfully, all within competition rules. My job was making the charges do that. I calculated the charge needed for each stage, worked out how the barometers trigger each charge event, and sized backup charges with a 20% safety factor that fire 1 second after the main. Charge placement could not be designed in isolation, so I worked cross-team with the payload team and the vehicle team until the placement and use of each charge fit the rocket as a whole. I also worked on the shock cords and supported recovery testing of shock cords, drogue and main parachutes, and modeled decouplers and bulkheads in SolidWorks for the final launch vehicle assembly."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "Safety: FMEA and hazard analysis",
+          "source": "Safety: FMEA and hazard analysis",
+          "paragraphs": [
+            "Because each safety team member came from a different part of the rocket, from payload to recovery, I ended up acting as a mediator between teams so work happened in a safe and orderly way. I ran FMEA on every team's operations. For each subteam I recorded every component, then its failure mode, cause, and effect, rated severity and likelihood, computed a risk score from those two values, picked the highest mitigation control, and wrote the mitigation action. I also personally spearheaded the Personnel Hazard Analysis, digging through labor laws and OSHA guidelines to back up each hazard category with evidence, and reviewing every component on the rocket to do it. All of this enforces the NAR/TRA safety code and NASA USLI requirements."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "PDR report",
+          "source": "PDR report",
+          "paragraphs": [
+            "I wrote my sections of the Preliminary Design Review and led writing the recovery section, listing every recovery component and every possible failure mode for each one."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "What I learned",
+          "source": "What I learned",
+          "paragraphs": [
+            "Writing with that much specificity meant in-depth research on all of recovery: the barometer software and hardware, the current (amps) the igniter charge needs, bulkhead materials and their pros and cons, how to calculate shock cord length from tube length, and how different parachute types behave. The bigger lesson was seeing deployment as a cross-functional system, where every moving part from every team comes into the picture at once."
+          ],
+          "inCard": false
+        }
+      ]
+    },
+    {
+      "slug": "sae-aero-design",
+      "title": "SAE Aero Design",
+      "kicker": "Micro Class",
+      "sourceTitle": "SAE Aero Design (Micro Class)",
+      "role": "Structures Subteam Member",
+      "org": "Stevens",
+      "timeline": "May 3, 2026 to Present",
+      "tools": [
+        "SolidWorks",
+        "MS Teams (file sharing and coordination)"
+      ],
+      "oneLiner": "I designed the forward fuselage of a micro-class aircraft in SolidWorks, through a run of redesigns that taught me as much about teams as about CAD.",
+      "numbers": [],
+      "sections": [
+        {
+          "heading": "Overview",
+          "source": "Overview",
+          "paragraphs": [
+            "I joined the structures team expecting a straightforward SolidWorks job, which I like. My task became the aerodynamically critical forward fuselage section: optimizing for structural strength, weight, and drag, and engineering the longeron and bulkhead layout so it could be laser cut with minimal construction complexity."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "The build",
+          "source": "The build (impact version)",
+          "paragraphs": [
+            "I was given a task, a deadline, and a partner. We planned each part of our role over Teams and I had my part done well before the due date. When my partner's part came back, it did not match the specifications and would not fit the assembly, so I communicated the issues, rebuilt his part myself, and built the full assembly."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "The redesigns",
+          "source": "The redesigns (hard-project version)",
+          "paragraphs": [
+            "Then the requirements kept moving. The next meeting, the body we were modifying had changed a lot and we redid it. After that I was told the frame was shifting from vertical frames with horizontal longerons to horizontal frames with vertical longerons, and the electronics bay was removed, leaving a front, main, and back section. A week later the switch was reversed, and I was redirected to just the front section with less direction than before. The nose tapers in and down, and getting that geometry to exist as a 3D solid required shapes that could not be laser cut, which took many hours to work through. The measurements changed again as the deadline got close, and the team went with a quicker version from other members. I carefully brought that design up to the level of the more organized version I had built and finished a day before the due date."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "What I learned",
+          "source": "What I learned",
+          "paragraphs": [
+            "This taught me how hard working in large teams actually is, and how valuable good leadership is. As a student you hear \"leadership\" and \"teamwork\" and it can sound like something everyone claims for free. This project showed me it is a real skill: allocating work and enforcing deadlines is hard, and project management can be just as difficult as making the thing itself. Real projects are messy and the project still has to move on, so the people who adapt, learn from mistakes, and keep their cool are what make large, complex projects possible. On the technical side I got many hours of practice building complex assemblies with many parts and complex mates, and picked up new tools that made my modeling faster. I want to carry this into future teams I am on or lead."
+          ],
+          "inCard": false
+        }
+      ]
+    },
+    {
+      "slug": "robot-arena",
+      "title": "Robot Arena",
+      "kicker": "ENGR 122",
+      "sourceTitle": "Robot Arena (ENGR 122)",
+      "role": "Lead and sole SolidWorks designer, team of 3",
+      "org": "",
+      "timeline": "Jan to May 2026",
+      "tools": [
+        "SolidWorks",
+        "Arduino",
+        "FDM 3D printing",
+        "ultrasonic sensors",
+        "ArUco markers"
+      ],
+      "oneLiner": "I designed the whole robot and helped tune its autonomous pathfinding into the fastest, most accurate robot in the class going into the final.",
+      "numbers": [
+        "2 hr 10 min vs 4 hr limit",
+        "1st in prelims",
+        "12 teams",
+        "~650 first-years",
+        "team of 3",
+        "3+ months"
+      ],
+      "sections": [
+        {
+          "heading": "Overview",
+          "source": "Overview",
+          "paragraphs": [
+            "Over 3+ months, my team of three built an autonomous robot to navigate an arena course. I was the lead and the only person working in SolidWorks, so the full design was mine."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "Design",
+          "source": "Design",
+          "paragraphs": [
+            "I designed the main housing frame around every requirement, including mounting points for all sensors, motor controllers, and breadboards. Then I optimized it for weight and print time: removing unnecessary parts, tuning fill density, and shaping it for both print time and strength. The limit was 4 hours of print time. All of our parts printed in 2 hr 10 min."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "Software and debugging",
+          "source": "Software and debugging",
+          "paragraphs": [
+            "Beyond the design I took on late-stage debugging and problem solving, and helped write and optimize the autonomous checkpoint pathfinding using ultrasonic feedback and ArUco marker localization. We iterated it for speed and accuracy until ours was the fastest and most accurate robot of every team, ranking first in the preliminary standings, 1 of 12 teams from roughly 650 first-year engineers."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "The final",
+          "source": "The final",
+          "paragraphs": [
+            "For the final Gallois Autonomous Robot Competition, the organizers changed the course, adding harder barriers and tighter turns. Small issues outside our control with the wheels and provided base caused our robot to malfunction, and we did not finish. Going in with a first-place lead, that was extremely disappointing."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "What I learned",
+          "source": "What I learned",
+          "paragraphs": [
+            "It was still a valuable experience: a long timeline building one robot as a team of three, optimizing hardware and software together, working with motor controllers and sensors, learning ArUco markers, and learning how to iterate an autonomous pathfinding system for speed."
+          ],
+          "inCard": false
+        }
+      ]
+    },
+    {
+      "slug": "plant-watering",
+      "title": "Automatic Plant Watering",
+      "kicker": "ENGR 111",
+      "sourceTitle": "Automatic Plant Watering System (ENGR 111)",
+      "role": "Led SolidWorks and Arduino development",
+      "org": "",
+      "timeline": "Sep to Dec 2025",
+      "tools": [
+        "Arduino IDE",
+        "SolidWorks",
+        "FDM 3D printing"
+      ],
+      "oneLiner": "My first engineering design project: an automated soil moisture monitor that reports wirelessly.",
+      "numbers": [
+        "Deployed 5 days",
+        "Telemetry every 10 min"
+      ],
+      "sections": [
+        {
+          "heading": "Overview",
+          "source": "Overview",
+          "paragraphs": [
+            "I led the SolidWorks and Arduino development of an automated soil moisture monitor with wireless reporting to Stevens, and iterated the enclosure for print time and strength."
+          ],
+          "inCard": true
+        },
+        {
+          "heading": "Details",
+          "paragraphs": [
+            "Reads soil moisture, waters on its own, and sends sensor readings over the Stevens wireless network. Waters 20 mL every 24 hours, and any time soil moisture reads under 30%. Readings go to the Stevens network every 10 minutes."
+          ],
+          "inCard": true,
+          "source": "live site (fills an [add] gap)",
+          "provenance": "live"
+        }
+      ],
+      "numbersProvenance": "live"
+    },
+    {
+      "slug": "training-hub-v2",
+      "title": "Training Hub V2",
+      "kicker": "Software",
+      "sourceTitle": "Training Hub V2 (software)",
+      "role": "Solo builder, AI-assisted",
+      "org": "",
+      "timeline": "",
+      "tools": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Supabase (accounts, auth, storage)",
+        "Git",
+        "Claude Code"
+      ],
+      "oneLiner": "A multi-user coaching web app I built and use as a coach for other athletes.",
+      "numbers": [],
+      "sections": [
+        {
+          "heading": "Overview",
+          "source": "Overview",
+          "paragraphs": [
+            "Training Hub V2 is a coaching app for other athletes, with me as the coach. It is not a personal tracker. I designed the data model and permissions on paper before writing any code, then built it in vanilla HTML, CSS, and JavaScript with Supabase handling accounts, auth, and storage. I went from never having installed Git to a working app in real use in three days."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "Why it is here",
+          "source": "Why it is here",
+          "paragraphs": [
+            "It shows I can pick up a new toolchain fast and ship something real people use. It also connects to running: I am a varsity cross country and track athlete at Stevens."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "Details",
+          "paragraphs": [
+            "Tracks weekly mileage and workouts, plus goals sorted into Safe, Solid and Reach tiers with a weekly process tracker."
+          ],
+          "inCard": false,
+          "source": "live site (fills an [add] gap)",
+          "provenance": "live"
+        }
+      ]
+    },
+    {
+      "slug": "mocore-lab",
+      "title": "MOCORE Lab",
+      "kicker": "Research",
+      "sourceTitle": "MOCORE Lab (small card, no photos)",
+      "role": "Undergraduate Student Researcher under Dr. Raviraj Nataraj",
+      "org": "",
+      "timeline": "Jun to Sep 2026",
+      "tools": [
+        "TPU fabric",
+        "heat welding",
+        "3D printing",
+        "budgeting"
+      ],
+      "oneLiner": "A self-directed redesign of a VR rehabilitation forearm rig that taught me how to fail well.",
+      "numbers": [],
+      "sections": [
+        {
+          "heading": "Overview",
+          "source": "Short version (card)",
+          "paragraphs": [
+            "After shadowing labs, I was picked for the MOCORE lab through emails, my resume, and multiple interviews. While helping with VR patient trials, I noticed the forearm rig was uncomfortable and gave inconsistent setups. I researched the problem, presented findings to the professor and two PhD students, wrote a $200 budget, received the funding directly, and designed a dual inflatable TPU bladder with a 3D-printed housing, using heat-weldable TPU fabric sourced from a pack raft supplier. I built 2 prototypes. The bladders leaked, the connection tube added complexity, and the 8 psi goal was not feasible with the tools and time I had. I refunded the ~$50 left over."
+          ],
+          "inCard": true
+        },
+        {
+          "heading": "What I learned",
+          "source": "What I learned (optional expand)",
+          "paragraphs": [
+            "Accepting that a project I put so much into did not work was the hardest part. I learned project management, research, budgeting, and fabrication, and next time I would lock in a fixed weekly lab time and a set summer plan from the start instead of coming in whenever I could."
+          ],
+          "inCard": false
+        }
+      ]
+    }
+  ]
+}

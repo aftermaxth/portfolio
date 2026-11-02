@@ -1,0 +1,67 @@
+{
+  "name": "Charles Thorn",
+  "title": "Charles Thorn · Mechanical Engineering Portfolio",
+  "description": "Charles Thorn, mechanical engineering student at Stevens Institute of Technology, seeking Summer 2027 internships in propulsion, thermal, structures and vehicle systems.",
+  "ogDescription": "Research prototyping, an autonomous robot finalist, embedded systems, and what I'm building next toward supersonic propulsion.",
+  "nav": [
+    { "label": "Projects", "href": "#projects" },
+    { "label": "Next", "href": "#next" },
+    { "label": "About", "href": "#about" },
+    { "label": "Contact", "href": "#contact" }
+  ],
+  "hero": {
+    "eyebrow": "Intro",
+    "lede": "Mechanical engineering at Stevens. I design, build, and integrate hardware, and I analyze how each component affects overall system performance. I lead and coordinate project work across teams.",
+    "buttons": [
+      { "label": "View projects", "href": "#projects", "primary": true, "glyph": "→" },
+      { "label": "Resume (PDF)", "href": "assets/resume/Thorn_Charles_Resume.pdf", "external": true, "glyph": "↗" }
+    ],
+    "specs": [
+      { "label": "Degree", "value": "B.E. Mechanical, May 2029", "origin": "existing hero copy" },
+      { "label": "Minor", "value": "Aerospace (planned)", "origin": "default pending Charles" },
+      { "label": "Seeking", "value": "Summer 2027 internship", "origin": "existing hero copy" }
+    ],
+    "poster": {
+      "src": "images/hero/engine.webp",
+      "width": 2040,
+      "height": 630,
+      "alt": "Jet engine on a test stand running with its afterburner lit.",
+      "credit": "Photo: U.S. Air Force"
+    }
+  },
+  "projects": { "eyebrow": "Projects", "heading": "Selected work" },
+  "next": {
+    "eyebrow": "Next",
+    "heading": "What I'm building next",
+    "cards": [
+      { "tag": "Upcoming", "title": "Pocket engine build", "origin": "source: Other material" }
+    ]
+  },
+  "about": {
+    "eyebrow": "About",
+    "heading": "About",
+    "rows": [
+      { "label": "Education", "items": ["Stevens ME, Class of 2029, GPA 3.5"], "fromSource": true },
+      { "label": "Minor", "items": ["Aerospace (planned)"], "fromSource": false },
+      { "label": "Goal", "items": ["propulsion and engine design, supersonic flight"], "fromSource": true },
+      { "label": "Skills", "items": ["SolidWorks (proficient)", "FDM 3D printing", "OpenRocket", "Arduino IDE (proficient)", "C++ (basic)", "Claude Code", "DFM", "iterative prototyping", "FMEA", "risk assessment"], "fromSource": true },
+      { "label": "Involvement", "items": ["AIAA Secretary, AY 2026-2027 (minutes, presentations, scheduling forms)", "Varsity cross country and track, NCAA D3", "Lifeguard, Blue Line Pool Management, Jul 2024 to present"], "fromSource": true }
+    ]
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "heading": "Contact",
+    "rows": [
+      { "label": "Email", "text": "cthorn@stevens.edu", "href": "mailto:cthorn@stevens.edu" },
+      { "label": "LinkedIn", "text": "charles-thorn", "href": "https://www.linkedin.com/in/charles-thorn-2491573a1", "external": true },
+      { "label": "GitHub", "text": "aftermaxth", "href": "https://github.com/aftermaxth", "external": true },
+      { "label": "Resume", "text": "PDF", "href": "assets/resume/Thorn_Charles_Resume.pdf", "external": true }
+    ]
+  },
+  "footer": {
+    "left": "© 2026 Charles Thorn · Hoboken, NJ, United States, Earth",
+    "right": "Built with Vite, three.js, GSAP and Lenis",
+    "sourceLabel": "Source",
+    "sourceHref": "https://github.com/aftermaxth/portfolio"
+  }
+}
