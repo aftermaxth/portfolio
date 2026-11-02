@@ -8,8 +8,8 @@ Rebuild Charles Thorn's portfolio so it stops reading as vibe coded: solid color
 Interaction references (pattern only, never copy code, copy or layout): chadjfrancis.com (scroll-driven 3D viewer), ziyuw.framer.website (clean, spacious structure).
 
 ## Where things are
-- Repo (local): C:\Users\thorn\Downloads\portfolio2 (origin https://github.com/aftermaxth/portfolio). Work branch `redesign` (cut from origin/main f543189). Nothing pushed. Never push or merge to main without Charles.
-- Live: https://aftermaxth.github.io/portfolio/ . Pages source is still "Deploy from branch (main /)". Moving to GitHub Actions is a settings change: ASK FIRST.
+- Repo (local): C:\Users\thorn\Downloads\portfolio2 (origin https://github.com/aftermaxth/portfolio). `redesign` was merged to main through PR #1 on 2026-11-02 (merge commit). Never push to main directly; use a branch and a PR.
+- Live: https://aftermaxth.github.io/portfolio/ , published 2026-11-02 20:54 UTC. Pages source is GitHub Actions (switched by me on Charles's go-ahead); .github/workflows/pages.yml deploys dist/ on every push to main and on manual run.
 - Content source of truth: C:\Users\thorn\toDO\Portfolio Source Material.md (do not reread in full; tools/extract_source.mjs reads it). Raw backups for cross-check only: same folder (Brain Dump - Oct 29.txt etc.), `Claude outputs\Charles_Thorn_Resume_Mechanical.docx`.
 - Model sources: C:\Users\thorn\toDO\portfolio_update\solidworks_files (engr_111 plant, engr_122 robot; STEP + per-part STL, mm, shared assembly coords). Kept OUT of the repo (STEP up to 61 MB). Only compressed GLBs are committed.
 
@@ -38,7 +38,7 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | Keep hero copy, contact links, resume PDF (public/assets/resume/Thorn_Charles_Resume.pdf, same public URL path as the old site, sha256 1ab63271...) | Task rule |
 | Viewer: yaw-only drag, no zoom/pan, canvas touch-action pan-y, lazy chunk, render only while visible | Touch must never hijack page scroll |
 | Normals computed at load (creased 35 deg) from positions-only GLBs | Smallest files; machined look |
-| Pages workflow written but triggers on main only; Pages source untouched | Branch pushes never deploy. Charles switches the source to GitHub Actions at merge time (chat, 2026-11-02) |
+| Pages workflow triggers on main only; Pages source switched to GitHub Actions and the site published 2026-11-02 | Branch pushes never deploy. Charles switches the source to GitHub Actions at merge time (chat, 2026-11-02) |
 | Robot assembly viewer: only own parts (printed housing, ArUco marker panel) | Purchased parts (chassis, boards, sensors, display) stripped so no vendor CAD ships. Charles, chat 2026-11-02 |
 | og-image = render of the live hero (tools/og_image.mjs, headless Chrome, 1200x630) | Charles, chat 2026-11-02 |
 | One shared renderer (src/js/render.js) for hero and viewers: MSAA, DPR 2, AgX, sRGB, baked contact shadow | Step 7; MSAA meets the AA rule, so `postprocessing` was not added (smaller lazy chunk) |

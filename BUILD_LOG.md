@@ -1,10 +1,10 @@
 # BUILD_LOG
 
 ## RESUME HERE
-- Current phase: Phase C (Sonnet, high) FINISHED on 2026-11-02, except the items that need Charles. Branch `redesign`, nothing pushed or merged. Phase C changes are in the working tree and committed together (see the latest commit).
-- Expected model and effort: none pending. If continuing, Sonnet high.
-- Current state: robot assembly viewer shows only the printed housing and the ArUco panel; old site files deleted; og-image is a render of the live hero; Lighthouse mobile 98/100/100/100, desktop 100 x4; contrast, focus and text-over-canvas audits pass (tools/audit_a11y.mjs). Build, check_site (0 em dashes, 0 brackets) and verify_content (146 strings) ok.
-- Open for Charles: (1) sensor count 3 vs 5 (he checks SolidWorks), then fix the alt text of robot-assembly.webp in content/media.json; also decide whether that full-assembly render stays; (2) switch Pages source to GitHub Actions at merge time (workflow ready, main-only trigger); (3) phone frame rate: NOT measured on a real phone, a risk (see the Phase C log entry); (4) the optional deletions are done (see the last log entry); (5) missing assets and [add] info, GSAP license text, LICENSE file; (6) content/site.json hero.poster width/height (2040x630) are unused. No merge to main until Charles says so.
+- Current phase: PUBLISHED. Phase C finished and the redesign is live at https://aftermaxth.github.io/portfolio/ (2026-11-02). PR #1 merged to main, Pages source switched to GitHub Actions, deploy run 41523533383 succeeded.
+- Expected model and effort: Sonnet high for follow-ups.
+- Rule: never push to main directly. Any change goes on a branch, then a PR, then merge on Charles's word.
+- Open for Charles: (1) sensor count 3 vs 5 (then fix the alt text of robot-assembly.webp in content/media.json; the caption says "Sensor array"); (2) "Design not started" on the Next card: confirm it is still true; (3) phone frame rate of the hero is unmeasured on a real phone (risk: ray-marched plume); (4) missing assets and [add] info, GSAP license text, LICENSE file (TODO_CHARLES.md); (5) the Actions run warns that Node 20 actions are deprecated (checkout@v4, setup-node@v4, upload-artifact@v4 forced onto Node 24): bump versions later.
 
 ---
 
@@ -135,3 +135,9 @@
 
 ### 2026-11-02 Phase C addendum 3 | Next card final wording
 - Charles (chat): keep "Winter 2027" and add "combustion engine". Title is now "Small combustion engine (side project)"; text unchanged. verify_content strips the added word before matching the old site. Build, check_site and verify_content ok.
+
+### 2026-11-02 Publish | PR #1, Pages switch, live check
+- Charles (chat): "lets publish to pages", then approved the merge and the Pages switch after the first attempt was blocked by the permission check. Steps: pushed `redesign` (17 commits ahead of main, fast-forwardable), opened PR #1 with `gh pr create`, switched Pages with `gh api -X PUT repos/aftermaxth/portfolio/pages -f build_type=workflow` BEFORE merging (a merge first would have let the old branch build publish the raw source index.html), then `gh pr merge 1 --merge` (merged 20:54:49 UTC). The push to main started "Deploy to GitHub Pages" run 41523533383; it completed with success.
+- Live check: / 200; assets/resume/Thorn_Charles_Resume.pdf 200 and sha256 1ab632710632010d0fccae472766bba304e09e078a00101c1b87af378d141b5b (same as the original); og-image.png 200 (210,687 bytes, the new render); models/hero/jet-engine.glb 200; images/hero/engine-render.webp 200; a bad path returns the new 404 page; title and the "Small combustion engine (side project)" card present. Browser pane at the live URL: hero engine with the Mach plume renders (reduced-motion poster path in that pane), console has no errors.
+- Not done: Lighthouse and audits were run on the local preview build, not re-run on the live URL; real-phone frame rate.
+- Next: Charles reviews the live site; follow-ups go on a branch and a PR.
