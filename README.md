@@ -58,4 +58,4 @@ src/styles/                tokens, base (12-column grid), components
 tools/                     content, model and release-check scripts
 ```
 
-`css/`, `js/`, `assets/` and `tools/*.py` at the repo root are the previous site, kept until their removal is approved.
+The previous site (`css/`, `js/`, `assets/`, `tools/*.py`, the old hero photo) was removed from the tree; it stays in git history.

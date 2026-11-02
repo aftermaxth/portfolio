@@ -1,5 +1,5 @@
 // Afterburner plume as a ray-marched volume, colored by an illustrative Mach-number field.
-// The field is the same model the old hero's contour art used (tools/mach_field.py): an underexpanded
+// The field is the same model the old hero's contour art used (tools/mach_field.py, removed; see git history): an underexpanded
 // jet with shrinking shock cells, a closing potential core and a spreading shear layer. Colors follow
 // the jet colormap from blue (Mach 0) to red (Mach 3.2). Glowing Mach disks sit where the shocks cross
 // the axis; they shrink and dim downstream. A soft violet halo stands in for the bloom layer.
@@ -98,7 +98,7 @@ const fragmentShader = /* glsl */ `
       float turb = noise(vec3(sd * 2.2 - uTime * 7.0, q.y * 2.6, q.z * 2.6));
       float jet = 0.5 * (1.0 - tanh((r + (turb - 0.5) * shearW * 1.1 - shearMid) / shearW));
 
-      // Mach number (same form as tools/mach_field.py).
+      // Mach number (same form as the old tools/mach_field.py).
       float cell = cellCount(sd) - cellCount(0.35);
       float u = fract(cell);
       float rr = r / core + abs(2.0 * u - 1.0);

@@ -1,7 +1,7 @@
 # PROJECT_CONTEXT
 
 Always-current truth. Edit in place. History lives in BUILD_LOG.md.
-Last updated: 2026-11-02 (end of Phase B, after the hero feedback round)
+Last updated: 2026-11-02 (Phase C: audits done, old files removed)
 
 ## Goal
 Rebuild Charles Thorn's portfolio so it stops reading as vibe coded: solid color, real depth, restrained motion, a real-time 3D hero engine (Phase B), pinned 3D viewers for projects with models. Owner: mechanical engineering at Stevens, seeking Summer 2027 internships (propulsion, thermal, structures, vehicle systems). Long-term goal: engine design for supersonic flight.
@@ -14,9 +14,9 @@ Interaction references (pattern only, never copy code, copy or layout): chadjfra
 - Model sources: C:\Users\thorn\toDO\portfolio_update\solidworks_files (engr_111 plant, engr_122 robot; STEP + per-part STL, mm, shared assembly coords). Kept OUT of the repo (STEP up to 61 MB). Only compressed GLBs are committed.
 
 ## Stack
-Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger + CustomEase, lenis 1.3, Fontsource (@fontsource-variable/archivo, @fontsource/dm-mono), dev: @gltf-transform/cli 4.5. Node 24, npm 11. Approved list only; anything else (e.g. `postprocessing` for Phase B is approved; Playwright or Lighthouse CLI are NOT) needs Charles's OK.
+Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger + CustomEase, lenis 1.3, Fontsource (@fontsource-variable/archivo, @fontsource/dm-mono), dev: @gltf-transform/cli 4.5. Node 24, npm 11. Approved list only; anything else needs Charles's OK (Lighthouse was approved for Phase C but lives in a scratch folder, not in package.json; Playwright is NOT approved).
 - Build-time render: tools/vite-plugin-site.mjs makes the static HTML from content/*.json and scans models/ and images/<slug>/. index.html is just a shell.
-- Old site files (index.html replaced; css/, js/, assets/, tools/*.py, tools/source/) still in the repo root, unused. Deleting them needs Charles's OK.
+- Old site files css/, js/, assets/, tools/*.py and images/hero/engine.webp were deleted on 2026-11-02 (Charles OK; git history keeps them). Still in the root, unused, not on his list: 404.html (old), favicon.*, apple-touch-icon.png, og-image.png (copies of public/), tools/source/.
 
 ## Design tokens (src/styles/tokens.css)
 - Color (kept from old site): bg #0a0b0d, surface #111317, surface-2 #171a1f, ink #f2f1ee, ink-muted #a0a6ad, rule #23272d, accent #ff8100, accent-ink #0a0b0d, focus #7cc4ff. Solid fills only: no gradients, glass blur, grid or box texture.
@@ -35,10 +35,12 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | Pocket engine card: "Upcoming / winter 2026 / pocket engine build" (source line) | Charles, chat 2026-11-02 |
 | USLI, SAE, MOCORE and Robot Arena wording stays exactly as the source has it (MOCORE states the leaks and unmet 8 psi goal; SAE never names or blames; Robot Arena states the final honestly) | Resolved 2026-11-02 |
 | Robot Arena: finalist is true, 31 s was the prelim run (not shown, not in source), never state "3 of 12 finished" | Charles, chat 2026-11-02 |
-| Keep hero copy, contact links, resume PDF (public/assets/resume/..., identical bytes to assets/resume/...) | Task rule |
+| Keep hero copy, contact links, resume PDF (public/assets/resume/Thorn_Charles_Resume.pdf, same public URL path as the old site, sha256 1ab63271...) | Task rule |
 | Viewer: yaw-only drag, no zoom/pan, canvas touch-action pan-y, lazy chunk, render only while visible | Touch must never hijack page scroll |
 | Normals computed at load (creased 35 deg) from positions-only GLBs | Smallest files; machined look |
-| Pages workflow written but triggers on main only | Branch pushes never deploy; settings change needs approval |
+| Pages workflow written but triggers on main only; Pages source untouched | Branch pushes never deploy. Charles switches the source to GitHub Actions at merge time (chat, 2026-11-02) |
+| Robot assembly viewer: only own parts (printed housing, ArUco marker panel) | Purchased parts (chassis, boards, sensors, display) stripped so no vendor CAD ships. Charles, chat 2026-11-02 |
+| og-image = render of the live hero (tools/og_image.mjs, headless Chrome, 1200x630) | Charles, chat 2026-11-02 |
 | One shared renderer (src/js/render.js) for hero and viewers: MSAA, DPR 2, AgX, sRGB, baked contact shadow | Step 7; MSAA meets the AA rule, so `postprocessing` was not added (smaller lazy chunk) |
 | Hero: one scene on the page background (no stage box), engine zone bleeds past the right edge, exhaust toward Projects; drag rotates (yaw, touch-action pan-y), lazy after load and idle, never under reduced motion, poster underneath | Charles, chat 2026-11-02 (feedback round) |
 | Plume: ray-marched Mach-number volume (old tools/mach_field.py model), blue Mach 0 to red Mach 3.2, glowing Mach disks; gradients only inside the plume | Charles, chat 2026-11-02; references in assets/img/hero/ |
@@ -61,26 +63,26 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 |---|---|---|---|
 | NASA Student Launch | none | none | text-only. Needs CAD renders, OpenRocket sim, photos, FMEA screenshot |
 | SAE Aero Design | none | none | text-only. Needs forward fuselage CAD, renders |
-| Robot Arena | robot-arena--housing.glb 24 kB, robot-arena--assembly.glb 509 kB | robot-build, robot-housing, robot-assembly (.webp) | pinned viewer (2 tabs) + gallery. Assembly license UNCLEAR (course CAD parts) |
+| Robot Arena | robot-arena--housing.glb 24 kB, robot-arena--assembly.glb 17 kB (housing + ArUco panel only) | robot-build, robot-housing, robot-assembly (.webp) | pinned viewer (2 tabs) + gallery. Sensor count (3 vs 5) still open; robot-assembly.webp render and its alt text still show the full assembly |
 | Automatic Plant Watering | plant-watering.glb 8 kB | plant-enclosure, plant-wiring, plant-final | pinned viewer + gallery |
 | Training Hub V2 | n/a | coach-demo.mp4/.webp, athlete-demo.mp4/.webp | video gallery |
 | MOCORE Lab | n/a | none by design | text-only small card |
 | Pocket engine (Next) | n/a | none | text card with date "winter 2026" |
-| Hero engine | models/hero/jet-engine.glb 1.49 MB ("Jet Engine" by shogo.gfx, CC BY 4.0, source toDO\portfolio_update\jet_engine.glb); procedural engine.js is the fallback | posters images/hero/engine-render.webp (wide), -medium, -narrow (renders of the live scene). Old photo engine.webp unused, delete pending OK | live canvas in the engine zone; poster for reduced motion, no WebGL, no JS; credit on the meta row |
+| Hero engine | models/hero/jet-engine.glb 1.49 MB ("Jet Engine" by shogo.gfx, CC BY 4.0, source toDO\portfolio_update\jet_engine.glb); procedural engine.js is the fallback | posters images/hero/engine-render.webp (wide), -medium, -narrow (renders of the live scene). Old photo engine.webp deleted | live canvas in the engine zone; poster for reduced motion, no WebGL, no JS; credit on the meta row |
 
 ## How to run / build / deploy
 - `node tools/build_env.mjs <in.hdr> <out.hdr>` halves an HDRI for public/env/. `node tools/build_hero_model.mjs` rebuilds models/hero/jet-engine.glb (HERO_MODEL_SRC). Posters: in `npm run dev`, call createHero, then POST hero.snapshot(1600, 1067, "wide"), (1520, 800, "medium"), (860, 662, "narrow") to /__save-hero-poster?layout=... (tools/vite-plugin-poster.mjs; Vite reloads after the first write, so send all three together).
 - Hero proof: `npm run build`, `npx vite preview --port 4173`, then `node tools/hero_frames.mjs --out <dir> --widths 1440,768,375` (headless Chrome, reduced motion off; frames, plume pixel diff, headline overlap, drag, off-screen pause).
 - `npm install`, `npm run dev` (http://localhost:5173/portfolio/), `npm run build` (dist/), `npm run preview`.
-- `npm run content` regenerates and verifies content. `npm run models` rebuilds GLBs from STL (MODELS_SRC env). `npm run check` or `node tools/check_site.mjs` = em dash and bracket check on src and dist.
+- `npm run content` regenerates and verifies content. `npm run models` rebuilds GLBs from STL (MODELS_SRC env). `npm run check` or `node tools/check_site.mjs` = em dash and bracket check on src and dist. `node tools/og_image.mjs --out <dir> --y 84 --pick 3` re-renders og-image.png from the hero (needs `vite preview` on 4173). `node tools/audit_a11y.mjs --widths 1440,768,375` runs the contrast and focus audit.
 - Deploy: .github/workflows/pages.yml (main only). Needs Pages source = GitHub Actions (not switched).
 - The in-app Browser pane forces prefers-reduced-motion: reduce and does not paint (or run requestAnimationFrame) until a screenshot is taken. Run Vite with Bash, open it with preview_start {url} (preview_start {name} picks the wrong project; plain navigate was refused once). Mount the hero by hand: import /portfolio/src/js/hero.js, call createHero without awaiting, then screenshot.
 
 ## License and attribution state
 - THIRD_PARTY.md lists every runtime and build dependency with license (all MIT or OFL, GSAP Standard no-charge). Font OFL texts ship in /licenses/.
 - Hero model credited on the page and in THIRD_PARTY.md (CC BY 4.0). The unconfirmed Air Force photo is no longer shown.
-- UNCLEAR: robot assembly GLB includes course/vendor component CAD (Zumo chassis, sensors, boards, display).
+- Robot assembly GLB now has only the team's own parts (vendor CAD stripped). The gallery render robot-assembly.webp is a screenshot of the full assembly (flagged in TODO_CHARLES.md).
 - Repo has no LICENSE file (TODO_CHARLES.md).
 
 ## Phase status
-- Phase A (Sonnet): steps 1 to 5, 8, 9 done. Phase B (Opus, steps 6 and 7): done, including the hero feedback round. Phase C (Sonnet): next. Phase C (Sonnet): QA, Lighthouse, accessibility, screenshots, TODO review.
+- Phase A (Sonnet): steps 1 to 5, 8, 9 done. Phase B (Opus, steps 6 and 7): done, including the hero feedback round. Phase C (Sonnet): done 2026-11-02 except items needing Charles (sensor count, Pages switch at merge, phone frame rate on a real device, optional extra deletions). Lighthouse mobile 98/100/100/100, desktop 100 x4. `node tools/audit_a11y.mjs` (contrast, focus order, text over the hero canvas) passes at 1440, 768, 375.

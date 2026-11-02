@@ -25,8 +25,8 @@ Every third-party piece the site ships or builds with. Licenses were read from t
 |---|---|---|
 | Project photos, renders, demo videos (images/) | Charles Thorn | Own work |
 | Plant enclosure and robot housing CAD (models/plant-watering.glb, robot-arena--housing.glb) | Charles Thorn | Own design |
-| Robot assembly GLB (models/robot-arena--assembly.glb) | Housing and ArUco panel: Charles Thorn. Zumo chassis, HC-SR04-type sensors, WeMos D1, FeeTech controller and OLED display: course-supplied or vendor CAD | UNCLEAR redistribution license. See TODO_CHARLES.md. Remove those parts or confirm before publishing. |
-| Old hero photo (images/hero/engine.webp) | Credit line said "Photo: U.S. Air Force", inferred, never confirmed | No longer shown or referenced (replaced by a render). Still in the repo and copied into dist until Charles OKs deleting it. |
+| Robot assembly GLB (models/robot-arena--assembly.glb) | Housing and ArUco panel: Charles Thorn | Purchased parts (Zumo chassis, sensors, WeMos D1, FeeTech controller, OLED display) were stripped from the model on 2026-11-02, so no vendor CAD is redistributed. The gallery render robot-assembly.webp still shows the full assembly. |
+| Old hero photo (images/hero/engine.webp) | Credit line said "Photo: U.S. Air Force", inferred, never confirmed | Deleted from the tree on 2026-11-02 (replaced by a render); remains in git history only. |
 | Resume PDF | Charles Thorn | Unchanged copy of the original |
 
 ## Phase B

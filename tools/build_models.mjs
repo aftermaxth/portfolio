@@ -14,12 +14,11 @@ const SRC = process.env.MODELS_SRC || "C:/Users/thorn/toDO/portfolio_update/soli
 const OUT = join(root, "models");
 const TMP = join(root, "tools", ".tmp-models");
 
-// Part classes: printed = Charles's own printed design (accent orange), the rest are bought components.
+// Part classes: printed = Charles's own printed design (accent orange), panel = the ArUco marker panel.
+// Purchased parts (Zumo chassis, WeMos D1, FeeTech controller, OLED display, ultrasonic sensors) are
+// left out on purpose: the viewer shows only the team's own parts and no vendor CAD is redistributed.
 const COLORS = {
   printed: { hex: "#ff8100", rough: 0.55, metal: 0.0 },
-  chassis: { hex: "#4a515b", rough: 0.6, metal: 0.1 },
-  board: { hex: "#6b737e", rough: 0.5, metal: 0.2 },
-  sensor: { hex: "#aeb5c0", rough: 0.45, metal: 0.3 },
   panel: { hex: "#e9e7e2", rough: 0.7, metal: 0.0 },
 };
 
@@ -33,13 +32,6 @@ const MODELS = {
     simplifyError: 0.0002,
     parts: [
       ["engr_122 - bodytry3-1.STL", "printed"],
-      ["engr_122 - ENGR122_ZumoChassis-1.STL", "chassis"],
-      ["engr_122 - 1-2.STL", "sensor"],
-      ["engr_122 - 1-3.STL", "sensor"],
-      ["engr_122 - ENGR122_HCSR04-2.STL", "sensor"],
-      ["engr_122 - ENGR122_WeMosD1-1.STL", "board"],
-      ["engr_122 - ENGR122_FeeTech-SMC-4CH-1.STL", "board"],
-      ["engr_122 - ENGR122_OLED_Display-1.STL", "board"],
       ["engr_122 - flat-1.STL", "panel"],
     ],
   },

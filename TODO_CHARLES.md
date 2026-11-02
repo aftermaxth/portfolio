@@ -34,7 +34,7 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [x] SAE text says "his part" about a partner (verbatim from source, no name). Accepted: source wording stays.
 
 ## Model check (step 5, open for Phase C)
-- [ ] Robot assembly GLB shows 3 sensor parts (engr_122 STL files 1-2, 1-3, HCSR04-2) and the old render's alt text says 5 ultrasonic sensors. Was the assembly export complete? If not, re-export with all components and rerun `npm run models`. Part names 1-2 and 1-3 were guessed to be sensors from their triangle counts.
+- [ ] Sensor count, still open (Charles will check the SolidWorks assembly): the viewer no longer shows any sensors (purchased parts stripped 2026-11-02), but the gallery render robot-assembly.webp and its alt text still say "five ultrasonic sensors", and the engr_122 export held only 3 sensor-type parts (1-2, 1-3, HCSR04-2). Once the count is known, fix the alt text in content/media.json. That image is also a screenshot of the full assembly with the purchased boards and sensors; keep it or drop it?
 - [ ] Plant enclosure GLB is the printed enclosure only (revisedhd-1.STL). Want the electronics (pump, boards) added as a second tab?
 
 ## Needed assets
@@ -44,16 +44,17 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [ ] Pocket engine: any image or CAD (optional)
 
 ## Licenses and attribution
-- [ ] Robot assembly GLB includes the Zumo chassis, HC-SR04-type sensors, WeMos D1, FeeTech controller and OLED display CAD from the course kit or vendors. Redistribution license unclear. Keep, or reduce to housing-only (delete the assembly tab) before publishing?
-- [x] Hero photo "Photo: U.S. Air Force": no longer shown; the hero poster is now a render of the 3D engine (Charles OK, 2026-11-02). The file images/hero/engine.webp is still in the repo and still copied into dist: OK to delete it?
+- [x] Robot assembly GLB: purchased parts (Zumo chassis, sensors, WeMos D1, FeeTech controller, OLED display) stripped, 2026-11-02 (Charles, chat). The Assembly tab now shows the printed housing plus the ArUco marker panel (17 kB). tools/build_models.mjs holds the part list. The marker panel (flat-1) was kept because it is not on the purchased list; tell me if it is not yours.
+- [x] Hero photo "Photo: U.S. Air Force": no longer shown; the hero poster is now a render of the 3D engine (Charles OK, 2026-11-02). The file images/hero/engine.webp is deleted (Charles OK, 2026-11-02).
 - [x] Hero engine model: "Jet Engine" by shogo.gfx, CC BY 4.0, credited under the hero and in THIRD_PARTY.md.
 - [x] Fonts: Fontsource packages are OFL-1.1 (checked in Step 8, texts ship in /licenses/).
 - [ ] GSAP is free under its Standard "no charge" license (only the package.json license field was checked). Read https://gsap.com/standard-license if you want certainty.
 - [ ] No LICENSE file in repo. Decide whether to add one.
 
 ## Approvals needed from Charles (task boundaries)
-- [ ] Switch GitHub Pages source from "Deploy from branch (main)" to "GitHub Actions" (a Pages settings change; I will not do it without your OK).
+- [ ] Switch GitHub Pages source from "Deploy from branch (main)" to "GitHub Actions". Charles does this at merge time (chat, 2026-11-02); nothing in Pages was touched. The workflow (.github/workflows/pages.yml) is ready: main and manual triggers only, `npm ci` dry run ok, builds dist/.
 - [x] STEP-to-GLB converter: not needed, the STL exports were used.
-- [ ] Allow a screenshot/Lighthouse tool (e.g. Playwright, Lighthouse CLI) for Phase C, or use the built-in browser only.
-- [ ] Deleting any old asset (hero layer images, tools/ scripts, old css/js) after the Vite port: needs your OK per file group.
-- [ ] Merge `redesign` to main: content flags are resolved; still waiting on the assembly license, sensor count, Pages and old-files items above.
+- [x] Lighthouse for Phase C: Charles asked for it (chat, 2026-11-02). Lighthouse 12.8.2 was installed in a scratch folder outside the repo and is NOT in package.json. Playwright was not used.
+- [x] Old site files deleted 2026-11-02 (Charles OK): css/, js/, assets/, tools/*.py, images/hero/engine.webp, plus tools/og-image.html (replaced by tools/og_image.mjs). Git history keeps them. Resume PDF verified at the same public path, same sha256 as the original.
+- [ ] Not deleted because not on your list: root 404.html (old page, links css/ which is gone; the build ships public/404.html instead), root favicon.*, apple-touch-icon.png and og-image.png (copies of public/), tools/source/engine-test-cell.jpg (the Air Force photo). OK to delete these too?
+- [ ] Merge `redesign` to main (never pushed or merged by me): left to do are the sensor-count alt text, the Pages switch at merge time, and the optional items above. Phone frame rate is unmeasured (see BUILD_LOG).
