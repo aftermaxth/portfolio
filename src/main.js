@@ -7,7 +7,12 @@ import "./styles/base.css";
 import "./styles/components.css";
 
 import { initProjects } from "./js/projects.js";
-import { initMotion } from "./js/motion.js";
+import { initNav } from "./js/nav.js";
 
 initProjects();
-initMotion();
+initNav();
+
+// Smooth scroll and scroll-driven motion are skipped entirely for reduced motion.
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  import("./js/motion.js").then((m) => m.initMotion());
+}
