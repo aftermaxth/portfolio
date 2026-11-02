@@ -12,6 +12,12 @@ const VID = /\.(mp4|webm)$/i;
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const titleCase = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+// Attribution line: plain text, or {label, title, titleUrl, author, authorUrl, license, licenseUrl, changes}.
+const creditHTML = (c) => {
+  if (typeof c === "string") return esc(c);
+  const a = (href, text, rel = "") => `<a class="link" href="${esc(href)}"${rel ? ` rel="${rel}"` : ""}>${esc(text)}</a>`;
+  return `${esc(c.label)}: ${a(c.titleUrl, c.title)} by ${a(c.authorUrl, c.author)}, ${a(c.licenseUrl, c.license, "license")}, ${esc(c.changes)}`;
+};
 
 function imageSize(buf, name) {
   const ext = extname(name).toLowerCase();
@@ -169,9 +175,11 @@ export default function sitePlugin() {
           <dl class="specs" data-intro>${h.specs.map((s) => `<div class="specs__row"><dt class="label">${esc(s.label)}</dt><dd>${s.values.map((v) => `<span class="specs__line">${esc(v)}</span>`).join("")}</dd></div>`).join("")}</dl>
         </div>
       </div>
-      <figure class="hero__stage" data-hero-stage>
-        <img class="hero__poster" src="${url(h.poster.src)}" width="${h.poster.width}" height="${h.poster.height}" alt="${esc(h.poster.alt)}" fetchpriority="high" decoding="async">
-        <figcaption class="hero__credit label">${esc(h.poster.credit)}</figcaption>
+      <figure class="hero__stage">
+        <div class="hero__frame" data-hero-stage>
+          <img class="hero__poster" src="${url(h.poster.src)}" width="${h.poster.width}" height="${h.poster.height}" alt="${esc(h.poster.alt)}" fetchpriority="high" decoding="async">
+        </div>
+        <figcaption class="hero__credit label">${creditHTML(h.poster.credit)}</figcaption>
       </figure>
     </section>
 

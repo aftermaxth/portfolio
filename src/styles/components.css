@@ -37,14 +37,18 @@
 .specs__row { padding-block: var(--sp-2); border-top: 1px solid var(--color-rule); }
 .specs__row dd { margin-top: 4px; }
 .specs__line { display: block; }
-.hero__stage { position: relative; margin-top: var(--sp-6); background: var(--color-surface); overflow: hidden; }
-.hero__poster { width: 100%; aspect-ratio: 2040 / 630; min-height: 14rem; object-fit: cover; transition: opacity var(--dur-3) var(--ease); }
-.hero__credit { position: absolute; right: var(--gutter); bottom: var(--sp-2); }
+.hero__stage { margin-top: var(--sp-6); background: var(--color-surface); }
+.hero__frame { position: relative; overflow: hidden; }
+/* The poster is a render on the stage color, so contain keeps the whole engine in view at every width. */
+.hero__poster { width: 100%; aspect-ratio: 2040 / 630; min-height: 14rem; object-fit: contain; transition: opacity var(--dur-3) var(--ease); }
+/* Model credit (CC BY): a line under the picture, above the canvas so its links stay usable. */
+.hero__credit { position: relative; z-index: 1; padding: var(--sp-1) var(--gutter); text-align: right; color: var(--color-ink-muted); text-transform: none; letter-spacing: 0; }
+.hero__credit .link { color: var(--color-ink); white-space: nowrap; }
 /* Live engine: drawn over the poster, fades in once its first frame exists. Never takes pointer input. */
 .hero__canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0; transition: opacity var(--dur-3) var(--ease); }
-.hero__stage[data-state="ready"] .hero__canvas { opacity: 1; }
-.hero__stage[data-state="ready"] .hero__poster { opacity: 0; }
-.hero__stage[data-state="ready"] .hero__credit { display: none; }
+.hero__frame[data-state="ready"] .hero__canvas { opacity: 1; }
+/* The poster leaves only after the canvas is fully in, so the crossfade never dips. */
+.hero__frame[data-state="ready"] .hero__poster { opacity: 0; transition-delay: var(--dur-3); }
 @media (min-width: 900px) {
   .hero__copy { grid-column: 1 / span 7; }
   .specs { grid-column: 9 / span 4; align-self: end; }

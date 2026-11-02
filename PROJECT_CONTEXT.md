@@ -1,7 +1,7 @@
 # PROJECT_CONTEXT
 
 Always-current truth. Edit in place. History lives in BUILD_LOG.md.
-Last updated: 2026-11-02 (Phase B in progress: renderer and HDRI done, waiting on the engine model file)
+Last updated: 2026-11-02 (end of Phase B)
 
 ## Goal
 Rebuild Charles Thorn's portfolio so it stops reading as vibe coded: solid color, real depth, restrained motion, a real-time 3D hero engine (Phase B), pinned 3D viewers for projects with models. Owner: mechanical engineering at Stevens, seeking Summer 2027 internships (propulsion, thermal, structures, vehicle systems). Long-term goal: engine design for supersonic flight.
@@ -64,10 +64,10 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 | Training Hub V2 | n/a | coach-demo.mp4/.webp, athlete-demo.mp4/.webp | video gallery |
 | MOCORE Lab | n/a | none by design | text-only small card |
 | Pocket engine (Next) | n/a | none | text card with date "winter 2026" |
-| Hero engine | Picked: "Jet Engine" by shogo.gfx, CC BY 4.0 (Charles downloads it to toDO\portfolio_update\hero_engine). Procedural engine.js is the fallback | images/hero/engine.webp (photo, credit unconfirmed; to be replaced by a render, Charles OK) | live canvas over the poster; poster for reduced motion, no WebGL, no JS |
+| Hero engine | models/hero/jet-engine.glb 1.49 MB ("Jet Engine" by shogo.gfx, CC BY 4.0, source toDO\portfolio_update\jet_engine.glb); procedural engine.js is the fallback | images/hero/engine-render.webp (render of the same scene). Old photo engine.webp unused, delete pending OK | live canvas over the poster; poster for reduced motion, no WebGL, no JS; linked credit under it |
 
 ## How to run / build / deploy
-- `node tools/build_env.mjs <in.hdr> <out.hdr>` halves an HDRI for public/env/.
+- `node tools/build_env.mjs <in.hdr> <out.hdr>` halves an HDRI for public/env/. `node tools/build_hero_model.mjs` rebuilds models/hero/jet-engine.glb (HERO_MODEL_SRC). Poster: in `npm run dev`, call createHero then POST hero.snapshot(2040, 630) to /__save-hero-poster (tools/vite-plugin-poster.mjs).
 - `npm install`, `npm run dev` (http://localhost:5173/portfolio/), `npm run build` (dist/), `npm run preview`.
 - `npm run content` regenerates and verifies content. `npm run models` rebuilds GLBs from STL (MODELS_SRC env). `npm run check` or `node tools/check_site.mjs` = em dash and bracket check on src and dist.
 - Deploy: .github/workflows/pages.yml (main only). Needs Pages source = GitHub Actions (not switched).
@@ -75,8 +75,9 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 
 ## License and attribution state
 - THIRD_PARTY.md lists every runtime and build dependency with license (all MIT or OFL, GSAP Standard no-charge). Font OFL texts ship in /licenses/.
-- UNCLEAR: hero photo credit "U.S. Air Force" (inferred, replaced in Phase B); robot assembly GLB includes course/vendor component CAD (Zumo chassis, sensors, boards, display).
+- Hero model credited on the page and in THIRD_PARTY.md (CC BY 4.0). The unconfirmed Air Force photo is no longer shown.
+- UNCLEAR: robot assembly GLB includes course/vendor component CAD (Zumo chassis, sensors, boards, display).
 - Repo has no LICENSE file (TODO_CHARLES.md).
 
 ## Phase status
-- Phase A (Sonnet): steps 1 to 5, 8, 9 done. Phase B (Opus, steps 6 and 7): step 7 done (renderer, HDRI); step 6 waiting on the model file from Charles, then model swap, credit, poster render (see RESUME HERE). Phase C (Sonnet): QA, Lighthouse, accessibility, screenshots, TODO review.
+- Phase A (Sonnet): steps 1 to 5, 8, 9 done. Phase B (Opus, steps 6 and 7): done. Phase C (Sonnet): next. Phase C (Sonnet): QA, Lighthouse, accessibility, screenshots, TODO review.

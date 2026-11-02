@@ -45,7 +45,8 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 
 ## Licenses and attribution
 - [ ] Robot assembly GLB includes the Zumo chassis, HC-SR04-type sensors, WeMos D1, FeeTech controller and OLED display CAD from the course kit or vendors. Redistribution license unclear. Keep, or reduce to housing-only (delete the assembly tab) before publishing?
-- [ ] Hero photo "Photo: U.S. Air Force": credit was inferred, never confirmed. Replaced in Phase B; confirm source page if you want to keep any use of it.
+- [x] Hero photo "Photo: U.S. Air Force": no longer shown; the hero poster is now a render of the 3D engine (Charles OK, 2026-11-02). The file images/hero/engine.webp is still in the repo and still copied into dist: OK to delete it?
+- [x] Hero engine model: "Jet Engine" by shogo.gfx, CC BY 4.0, credited under the hero and in THIRD_PARTY.md.
 - [x] Fonts: Fontsource packages are OFL-1.1 (checked in Step 8, texts ship in /licenses/).
 - [ ] GSAP is free under its Standard "no charge" license (only the package.json license field was checked). Read https://gsap.com/standard-license if you want certainty.
 - [ ] No LICENSE file in repo. Decide whether to add one.

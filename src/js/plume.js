@@ -89,5 +89,6 @@ export function buildPlume({ exit, radius }) {
 
   plume.userData.tick = (time) => plume.children.forEach((mesh) => { mesh.material.uniforms.uTime.value = time; });
   plume.userData.extent = exit + outerLength;
+  plume.userData.visibleExtent = exit + outerLength * 0.72; // the last stretch is too faint to count for framing
   return plume;
 }

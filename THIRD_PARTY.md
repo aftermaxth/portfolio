@@ -26,13 +26,13 @@ Every third-party piece the site ships or builds with. Licenses were read from t
 | Project photos, renders, demo videos (images/) | Charles Thorn | Own work |
 | Plant enclosure and robot housing CAD (models/plant-watering.glb, robot-arena--housing.glb) | Charles Thorn | Own design |
 | Robot assembly GLB (models/robot-arena--assembly.glb) | Housing and ArUco panel: Charles Thorn. Zumo chassis, HC-SR04-type sensors, WeMos D1, FeeTech controller and OLED display: course-supplied or vendor CAD | UNCLEAR redistribution license. See TODO_CHARLES.md. Remove those parts or confirm before publishing. |
-| Hero photo (images/hero/engine.webp) | Credit line says "Photo: U.S. Air Force", inferred from test-stand stenciling, never confirmed | UNCLEAR. Replaced in Phase B. |
+| Old hero photo (images/hero/engine.webp) | Credit line said "Photo: U.S. Air Force", inferred, never confirmed | No longer shown or referenced (replaced by a render). Still in the repo and copied into dist until Charles OKs deleting it. |
 | Resume PDF | Charles Thorn | Unchanged copy of the original |
 
 ## Phase B
 | Item | License / author | Source | Status |
 |---|---|---|---|
 | HDRI "Studio Small 09" (public/env/studio_small_09_512.hdr) | CC0, Sergej Majboroda (Poly Haven) | https://polyhaven.com/a/studio_small_09 (1k .hdr, md5 d5d7eb9d26d341d6aa4d11c1a54fd97c, halved to 512x256 by tools/build_env.mjs) | In use. No attribution required; credited here anyway. |
-| Hero jet engine model "Jet Engine" | CC BY 4.0 (Sketchfab "CC Attribution"), author shogo.gfx (https://sketchfab.com/shogo.gfx) | https://sketchfab.com/3d-models/jet-engine-fe3794fdc4ac49df910cecd007bfaaa3 (created 2021-10-01, 241,553 triangles) | Picked by Charles 2026-11-02. Not yet in the repo. CC BY needs a visible credit on the site (author, title, link, license, and a note that it was modified). |
-| Procedural engine and plume (src/js/engine.js, plume.js) | Own code | n/a | Built as fallback; replaced by the model above once added. |
+| Hero jet engine model "Jet Engine" | CC BY 4.0 (Sketchfab "CC Attribution"), author shogo.gfx (https://sketchfab.com/shogo.gfx) | https://sketchfab.com/3d-models/jet-engine-fe3794fdc4ac49df910cecd007bfaaa3 (created 2021-10-01, 241,553 triangles) | In use: models/hero/jet-engine.glb and the poster images/hero/engine-render.webp. Modified: simplified and meshopt-compressed (tools/build_hero_model.mjs), fan color set to #ff8100, flame added in code. Credited visibly under the hero (title, author, license links, "modified"). |
+| Procedural engine and plume (src/js/engine.js, plume.js) | Own code | n/a | Plume in use; procedural engine is the fallback if the model fails to load. |
 | pmndrs/postprocessing | n/a | n/a | Not added: MSAA is used instead. |

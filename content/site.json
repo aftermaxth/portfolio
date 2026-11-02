@@ -22,11 +22,17 @@
       { "label": "Seeking", "values": ["Summer 2027 internship"], "origin": "existing hero copy" }
     ],
     "poster": {
-      "src": "images/hero/engine.webp",
+      "src": "images/hero/engine-render.webp",
       "width": 2040,
       "height": 630,
-      "alt": "Jet engine on a test stand running with its afterburner lit.",
-      "credit": "Photo: U.S. Air Force"
+      "alt": "Cutaway 3D model of a jet engine with a lit exhaust flame and shock diamonds.",
+      "credit": {
+        "label": "Engine model",
+        "title": "Jet Engine", "titleUrl": "https://sketchfab.com/3d-models/jet-engine-fe3794fdc4ac49df910cecd007bfaaa3",
+        "author": "shogo.gfx", "authorUrl": "https://sketchfab.com/shogo.gfx",
+        "license": "CC BY 4.0", "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "changes": "modified"
+      }
     }
   },
   "projects": { "eyebrow": "Projects", "heading": "Selected work" },
