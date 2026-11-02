@@ -50,6 +50,10 @@ Every open item for Charles. Check off when resolved. Source = Portfolio Source 
 - [ ] Fonts: verify OFL status of the chosen Fontsource packages (done in Step 8).
 - [ ] No LICENSE file in repo. Decide whether to add one.
 
+## Licenses (added at end of Phase A)
+- [ ] Robot assembly GLB includes the Zumo chassis, HC-SR04-type sensors, WeMos D1, FeeTech controller and OLED display CAD from the course kit or vendors. Redistribution license unclear. Keep, or reduce to housing-only (delete the assembly tab) before publishing?
+- [ ] GSAP is free under its Standard "no charge" license (only the package.json license field was checked). Read https://gsap.com/standard-license if you want certainty.
+
 ## Approvals needed from Charles (task boundaries)
 - [ ] Switch GitHub Pages source from "Deploy from branch (main)" to "GitHub Actions" (a Pages settings change; I will not do it without your OK).
 - [ ] Allow a STEP-to-GLB converter (not on the approved dependency list), or supply STL/GLB directly.
