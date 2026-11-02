@@ -52,9 +52,9 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [ ] No LICENSE file in repo. Decide whether to add one.
 
 ## Approvals needed from Charles (task boundaries)
-- [ ] Switch GitHub Pages source from "Deploy from branch (main)" to "GitHub Actions". Charles does this at merge time (chat, 2026-11-02); nothing in Pages was touched. The workflow (.github/workflows/pages.yml) is ready: main and manual triggers only, `npm ci` dry run ok, builds dist/.
+- [x] DONE 2026-11-02 (Charles said go): Pages source is GitHub Actions. Was: Switch GitHub Pages source from "Deploy from branch (main)" to "GitHub Actions". Charles does this at merge time (chat, 2026-11-02); nothing in Pages was touched. The workflow (.github/workflows/pages.yml) is ready: main and manual triggers only, `npm ci` dry run ok, builds dist/.
 - [x] STEP-to-GLB converter: not needed, the STL exports were used.
 - [x] Lighthouse for Phase C: Charles asked for it (chat, 2026-11-02). Lighthouse 12.8.2 was installed in a scratch folder outside the repo and is NOT in package.json. Playwright was not used.
 - [x] Old site files deleted 2026-11-02 (Charles OK): css/, js/, assets/, tools/*.py, images/hero/engine.webp, plus tools/og-image.html (replaced by tools/og_image.mjs). Git history keeps them. Resume PDF verified at the same public path, same sha256 as the original.
 - [x] Also deleted 2026-11-02 (Charles OK): root 404.html, favicon.ico, favicon.svg, apple-touch-icon.png, og-image.png (all except 404.html were byte-identical to public/), and tools/source/ (the Air Force photo).
-- [ ] Merge `redesign` to main (never pushed or merged by me): left to do are the sensor-count alt text, the Pages switch at merge time, and the optional items above. Phone frame rate is unmeasured (see BUILD_LOG).
+- [x] DONE 2026-11-02 via PR #1 (Charles said go). Was: Merge `redesign` to main (never pushed or merged by me): left to do are the sensor-count alt text, the Pages switch at merge time, and the optional items above. Phone frame rate is unmeasured (see BUILD_LOG).
