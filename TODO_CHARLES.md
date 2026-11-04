@@ -34,8 +34,20 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [x] SAE text says "his part" about a partner (verbatim from source, no name). Accepted: source wording stays.
 
 ## Training Hub AI write-up (open, 2026-11-03)
+- [x] PR #4 merged 2026-11-04.
 - [ ] Add the "Keeping my intent intact" and "The hardest part" text (Charles's essay, chat 2026-11-03) to Portfolio Source Material.md. It's only in content/projects.json right now; a future `npm run content` regenerate will overwrite it since it did not come from the source file.
-- [ ] Review and merge PR #4 (branch training-hub/ai-process-writeup).
+
+## Content polish (noted 2026-11-04, not started)
+- [ ] Add a "What I learned" section to Plant Watering and Training Hub V2 (Robot Arena, SAE, USLI, MOCORE already have one).
+
+## Idea: USLI launch cutaway animation (noted 2026-11-04, not started, needs Charles)
+- [ ] Needs the launch vehicle CAD. Ideally more than decouplers and bulkheads: a cutaway only looks right if the internal recovery bay geometry actually exists in the model.
+- [ ] Decide: live three.js clipping plane on the real CAD (flexible, shows the actual geometry) vs. a pre-sectioned export from SolidWorks.
+- [ ] Scroll-driven sequence: liftoff, drogue deploy at apogee, main and payload deploy together lower down, descent, landing.
+- [ ] Layering: the rocket passes in front of and behind the project text at different points (z-index toggled at scroll checkpoints, no render split needed).
+- [ ] Landing pad: small grass patch, opacity faded in only on final approach.
+- [ ] Flight timing is illustrative, not a real OpenRocket simulation (the real sim numbers for USLI are still an open [add] gap above). Needs a small "illustrative" label on the page, same pattern as the old hero's Mach-field disclosure.
+- [ ] Do not start building until Charles sends the CAD and gives a go-ahead.
 
 ## Model check (step 5, open for Phase C)
 - [ ] Sensor count, still open (Charles will check the SolidWorks assembly): the viewer no longer shows any sensors (purchased parts stripped 2026-11-02), but the gallery render robot-assembly.webp and its alt text still say "five ultrasonic sensors", and the engr_122 export held only 3 sensor-type parts (1-2, 1-3, HCSR04-2). Once the count is known, fix the alt text in content/media.json. That image is also a screenshot of the full assembly with the purchased boards and sensors; keep it or drop it?
