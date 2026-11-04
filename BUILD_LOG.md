@@ -169,3 +169,9 @@
 - Assessment: feasible, same scale of effort as the hero engine. Two open design calls before any build: (1) a live three.js clipping plane on the real launch-vehicle CAD (flexible, but only looks right if the internal recovery bay is actually modeled, not just decouplers and bulkheads) vs. a pre-sectioned export from SolidWorks; (2) the front/behind-text layering is straightforward with z-index toggled at scroll checkpoints (GSAP ScrollTrigger), no need to split the render. Flight timing would carry an "illustrative" label, same house pattern as the old hero's Mach-field disclosure, since no real OpenRocket numbers are in the repo yet (that [add] gap is still open).
 - Not done: no code, no new branch. Waiting on Charles for the launch vehicle CAD and a go-ahead before scoping this further.
 - Next: "What I learned" additions can start anytime. The USLI animation needs Charles's CAD file and a decision on the cutaway approach before a plan gets written.
+
+### 2026-11-04 | USLI animation research, nothing built
+- Charles shared the PDR (PDF) and the OpenRocket file for the USLI vehicle and asked for the recovery sequence to be worked out before a build prompt gets written. Both stay OUT of this public repo: the PDR is team work and carries personal contact details, the .ork is the team's design file.
+- Done: read the recovery sections of the PDR and parsed the .ork (components, deploy events, stored flight data). The two agree with each other. The animation needs three parachutes, five shock cords and the two-stage separation sequence; none of those exist in the CAD, so they would be built procedurally.
+- Not done: no code, no assets, no branch beyond this docs one. The PDF Charles shared stops at section 3.7.8 (the payload design, safety and plan sections are missing), so how the payload separates from the nosecone tube is still unconfirmed.
+- Next: Charles answers the open questions in TODO_CHARLES.md, then asks for the build prompt.
