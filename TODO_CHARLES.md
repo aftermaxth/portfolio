@@ -47,6 +47,7 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [ ] Layering: the rocket passes in front of and behind the project text at different points (z-index toggled at scroll checkpoints, no render split needed).
 - [ ] Landing pad: small grass patch, opacity faded in only on final approach.
 - [ ] Flight timing is illustrative, not a real OpenRocket simulation (the real sim numbers for USLI are still an open [add] gap above). Needs a small "illustrative" label on the page, same pattern as the old hero's Mach-field disclosure.
+- [ ] Charles (chat 2026-11-04): must match the existing look, clean and sharp. Concretely, that means: no new colors (surfaces, ink and the orange accent from tokens.css only, no gradients, no glass blur), 2px corner radius everywhere a UI element shows (the grass pad and any label chip included), one motion curve and the existing duration scale (--ease, --dur-1..3), DM Mono for any on-page label (an "illustrative" tag, a phase name), Archivo for body text if a caption is needed. The rocket model itself renders through the existing createStage() (src/js/render.js): same AgX tone mapping, same studio HDRI, same single key light and contact shadow as the hero engine and the other project viewers, so it reads as the same machined material, not a separate render style. No new look invented for this one feature.
 - [ ] Do not start building until Charles sends the CAD and gives a go-ahead.
 
 ## Model check (step 5, open for Phase C)
