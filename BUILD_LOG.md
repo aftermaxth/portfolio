@@ -175,3 +175,7 @@
 - Done: read the recovery sections of the PDR and parsed the .ork (components, deploy events, stored flight data). The two agree with each other. The animation needs three parachutes, five shock cords and the two-stage separation sequence; none of those exist in the CAD, so they would be built procedurally.
 - Not done: no code, no assets, no branch beyond this docs one. The PDF Charles shared stops at section 3.7.8 (the payload design, safety and plan sections are missing), so how the payload separates from the nosecone tube is still unconfirmed.
 - Next: Charles answers the open questions in TODO_CHARLES.md, then asks for the build prompt.
+
+### 2026-11-04 | USLI animation decisions, nothing built
+- Charles answered the open questions: payload chain order left to me, cords shortened for viewing, OpenRocket shown as a screenshot only, CAD publishing fine, motor is a plain cylinder with bright white and orange fire and smoke during the burn.
+- Still open: the STL exports, the OpenRocket screenshot, parachute colors, grass color. Defaults are listed in TODO_CHARLES.md. Nothing blocks writing the build prompt.
