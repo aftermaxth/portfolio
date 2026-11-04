@@ -239,17 +239,47 @@
       "sections": [
         {
           "heading": "Overview",
-          "source": "Overview",
+          "source": "chat 2026-11-03 (Charles's essay, verbatim)",
+          "provenance": "chat",
           "paragraphs": [
-            "Training Hub V2 is a coaching app for other athletes, with me as the coach. It is not a personal tracker. I designed the data model and permissions on paper before writing any code, then built it in vanilla HTML, CSS, and JavaScript with Supabase handling accounts, auth, and storage. I went from never having installed Git to a working app in real use in three days."
+            "Training Hub V2 is a coaching app for other athletes, with me as the coach. It is not a personal tracker. Building a site with AI usually comes out hollow and never gets deployed anywhere real, so I designed this one first, on paper, before a line of code existed. Claude wrote the code. Nothing here is in my lane, deliberately.",
+            "I built it in vanilla HTML, CSS, and JavaScript with Supabase handling accounts, auth, and storage, with tables for athletes, weeks, sessions, resets, goals, races, and lift cycles. I went from never having installed Git to a working app in real use in three days."
           ],
           "inCard": false
         },
         {
           "heading": "Why it is here",
-          "source": "Why it is here",
+          "source": "Overview",
           "paragraphs": [
             "It shows I can pick up a new toolchain fast and ship something real people use. It also connects to running: I am a varsity cross country and track athlete at Stevens."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "Keeping my intent intact",
+          "source": "chat 2026-11-03 (Charles's essay, verbatim)",
+          "provenance": "chat",
+          "paragraphs": [
+            "Vague instructions give something that looks close and behaves wrong, so the real work was keeping my intent intact, which meant running chats in parallel. Sonnet 5 as a master chat turning my instructions into exact prompts, Haiku 4.5 to expand the fine details so they did not get lost in constant context edits, and Opus 5 in a separate chat that only ever touched code. Then back to the master chat for bugs and setup, so the expensive context stayed clean."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "The hardest part",
+          "source": "chat 2026-11-03 (Charles's essay, verbatim)",
+          "provenance": "chat",
+          "paragraphs": [
+            "The hardest part was the user system, because the database does not know what a coach is. It sees two accounts that both logged in, and unless I say otherwise either can reach any row. Scoping who sees what was one problem. Stopping an athlete from editing their own prescribed workout instead of just logging it was a second, separate one. Neither failure throws an error, it just quietly lets the wrong person edit the wrong thing, and most of my time went to errors like that which never announced themselves.",
+            "Eventually I installed Git locally and pulled the repo onto my computer so I could actually read my index.html and the config file that points the app at Supabase. That is how I found the last bug: accounts could be created but not logged in, because index.html had the wrong API key."
+          ],
+          "inCard": false
+        },
+        {
+          "heading": "What I learned",
+          "source": "chat 2026-11-03 (Charles's essay, verbatim)",
+          "provenance": "chat",
+          "paragraphs": [
+            "AI is what makes serious work outside your own field possible, but only if you know exactly what you want before you start. The ceiling stops being what you can code and becomes how clearly you can describe it. Three days from never having installed Git to a working app in real use."
           ],
           "inCard": false
         },
