@@ -34,8 +34,24 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [x] SAE text says "his part" about a partner (verbatim from source, no name). Accepted: source wording stays.
 
 ## Training Hub AI write-up (open, 2026-11-03)
+- [x] PR #4 merged 2026-11-04.
 - [ ] Add the "Keeping my intent intact" and "The hardest part" text (Charles's essay, chat 2026-11-03) to Portfolio Source Material.md. It's only in content/projects.json right now; a future `npm run content` regenerate will overwrite it since it did not come from the source file.
-- [ ] Review and merge PR #4 (branch training-hub/ai-process-writeup).
+
+## Content polish (noted 2026-11-04, not started)
+- [ ] Add a "What I learned" section to Plant Watering and Training Hub V2 (Robot Arena, SAE, USLI, MOCORE already have one).
+
+## Idea: USLI launch cutaway animation (noted 2026-11-04, not started, needs Charles)
+- [ ] Needs the launch vehicle CAD. Ideally more than decouplers and bulkheads: a cutaway only looks right if the internal recovery bay geometry actually exists in the model.
+- [ ] Decide: live three.js clipping plane on the real CAD (flexible, shows the actual geometry) vs. a pre-sectioned export from SolidWorks.
+- [ ] Scroll-driven sequence: liftoff, drogue deploy at apogee, main and payload deploy together lower down, descent, landing.
+- [ ] Layering: the rocket passes in front of and behind the project text at different points (z-index toggled at scroll checkpoints, no render split needed).
+- [ ] Landing pad: small grass patch, opacity faded in only on final approach.
+- [ ] Flight timing is illustrative, not a real OpenRocket simulation (the real sim numbers for USLI are still an open [add] gap above). Needs a small "illustrative" label on the page, same pattern as the old hero's Mach-field disclosure.
+- [ ] Charles (chat 2026-11-04): must match the existing look, clean and sharp. Concretely, that means: no new colors (surfaces, ink and the orange accent from tokens.css only, no gradients, no glass blur), 2px corner radius everywhere a UI element shows (the grass pad and any label chip included), one motion curve and the existing duration scale (--ease, --dur-1..3), DM Mono for any on-page label (an "illustrative" tag, a phase name), Archivo for body text if a caption is needed. The rocket model itself renders through the existing createStage() (src/js/render.js): same AgX tone mapping, same studio HDRI, same single key light and contact shadow as the hero engine and the other project viewers, so it reads as the same machined material, not a separate render style. No new look invented for this one feature.
+- [x] Answered by Charles (chat 2026-11-04): payload chain order is left to me (parachute, 15 ft cord, payload, 15 ft cord, nosecone); cords shortened for viewing (keep the 6:24:25:15:15 ft proportions, one shared compression factor); the OpenRocket output appears on the site as a screenshot, never the .ork file; publishing the CAD is fine; the motor is a plain cylinder with bright white and orange fire and smoke during the burn (the SolidWorks model has no real motor, only a plain cylinder or nothing, so the builder uses the exported cylinder if there is one, otherwise makes its own inside the motor mount; no motor file to export).
+- [ ] Still open, needs Charles: (1) export every vehicle part as its own binary STL (mm, shared assembly coordinates), internals included: nosecone, payload tube and coupler, middle body, avionics bay parts (coupler, 2 bulkheads, U-bolts, lead screws, electronics plate), switchband, booster tube, motor mount tube, 3 centering rings, booster bulkhead, 4 fins, rail buttons, plus a list of which file is which; (2) the OpenRocket screenshot(s) to show (design layout and/or flight profile) as PNG; (3) parachute colors (default if no answer: orange and off-white panels from the site palette, stylized, not the real canopy colors); (4) grass color: the island needs the one color the site does not have (default if no answer: one muted green token used only on the island top).
+- [ ] Defaults I will use unless Charles says otherwise: cutaway view the whole flight; drogue stays attached and trails during the main descent; fire and smoke only during the 2.3 s burn; small DM Mono phase and altitude readout; static key frames for reduced motion and no WebGL; every number in one data file (the PDR is a draft and can change at CDR); an "illustrative" label on the scene.
+- [ ] Do not start building until Charles sends the CAD and gives a go-ahead.
 
 ## Model check (step 5, open for Phase C)
 - [ ] Sensor count, still open (Charles will check the SolidWorks assembly): the viewer no longer shows any sensors (purchased parts stripped 2026-11-02), but the gallery render robot-assembly.webp and its alt text still say "five ultrasonic sensors", and the engr_122 export held only 3 sensor-type parts (1-2, 1-3, HCSR04-2). Once the count is known, fix the alt text in content/media.json. That image is also a screenshot of the full assembly with the purchased boards and sensors; keep it or drop it?
