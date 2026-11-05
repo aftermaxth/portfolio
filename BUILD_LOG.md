@@ -5,6 +5,7 @@
 - Current phase: PUBLISHED. Phase C finished and the redesign is live at https://aftermaxth.github.io/portfolio/ (2026-11-02). PR #1 merged to main, Pages source switched to GitHub Actions, deploy run 41523533383 succeeded.
 - Expected model and effort: Sonnet high for follow-ups.
 - Rule: never push to main directly. Any change goes on a branch, then a PR, then merge on Charles's word.
+- PR #4 (branch `training-hub/ai-process-writeup`) was merged to main (merge commit 89bbcc3). Adds Charles's own account of how Training Hub V2 was built with AI (the parallel-chat workflow, the permissions bug) as two new write-up sections. Edited content/projects.json directly since Portfolio Source Material.md is not reachable from this session; that source file still needs the same text or the next `npm run content` wipes it.
 - Open for Charles: (1) sensor count 3 vs 5 (then fix the alt text of robot-assembly.webp in content/media.json; the caption says "Sensor array"); (2) "Design not started" on the Next card: confirm it is still true; (3) phone frame rate of the hero is unmeasured on a real phone (risk: ray-marched plume); (4) missing assets and [add] info, GSAP license text, LICENSE file (TODO_CHARLES.md); (5) the Actions run warns that Node 20 actions are deprecated (checkout@v4, setup-node@v4, upload-artifact@v4 forced onto Node 24): bump versions later.
 
 ---
@@ -151,6 +152,14 @@
 - Failed attempts: no pdftoppm, so the page image came from LibreOffice (soffice --convert-to png on the PDF).
 - Not done: publishing. The branch needs a PR and a merge to main (deploys automatically); waiting on Charles.
 - Note: the resume says "1 of 12 teams from roughly 650 first-year engineers" and "1 of 2 safety officers"; the site follows the source file instead (logged earlier). Not changed.
+
+### 2026-11-03 | Training Hub AI write-up (branch training-hub/ai-process-writeup, PR #4)
+- Charles (chat): noticed the Training Hub V2 write-up had lost the part about how the app was actually built with AI. Pasted his own essay covering the parallel-chat workflow (Sonnet as master chat, Haiku for detail expansion, Opus isolated to code) and the hardest bug (the coach/athlete permissions model, traced to a wrong Supabase API key in index.html).
+- Done: edited content/projects.json directly for the training-hub-v2 slug. Added two new sections, "Keeping my intent intact" and "The hardest part", plus a "What I learned" closer; folded two opening sentences into Overview. Text is his essay, lightly split into paragraphs per heading, otherwise verbatim.
+- Why direct JSON edit and not tools/extract_source.mjs: Portfolio Source Material.md lives on Charles's Windows machine, not reachable from this session.
+- Commands: `npm install` ok; `npx vite build` ok; `node tools/check_site.mjs` 0 em dashes, 0 brackets; grepped dist/index.html for the new headings, all present.
+- Not done: did not run tools/verify_content.mjs (it reads the old live index.html for [add]-gap checks only, not applicable here) or regenerate from source, since source isn't reachable. Did not merge; branch pushed, PR #4 opened, waiting on Charles.
+- Next: Charles adds the same text to Portfolio Source Material.md so it survives the next `npm run content`, reviews PR #4, merges when ready.
 
 ### 2026-11-04 | USLI scene step 1 | Inputs, branch, scroll mapping (written before coding)
 - Branch `usli-launch-scene` from main e704dff.

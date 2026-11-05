@@ -33,6 +33,10 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [x] Plant and Training Hub live-site fills accepted under the [add] rule.
 - [x] SAE text says "his part" about a partner (verbatim from source, no name). Accepted: source wording stays.
 
+## Training Hub AI write-up (open, 2026-11-03)
+- [ ] Add the "Keeping my intent intact" and "The hardest part" text (Charles's essay, chat 2026-11-03) to Portfolio Source Material.md. It's only in content/projects.json right now; a future `npm run content` regenerate will overwrite it since it did not come from the source file.
+- [ ] Review and merge PR #4 (branch training-hub/ai-process-writeup).
+
 ## Model check (step 5, open for Phase C)
 - [ ] Sensor count, still open (Charles will check the SolidWorks assembly): the viewer no longer shows any sensors (purchased parts stripped 2026-11-02), but the gallery render robot-assembly.webp and its alt text still say "five ultrasonic sensors", and the engr_122 export held only 3 sensor-type parts (1-2, 1-3, HCSR04-2). Once the count is known, fix the alt text in content/media.json. That image is also a screenshot of the full assembly with the purchased boards and sensors; keep it or drop it?
 - [ ] Plant enclosure GLB is the printed enclosure only (revisedhd-1.STL). Want the electronics (pump, boards) added as a second tab?
