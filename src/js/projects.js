@@ -56,11 +56,11 @@ export function initProjects() {
   roots.forEach((r) => io.observe(r));
 }
 
-// USLI card: scroll-driven launch scene instead of a drag viewer. The static still frames stay when
-// motion is reduced, WebGL fails, or JS is off. Loads as a lazy chunk when the card nears the viewport.
+// USLI card: scroll-driven launch scene instead of a drag viewer. It plays even with reduced motion
+// (Charles, 2026-11-04); the static still frames stay when WebGL fails or JS is off. Loads as a lazy chunk when the card nears the viewport.
 function initUsli() {
   const root = document.querySelector("[data-usli]");
-  if (!root || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!root) return;
   const start = () => import("./usli-scene.js")
     .then((m) => m.mountUsli(root))
     .catch((error) => { root.dataset.state = "still"; console.info("USLI scene unavailable:", error.message); });

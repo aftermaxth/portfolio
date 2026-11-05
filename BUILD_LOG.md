@@ -1,7 +1,7 @@
 # BUILD_LOG
 
 ## RESUME HERE
-- Current work (2026-11-04): USLI scroll scene on branch `usli-launch-scene`, PR open, NOT merged. Open for Charles: --color-grass approval, parachute colors, payload chain assumption, USLI alt text and captions, part map (TODO_CHARLES.md).
+- Current work (2026-11-04): USLI scroll scene on branch `usli-launch-scene`, PR open, NOT merged. Since the PR opened, the USLI scene also plays under reduced motion (Charles). Open for Charles: --color-grass approval, parachute colors, payload chain assumption, USLI alt text and captions, part map (TODO_CHARLES.md).
 - Current phase: PUBLISHED. Phase C finished and the redesign is live at https://aftermaxth.github.io/portfolio/ (2026-11-02). PR #1 merged to main, Pages source switched to GitHub Actions, deploy run 41523533383 succeeded.
 - Expected model and effort: Sonnet high for follow-ups.
 - Rule: never push to main directly. Any change goes on a branch, then a PR, then merge on Charles's word.
@@ -206,3 +206,9 @@ Scroll to time mapping (pin progress p from 0 to 1; time t in seconds of the Ope
 - Commands: `npm run build` ok; `npm run check` 0 em dashes (src + content + tools, dist), 0 bracket placeholders; `node tools/verify_content.mjs` OK; `node tools/audit_a11y.mjs --widths 1440,768,375` OK (0 below threshold at each width; it skipped 59 to 91 text elements still fading in; not compared with main).
 - Not done or not measured: phone frame rate (unmeasured); a check in a real GPU browser outside headless swiftshader; text crossing below 900 px (the text sits under the scene there).
 - Next: Charles reviews the PR and decides the USLI items in TODO_CHARLES.md. Do not merge without his word.
+
+### 2026-11-04 | USLI scene | Plays under reduced motion (Charles, chat)
+- Charles (chat): "remove reduced motion aspect", then "Change the site too" for the USLI scene. src/js/projects.js initUsli no longer returns early under prefers-reduced-motion: reduce; comments in usli-scene.js, vite-plugin-site.mjs and components.css updated. Stills stay for no JS and no WebGL. The rest of the site (hero, Lenis, GSAP reveals) still honors reduced motion; this is the one exception, recorded in PROJECT_CONTEXT.md decisions.
+- Without Lenis (reduced motion) ScrollTrigger runs on native scroll.
+- Checked in the browser pane (it always reports reduced motion): matchMedia reduce true, [data-usli] state "live", canvas present; scrolling to 42 percent of the pin read "T+ 7.0 s / Altitude 2,986 ft / Burnout, coasting to apogee".
+- The task brief's done item "with reduced motion the still frames show" no longer applies by Charles's decision.

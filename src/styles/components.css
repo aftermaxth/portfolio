@@ -211,7 +211,7 @@
 }
 
 /* ---------- USLI scroll scene (nasa-student-launch card) ----------
-   Still mode (no JS, reduced motion, no WebGL): four still frames, then the card text.
+   Still mode (no JS or no WebGL; the scene plays with reduced motion too): four still frames, then the card text.
    Live mode (data-state="live", set by usli-scene.js): the stage pins under the header for the length of
    the track while the text scrolls. From 900 px the text column overlaps the stage on the right; the
    track sits in front of it (z 2) or behind it (z 1 below the text, data-behind) at the scroll checkpoints.

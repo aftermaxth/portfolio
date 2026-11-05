@@ -1,6 +1,6 @@
 // USLI scroll scene: the team's rocket (STL export, cut in half by a live clipping plane) flies the
 // OpenRocket timeline from content/usli-flight.json as the card scrolls. Lazy chunk, loaded by projects.js
-// near the viewport and only when reduced motion is off. Renders only while visible (render.js).
+// near the viewport, also with reduced motion (Charles, 2026-11-04). Renders only while visible (render.js).
 //
 //   const scene = await createUsliScene(root)   // root = [data-usli]
 //   scene.setProgress(p)                        // p in 0..1 (pin progress)

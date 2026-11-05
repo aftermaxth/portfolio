@@ -97,7 +97,7 @@ export default function sitePlugin() {
     return `<figure class="figure${wide}"><div class="figure__frame">${inner}</div>${cap}</figure>`;
   };
 
-  // USLI scroll scene markup. Without JS, with reduced motion or without WebGL the still frames show;
+  // USLI scroll scene markup. Without JS or without WebGL the still frames show (the scene also plays with reduced motion);
   // usli-scene.js switches data-state to "live". The step list is built from content/usli-flight.json.
   function usliHTML(f, stills, body) {
     const ev = Object.fromEntries(f.events.map((e) => [e.id, e]));

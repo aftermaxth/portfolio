@@ -68,3 +68,4 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [ ] Below 900 px the text sits under the pinned scene, so the rocket crosses the text column only from 900 px up.
 - [ ] Phone frame rate of the scene is unmeasured.
 - [ ] The 600 ft backup charge is drawn 1 s after the main charge (the JSON says "about 1 s later", no exact time).
+- [x] USLI scene under reduced motion: it now plays anyway (Charles, chat 2026-11-04). Note: visitors who ask their system for reduced motion will still see this scroll animation; the rest of the site keeps honoring the setting.
