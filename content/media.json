@@ -2,7 +2,7 @@
   "nasa-student-launch": {
     "order": ["scene-1-pad.webp", "scene-2-apogee.webp", "scene-3-600ft.webp", "scene-4-landing.webp"],
     "files": {
-      "scene-1-pad.webp": { "alt": "Cutaway render of the team's rocket on the pad, cut in half along its length: nosecone, payload section with the folded payload parachute, main bay with the packed main parachute in orange, avionics bay, and the booster with the drogue bay, the motor and four fins.", "caption": "Pad: parachutes packed inside the cutaway" },
+      "scene-1-pad.webp": { "alt": "Cutaway render of the team's rocket on the pad, cut in half along its length: nosecone, payload section with the folded payload parachute, main bay with the packed main parachute, avionics bay with the orange switchband, and the booster with the drogue bay, the motor and four fins.", "caption": "Pad: parachutes packed inside the cutaway" },
       "scene-2-apogee.webp": { "alt": "After apogee: the booster has separated and the drogue parachute is open, with the booster hanging on the longer cord and the rest of the rocket hanging nose-down on the shorter cord.", "caption": "After apogee: drogue open" },
       "scene-3-600ft.webp": { "alt": "After the 600 ft separation: the middle body and booster hang under the main parachute with the drogue between them, and the payload and nosecone hang under the payload parachute.", "caption": "Below 500 ft: main and payload parachutes open" },
       "scene-4-landing.webp": { "alt": "Landing on a small island: the payload and nosecone lie on the ground beside their parachute, and the booster touches down under the main parachute.", "caption": "Landing" }

@@ -73,3 +73,7 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [ ] Phone frame rate of the scene is unmeasured.
 - [ ] The 600 ft backup charge is drawn 1 s after the main charge (the JSON says "about 1 s later", no exact time).
 - [x] USLI scene under reduced motion: it now plays anyway (Charles, chat 2026-11-04). Note: visitors who ask their system for reduced motion will still see this scroll animation; the rest of the site keeps honoring the setting.
+- [ ] USLI rework (2026-11-04): diameter drawn at 1.8 times real (stylization.diameterScale in content/usli-flight.json). Canopy diameters are scaled by the same factor to keep their proportion to the tube; say if canopies should stay real size instead.
+- [ ] USLI rework: on narrow screens the descent side shifts left so the main canopy stays inside the card (the landing point is then left of 88 percent).
+- [ ] USLI rework: the brief asked for no autoplay under reduced motion; per your earlier call it still autoplays. Confirm.
+- [ ] Main has 17 training-hub-v2 strings (PR #4) that tools/verify_content.mjs cannot find in Portfolio Source Material.md; add them to the source file or the verifier will keep failing.

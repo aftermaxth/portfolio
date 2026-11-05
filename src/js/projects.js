@@ -56,7 +56,7 @@ export function initProjects() {
   roots.forEach((r) => io.observe(r));
 }
 
-// USLI card: scroll-driven launch scene instead of a drag viewer. It plays even with reduced motion
+// USLI card: timed launch scene on an arc behind the card text, instead of a drag viewer. It plays even with reduced motion
 // (Charles, 2026-11-04); the static still frames stay when WebGL fails or JS is off. Loads as a lazy chunk when the card nears the viewport.
 function initUsli() {
   const root = document.querySelector("[data-usli]");

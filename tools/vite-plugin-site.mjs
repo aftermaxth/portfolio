@@ -97,9 +97,11 @@ export default function sitePlugin() {
     return `<figure class="figure${wide}"><div class="figure__frame">${inner}</div>${cap}</figure>`;
   };
 
-  // USLI scroll scene markup. Without JS or without WebGL the still frames show (the scene also plays with reduced motion);
-  // usli-scene.js switches data-state to "live". The step list is built from content/usli-flight.json.
-  function usliHTML(f, stills, body) {
+  // USLI card markup (the li's contents). Without JS or without WebGL the still frames show (the scene also plays
+  // with reduced motion); usli-scene.js switches data-state to "live": the canvas sits behind the whole card,
+  // the page scrolls normally. [data-usli-text] marks the text blocks the rocket fades behind.
+  // The step list is built from content/usli-flight.json.
+  function usliHTML(f, stills, head, body) {
     const ev = Object.fromEntries(f.events.map((e) => [e.id, e]));
     const chute = Object.fromEntries(f.parachutes.map((c) => [c.id, c]));
     const cord = Object.fromEntries(f.shockCords.map((c) => [c.id, c]));
@@ -116,30 +118,28 @@ export default function sitePlugin() {
       `Landing: a small island fades in on final approach. The payload and nosecone land first at ${ev["payload-landing"].t} s (${ev["payload-landing"].speedFtS} ft/s); the middle body and booster land under the main at ${ev["main-booster-landing"].t} s (${ev["main-booster-landing"].speedFtS} ft/s).`,
     ];
     const still = (m) => `<figure class="figure usli__still"><div class="figure__frame"><img src="${m.src}" width="${m.width}" height="${m.height}" alt="${esc(m.alt)}" loading="lazy" decoding="async"></div>${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
-    return `<div class="usli" data-usli data-state="still">
-        <div class="usli__track" data-usli-track>
-          <div class="usli__stage">
-            ${stills.length ? `<div class="container usli__stills">${stills.map(still).join("")}</div>` : ""}
-            <div class="usli__canvas-wrap" data-usli-canvas></div>
-            <div class="container usli__hud">
-              <p class="usli__readout" aria-hidden="true"><span data-r-time></span><span data-r-alt></span><span data-r-phase></span></p>
-              <p class="usli__note">Illustrative. Based on the team's OpenRocket simulation of the PDR design.</p>
-            </div>
-          </div>
-        </div>
-        <div class="container grid project__row usli__row">${body}</div>
-        <div class="visually-hidden" id="usli-sequence" data-usli-sequence>
-          <h4>Launch and recovery sequence, from the team's OpenRocket simulation (draft PDR values)</h4>
-          <ol>${steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
-          <p>Shock cords and parachute lines are drawn at ${f.scene.cordScale} of their real length; canopies and the rocket are drawn to scale.</p>
-        </div>
+    return `<div class="usli__canvas-wrap" data-usli-canvas></div>
+      <div class="usli__top" aria-hidden="true"></div>
+      ${head}
+      ${stills.length ? `<div class="container usli__stills">${stills.map(still).join("")}</div>` : ""}
+      <div class="container grid project__row usli__row">${body}</div>
+      <div class="usli__ground" data-usli-ground aria-hidden="true"></div>
+      <div class="container usli__hud-wrap"><div class="usli__hud" data-usli-text>
+        <p class="usli__readout" aria-hidden="true"><span data-r-time></span><span data-r-alt></span><span data-r-phase></span></p>
+        <div class="usli__controls" data-usli-controls hidden><button type="button" class="usli__button" data-usli-toggle aria-pressed="false">Play</button><button type="button" class="usli__button" data-usli-restart>Restart</button></div>
+        <p class="usli__note">Illustrative, path not to scale. Based on the team's OpenRocket simulation of the PDR design.</p>
+      </div></div>
+      <div class="visually-hidden" id="usli-sequence" data-usli-sequence>
+        <h4>Launch and recovery sequence, from the team's OpenRocket simulation (draft PDR values)</h4>
+        <ol>${steps.map((x) => `<li>${esc(x)}</li>`).join("")}</ol>
+        <p>The path is not to scale. Shock cords and parachute lines are drawn at ${f.scene.cordScale} of their real length; the tube, fin and canopy diameters at ${f.stylization.diameterScale} times real.</p>
       </div>`;
   }
 
   function projectHTML(p, i, assets) {
     const num = String(i + 1).padStart(2, "0");
     const models = assets.models[p.slug] || [];
-    // USLI card: scroll scene (src/js/usli-scene.js) instead of a drag viewer; images/<slug>/scene-*.webp are its still frames.
+    // USLI card: launch scene (src/js/usli-scene.js) instead of a drag viewer; images/<slug>/scene-*.webp are its still frames.
     const scene = p.slug === USLI_SLUG && assets.flight;
     const stills = scene ? (assets.media[p.slug] || []).filter((m) => /^scene-/.test(m.file)) : [];
     const media = (assets.media[p.slug] || []).filter((m) => !stills.includes(m));
@@ -173,13 +173,13 @@ export default function sitePlugin() {
     const more = moreSecs.length ? `<div class="project__more" id="more-${p.slug}" data-more>${moreSecs.map(sec).join("")}</div>` : "";
 
     if (layout === "scene") {
-      const body = `<div class="project__body" data-reveal><p class="project__lede">${esc(p.oneLiner)}</p><dl class="facts">${facts}</dl>${chips}${cardSecs.map(sec).join("")}${toggle}${more}</div>`;
-      return `<li class="project" id="${p.slug}" data-project data-layout="scene">
-      <div class="container grid project__head" data-reveal>
-        <p class="project__index label"><span>${num}</span>${p.kicker ? ` / ${esc(p.kicker)}` : ""}</p>
-        <h3 class="project__title">${esc(p.title)}</h3>
-      </div>
-      ${usliHTML(assets.flight, stills, body)}
+      const body = `<div class="project__body" data-reveal data-usli-text><p class="project__lede">${esc(p.oneLiner)}</p><dl class="facts">${facts}</dl>${chips}${cardSecs.map(sec).join("")}${toggle}${more}</div>`;
+      const head = `<div class="container grid project__head" data-reveal>
+        <p class="project__index label" data-usli-text><span>${num}</span>${p.kicker ? ` / ${esc(p.kicker)}` : ""}</p>
+        <h3 class="project__title" data-usli-text>${esc(p.title)}</h3>
+      </div>`;
+      return `<li class="project usli" id="${p.slug}" data-project data-layout="scene" data-usli data-state="still">
+      ${usliHTML(assets.flight, stills, head, body)}
     </li>`;
     }
 

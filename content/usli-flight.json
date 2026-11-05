@@ -192,7 +192,19 @@
   },
   "scene": {
     "cordScale": 0.25,
-    "cordScaleNote": "Display only. Every shock cord and parachute line in the scroll scene is drawn at 0.25 of its real length (6, 24, 25, 15, 15 ft become 1.5, 6, 6.25, 3.75, 3.75 ft), so all keep their real proportions to each other. Canopy diameters and the vehicle are drawn at real size against the 6.17 in tube."
+    "cordScaleNote": "Display only. Every shock cord and parachute line in the scene is drawn at 0.25 of its real length (6, 24, 25, 15, 15 ft become 1.5, 6, 6.25, 3.75, 3.75 ft), so all keep their real proportions to each other. Canopy diameters keep their proportion to the tube diameter (see stylization)."
+  },
+  "stylization": {
+    "diameterScale": 1.8,
+    "note": "Display only. The tube diameter, fins and canopy diameters are drawn at 1.8 times real so the rocket reads at card size; every length stays real."
+  },
+  "path": {
+    "note": "Display only, path not to scale. Normalized card space: x 0 at the left edge to 1 at the right edge; y 0 at the apex line above the headline to 1 at the ground line above the readout. Two cubic Bezier halves meet at the apex with a level tangent. Height on the curve is proportional to altitude, so apogee sits exactly at the apex; the horizontal extent is illustrative.",
+    "pad": [0.08, 1],
+    "ascentControls": [[0.09, 0.35], [0.24, 0]],
+    "apex": [0.55, 0],
+    "descentControls": [[0.78, 0], [0.88, 0.45]],
+    "landing": [0.88, 1]
   },
   "altitudeCurveFtByTimeS": {
     "note": "[time s, altitude ft AGL] from the OpenRocket run. Shared until the 600 ft separation, then one curve per body.",
