@@ -19,6 +19,8 @@ export function initProjects() {
     });
   }
 
+  initUsli();
+
   const roots = document.querySelectorAll("[data-viewer]");
   if (!roots.length) return;
 
@@ -52,4 +54,21 @@ export function initProjects() {
     { rootMargin: "400px 0px" }
   );
   roots.forEach((r) => io.observe(r));
+}
+
+// USLI card: scroll-driven launch scene instead of a drag viewer. The static still frames stay when
+// motion is reduced, WebGL fails, or JS is off. Loads as a lazy chunk when the card nears the viewport.
+function initUsli() {
+  const root = document.querySelector("[data-usli]");
+  if (!root || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const start = () => import("./usli-scene.js")
+    .then((m) => m.mountUsli(root))
+    .catch((error) => { root.dataset.state = "still"; console.info("USLI scene unavailable:", error.message); });
+  if (!("IntersectionObserver" in window)) return start();
+  const io = new IntersectionObserver((entries) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    io.disconnect();
+    start();
+  }, { rootMargin: "600px 0px" });
+  io.observe(root);
 }

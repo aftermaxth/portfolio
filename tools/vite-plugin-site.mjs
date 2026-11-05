@@ -9,6 +9,7 @@ import { resolve, extname, basename, join } from "node:path";
 
 const IMG = /\.(webp|png|jpe?g|avif)$/i;
 const VID = /\.(mp4|webm)$/i;
+const USLI_SLUG = "nasa-student-launch";
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const titleCase = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -96,11 +97,53 @@ export default function sitePlugin() {
     return `<figure class="figure${wide}"><div class="figure__frame">${inner}</div>${cap}</figure>`;
   };
 
+  // USLI scroll scene markup. Without JS, with reduced motion or without WebGL the still frames show;
+  // usli-scene.js switches data-state to "live". The step list is built from content/usli-flight.json.
+  function usliHTML(f, stills, body) {
+    const ev = Object.fromEntries(f.events.map((e) => [e.id, e]));
+    const chute = Object.fromEntries(f.parachutes.map((c) => [c.id, c]));
+    const cord = Object.fromEntries(f.shockCords.map((c) => [c.id, c]));
+    const pins = f.separations.map((s) => s.shearPins);
+    const sep = ev["main-and-payload-separation"];
+    const steps = [
+      `On the pad: the ${f.vehicle.lengthIn} in rocket, ${f.vehicle.diameterIn} in in diameter, is drawn cut in half. The drogue is packed in the forward 17 in of the booster, the main in the main bay, and the payload parachute is folded and held by its release device.`,
+      `Motor burn: the ${f.vehicle.motor.name} fires from liftoff at ${ev.liftoff.t} s to burnout at ${f.vehicle.motor.burnoutS} s, with fire and smoke from the aft end.`,
+      `Coast to apogee: ${ev.apogee.altFt} ft at ${ev.apogee.t} s.`,
+      `Apogee: the primary drogue charge (${ev["drogue-charge-primary"].chargeG} g) fires at ${ev["drogue-charge-primary"].t} s and the backup (${ev["drogue-charge-backup"].chargeG} g) at ${ev["drogue-charge-backup"].t} s. ${pins[0]} shear pins break, the booster separates, and the ${chute.drogue.diameterIn} in drogue is pulled out and opens on its ${cord["drogue-forward"].lengthFt} ft and ${cord["drogue-aft"].lengthFt} ft cords.`,
+      `Drogue descent to ${sep.altFt} ft.`,
+      `${sep.altFt} ft at ${sep.t} s: the main charge (${sep.chargeG} g, backup ${sep.backupChargeG} g) fires at the forward avionics bulkhead. ${pins[1]} shear pins break, the nosecone and payload tube separate, the ${chute.main.diameterIn} in main is pulled out on its ${cord.main.lengthFt} ft Kevlar cord and opens, and the payload and nosecone fall free, tethered together. The drogue stays attached between the middle body and the booster.`,
+      `${ev["payload-parachute-release"].altFt} ft at ${ev["payload-parachute-release"].t} s: the ${chute.payload.diameterIn} in payload parachute is released and opens on its ${cord["payload-to-parachute"].lengthFt} ft cord, with the nosecone ${cord["payload-to-nosecone"].lengthFt} ft below the payload.`,
+      `Landing: a small island fades in on final approach. The payload and nosecone land first at ${ev["payload-landing"].t} s (${ev["payload-landing"].speedFtS} ft/s); the middle body and booster land under the main at ${ev["main-booster-landing"].t} s (${ev["main-booster-landing"].speedFtS} ft/s).`,
+    ];
+    const still = (m) => `<figure class="figure usli__still"><div class="figure__frame"><img src="${m.src}" width="${m.width}" height="${m.height}" alt="${esc(m.alt)}" loading="lazy" decoding="async"></div>${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
+    return `<div class="usli" data-usli data-state="still">
+        <div class="usli__track" data-usli-track>
+          <div class="usli__stage">
+            ${stills.length ? `<div class="container usli__stills">${stills.map(still).join("")}</div>` : ""}
+            <div class="usli__canvas-wrap" data-usli-canvas></div>
+            <div class="container usli__hud">
+              <p class="usli__readout" aria-hidden="true"><span data-r-time></span><span data-r-alt></span><span data-r-phase></span></p>
+              <p class="usli__note">Illustrative. Based on the team's OpenRocket simulation of the PDR design.</p>
+            </div>
+          </div>
+        </div>
+        <div class="container grid project__row usli__row">${body}</div>
+        <div class="visually-hidden" id="usli-sequence" data-usli-sequence>
+          <h4>Launch and recovery sequence, from the team's OpenRocket simulation (draft PDR values)</h4>
+          <ol>${steps.map((s) => `<li>${esc(s)}</li>`).join("")}</ol>
+          <p>Shock cords and parachute lines are drawn at ${f.scene.cordScale} of their real length; canopies and the rocket are drawn to scale.</p>
+        </div>
+      </div>`;
+  }
+
   function projectHTML(p, i, assets) {
     const num = String(i + 1).padStart(2, "0");
     const models = assets.models[p.slug] || [];
-    const media = assets.media[p.slug] || [];
-    const layout = models.length ? "model" : media.length ? "gallery" : "text";
+    // USLI card: scroll scene (src/js/usli-scene.js) instead of a drag viewer; images/<slug>/scene-*.webp are its still frames.
+    const scene = p.slug === USLI_SLUG && assets.flight;
+    const stills = scene ? (assets.media[p.slug] || []).filter((m) => /^scene-/.test(m.file)) : [];
+    const media = (assets.media[p.slug] || []).filter((m) => !stills.includes(m));
+    const layout = scene ? "scene" : models.length ? "model" : media.length ? "gallery" : "text";
     const cardSecs = p.sections.filter((s) => s.inCard);
     const moreSecs = p.sections.filter((s) => !s.inCard);
     const sec = (s) => `<section class="prose"><h4 class="label">${esc(s.heading)}</h4>${s.paragraphs.map((t) => `<p>${esc(t)}</p>`).join("")}</section>`;
@@ -128,6 +171,17 @@ export default function sitePlugin() {
       ? `<button type="button" class="project__toggle" data-toggle aria-expanded="false" aria-controls="more-${p.slug}" hidden><span data-toggle-label>Read the full write-up</span><span aria-hidden="true" class="project__toggle-glyph">+</span></button>`
       : "";
     const more = moreSecs.length ? `<div class="project__more" id="more-${p.slug}" data-more>${moreSecs.map(sec).join("")}</div>` : "";
+
+    if (layout === "scene") {
+      const body = `<div class="project__body" data-reveal><p class="project__lede">${esc(p.oneLiner)}</p><dl class="facts">${facts}</dl>${chips}${cardSecs.map(sec).join("")}${toggle}${more}</div>`;
+      return `<li class="project" id="${p.slug}" data-project data-layout="scene">
+      <div class="container grid project__head" data-reveal>
+        <p class="project__index label"><span>${num}</span>${p.kicker ? ` / ${esc(p.kicker)}` : ""}</p>
+        <h3 class="project__title">${esc(p.title)}</h3>
+      </div>
+      ${usliHTML(assets.flight, stills, body)}
+    </li>`;
+    }
 
     return `<li class="project" id="${p.slug}" data-project data-layout="${layout}">
       <div class="container grid project__head" data-reveal>
@@ -233,6 +287,7 @@ export default function sitePlugin() {
         const { projects } = read("content/projects.json");
         const mediaMeta = existsSync(resolve(root, "content/media.json")) ? read("content/media.json") : {};
         const assets = scan(mediaMeta);
+        assets.flight = existsSync(resolve(root, "content/usli-flight.json")) ? read("content/usli-flight.json") : null;
         return html
           .replace(/%TITLE%/g, esc(site.title))
           .replace(/%DESCRIPTION%/g, esc(site.description))

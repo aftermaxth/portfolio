@@ -20,6 +20,11 @@ const TMP = join(root, "tools", ".tmp-models");
 const COLORS = {
   printed: { hex: "#ff8100", rough: 0.55, metal: 0.0 },
   panel: { hex: "#e9e7e2", rough: 0.7, metal: 0.0 },
+  // USLI rocket (palette colors only): airframe tubes and nosecone in --color-ink, internal structure
+  // (couplers, bulkheads, rings, motor mount) in --color-ink-muted, fins in --color-accent.
+  airframe: { hex: "#f2f1ee", rough: 0.6, metal: 0.0 },
+  structure: { hex: "#a0a6ad", rough: 0.7, metal: 0.0 },
+  fin: { hex: "#ff8100", rough: 0.55, metal: 0.0 },
 };
 
 // simplifyError is a fraction of each mesh's extent; raise it if a file is over budget.
@@ -33,6 +38,37 @@ const MODELS = {
     parts: [
       ["engr_122 - bodytry3-1.STL", "printed"],
       ["engr_122 - flat-1.STL", "panel"],
+    ],
+  },
+  // USLI scroll scene (src/js/usli-scene.js). Lives in models/usli/, so the project scan does not turn it
+  // into a drag viewer. Source: MODELS_SRC=C:/Users/thorn/toDO/portfolio_update/rocket_stls.
+  // The four U-bolt STLs are left out on purpose (purchased hardware, McMaster-Carr 8896T68).
+  // Node names keep the file names; the scene groups them into booster, middle, payload and nose.
+  "usli/rocket": {
+    simplifyError: 0.0001,
+    keepParts: true, // no join or instancing: each part stays its own named node so the bodies can separate
+    parts: [
+      ["RocketV3 - Body_Bot-1.STL", "airframe"],
+      ["RocketV3 - Motor_Mount-1.STL", "structure"],
+      ["RocketV3 - centering_ring-1.STL", "structure"],
+      ["RocketV3 - centering_ring-2.STL", "structure"],
+      ["RocketV3 - centering_ring-3.STL", "structure"],
+      ["RocketV3 - newFin-1.STL", "fin"],
+      ["RocketV3 - newFin-2.STL", "fin"],
+      ["RocketV3 - newFin-3.STL", "fin"],
+      ["RocketV3 - newFin-4.STL", "fin"],
+      ["RocketV3 - bulkhead2-1 BulkheadBottom-1.STL", "structure"],
+      ["RocketV3 - Body_Mid-1.STL", "airframe"],
+      ["RocketV3 - Body_Top2-1.STL", "airframe"],
+      ["RocketV3 - couplerBotassembly-1 tube_coupler_bot-1.STL", "structure"],
+      ["RocketV3 - couplerBotassembly-1 Bulkhead and u bolt-1 Bulkhead1-1.STL", "structure"],
+      ["RocketV3 - couplerBotassembly-1 Bulkhead and u bolt-2 Bulkhead1-1.STL", "structure"],
+      ["RocketV3 - Body_Top-1.STL", "airframe"],
+      ["RocketV3 - tube_coupler_top-1.STL", "structure"],
+      ["RocketV3 - payloadCenterRing-1.STL", "structure"],
+      ["RocketV3 - payloadCenterRing-2.STL", "structure"],
+      ["RocketV3 - Nosecone-1.STL", "airframe"],
+      ["RocketV3 - noseconeBulkhead-1 BulkheadSide-1.STL", "structure"],
     ],
   },
   "plant-watering": {
@@ -107,11 +143,12 @@ mkdirSync(TMP, { recursive: true });
 const wanted = process.argv.slice(2);
 for (const [name, cfg] of Object.entries(MODELS)) {
   if (wanted.length && !wanted.includes(name)) continue;
-  const parts = cfg.parts.map(([file, cls]) => ({ name: file.replace(/^engr_\d+ - /, "").replace(/\.STL$/i, ""), cls, ...readStl(join(SRC, file)) }));
-  const raw = join(TMP, `${name}.raw.glb`);
+  const parts = cfg.parts.map(([file, cls]) => ({ name: file.replace(/^(engr_\d+|RocketV3) - /, "").replace(/\.STL$/i, ""), cls, ...readStl(join(SRC, file)) }));
+  const raw = join(TMP, `${name.replaceAll("/", "_")}.raw.glb`);
   const out = join(OUT, `${name}.glb`);
+  mkdirSync(dirname(out), { recursive: true });
   writeGlb(parts, raw);
-  const r = spawnSync(process.execPath, [join(root, "node_modules/@gltf-transform/cli/bin/cli.js"), "optimize", raw, out, "--compress", "meshopt", "--simplify", "true", "--simplify-ratio", "0", "--simplify-error", String(cfg.simplifyError), "--texture-compress", "false"], { cwd: root, encoding: "utf8" });
+  const r = spawnSync(process.execPath, [join(root, "node_modules/@gltf-transform/cli/bin/cli.js"), "optimize", raw, out, "--compress", "meshopt", "--simplify", "true", "--simplify-ratio", "0", "--simplify-error", String(cfg.simplifyError), "--texture-compress", "false", ...(cfg.keepParts ? ["--join", "false", "--instance", "false"] : [])], { cwd: root, encoding: "utf8" });
   if (r.status !== 0) { console.error(r.stdout, r.stderr); process.exit(1); }
   const tris = parts.reduce((s, p) => s + p.indices.length / 3, 0);
   console.log(`${name}: ${parts.length} part(s), ${tris} source triangles, raw ${(statSync(raw).size / 1e6).toFixed(1)} MB -> ${(statSync(out).size / 1e6).toFixed(2)} MB`);

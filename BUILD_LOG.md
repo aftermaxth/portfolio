@@ -1,6 +1,7 @@
 # BUILD_LOG
 
 ## RESUME HERE
+- Current work (2026-11-04): USLI scroll scene on branch `usli-launch-scene`, PR open, NOT merged. Open for Charles: --color-grass approval, parachute colors, payload chain assumption, USLI alt text and captions, part map (TODO_CHARLES.md).
 - Current phase: PUBLISHED. Phase C finished and the redesign is live at https://aftermaxth.github.io/portfolio/ (2026-11-02). PR #1 merged to main, Pages source switched to GitHub Actions, deploy run 41523533383 succeeded.
 - Expected model and effort: Sonnet high for follow-ups.
 - Rule: never push to main directly. Any change goes on a branch, then a PR, then merge on Charles's word.
@@ -150,3 +151,58 @@
 - Failed attempts: no pdftoppm, so the page image came from LibreOffice (soffice --convert-to png on the PDF).
 - Not done: publishing. The branch needs a PR and a merge to main (deploys automatically); waiting on Charles.
 - Note: the resume says "1 of 12 teams from roughly 650 first-year engineers" and "1 of 2 safety officers"; the site follows the source file instead (logged earlier). Not changed.
+
+### 2026-11-04 | USLI scene step 1 | Inputs, branch, scroll mapping (written before coding)
+- Branch `usli-launch-scene` from main e704dff.
+- Inputs (Charles, chat 2026-11-04): flight data is C:\Users\thorn\toDO\portfolio_update\usli-flight.json, copied unchanged to content/usli-flight.json, plus one added block `scene.cordScale` = 0.25 (the shared cord and line factor). STLs: C:\Users\thorn\toDO\portfolio_update\rocket_stls (25 files, all binary: size = 84 + 50 x triangle count for every file). No parts list file exists, so the part map is derived from the file names (Charles OK). The four U-bolt STLs are left out as purchased hardware (two carry the McMaster-Carr number 8896T68; Charles OK). The OpenRocket screenshots are NOT used (Charles, chat: "actualy dont incude them"), so content/media.json gets only the four scene stills.
+- STL geometry (mm, axis +y, aft end at y 0, outer diameter 156.7 mm = 6.17 in, total 3273.8 mm = 128.9 in): booster 0 to 1140, switchband 1140 to 1190.8, main-bay tube 1190.8 to 2003.8, payload tube 2003.8 to 2511.8, nosecone 2359.4 to 3273.8 (30 in exposed). Every joint matches the JSON section lengths within 0.1 in. No motor STL: Motor_Mount-1 is the 79.2 mm OD mount tube, so the motor is a plain cylinder inside it.
+
+Part map (file name, part, class, body after separation):
+| File (prefix "RocketV3 - ") | Part | Class | Body |
+|---|---|---|---|
+| Body_Bot-1 | booster tube | airframe | booster |
+| Motor_Mount-1 | motor mount tube | structure | booster |
+| centering_ring-1, -2, -3 | centering rings | structure | booster |
+| newFin-1 to -4 | fins | fin | booster |
+| bulkhead2-1 BulkheadBottom-1 | booster bulkhead (drogue bay floor) | structure | booster |
+| Body_Mid-1 | switchband | airframe | middle |
+| Body_Top2-1 | main-bay tube | airframe | middle |
+| couplerBotassembly-1 tube_coupler_bot-1 | avionics bay coupler | structure | middle |
+| couplerBotassembly-1 ... Bulkhead1-1 (two files) | avionics bay bulkheads (aft, forward) | structure | middle |
+| Body_Top-1 | payload tube | airframe | payload |
+| tube_coupler_top-1 | payload coupler | structure | payload |
+| payloadCenterRing-1, -2 | payload coupler rings | structure | payload |
+| Nosecone-1 | nosecone | airframe | nose |
+| noseconeBulkhead-1 BulkheadSide-1 | nosecone bulkhead | structure | nose |
+| four U-bolt files | U-bolts | LEFT OUT (purchased) | none |
+
+Scroll to time mapping (pin progress p from 0 to 1; time t in seconds of the OpenRocket run; linear inside each window). Uniform would be 1 / 105.099 s = 0.951 percent of the pin per second.
+| # | Window | p from | p to | share | t from | t to | seconds | percent per s |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Pad hold | 0.000 | 0.050 | 5.0 | 0 | 0 | 0 | hold |
+| 2 | Burn (event) | 0.050 | 0.150 | 10.0 | 0 | 2.309 | 2.309 | 4.33 |
+| 3 | Coast | 0.150 | 0.320 | 17.0 | 2.309 | 17.0 | 14.691 | 1.16 |
+| 4 | Apogee, both drogue charges, separation, drogue inflation (event) | 0.320 | 0.450 | 13.0 | 17.0 | 21.0 | 4.0 | 3.25 |
+| 5 | Drogue descent | 0.450 | 0.580 | 13.0 | 21.0 | 67.0 | 46.0 | 0.28 (least) |
+| 6 | 600 ft: charge, separation, main extraction and inflation (event) | 0.580 | 0.700 | 12.0 | 67.0 | 68.2 | 1.2 | 10.0 |
+| 7 | 500 ft: payload parachute release and inflation (event) | 0.700 | 0.790 | 9.0 | 68.2 | 70.5 | 2.3 | 3.91 |
+| 8 | Descent under main and payload parachute | 0.790 | 0.850 | 6.0 | 70.5 | 89.0 | 18.5 | 0.32 |
+| 9 | Payload and nosecone touchdown, 93.662 s (event) | 0.850 | 0.910 | 6.0 | 89.0 | 95.0 | 6.0 | 1.00 |
+| 10 | Main descent continues | 0.910 | 0.925 | 1.5 | 95.0 | 100.0 | 5.0 | 0.30 |
+| 11 | Middle body and booster touchdown, 105.099 s (event) | 0.925 | 0.985 | 6.0 | 100.0 | 105.099 | 5.099 | 1.18 |
+| 12 | Landed hold | 0.985 | 1.000 | 1.5 | 105.099 | 105.099 | 0 | hold |
+- Checks this table meets: the burn gets 10 percent (rule: at least 8); every event window gets more than 0.951 percent per second; the drogue descent (0.28) is the lowest rate of any moving window. tools/check_usli_scene.mjs asserts all three.
+- Text crossing (desktop, 900 px and up; the rocket sits in the left lane at every event moment, the text column is on the right): crossing 1 in FRONT of the text during the coast (p 0.17 to 0.31); crossing 2 BEHIND the text during the drogue descent (p 0.47 to 0.57). The canvas z-order flips at ScrollTrigger checkpoints p 0.45 and 0.58. Apogee (p 0.32 to 0.45), 600 ft (0.58 to 0.70) and 500 ft (0.70 to 0.79) are in the left lane, clear of the text.
+- Next: build the GLB.
+
+### 2026-11-04 | USLI scene steps 2 to 6 | GLB, timeline, scene, stills, checks
+- GLB: tools/build_models.mjs gets classes airframe (#f2f1ee), structure (#a0a6ad), fin (#ff8100) and model `usli/rocket` (21 parts, U-bolts out). The first build merged parts by material (3 nodes); added `keepParts` (--join false --instance false). Result: "21 part(s), 9304 source triangles, raw 0.2 MB -> 0.04 MB", models/usli/rocket.glb 42,796 bytes (budget 500 kB). It lives in models/usli/, so the project scan makes no drag viewer.
+- Timeline: src/js/usli-timeline.js (no three.js): createTimeline(data) gives timeAt(p) and stateAt(t) with phase, altitudes (event points merged into the curves, so liftoff reads 0 ft and the release reads 500 ft), body poses, chutes, cords, flashes, fire, island, lane, z-order and frame box. Altitude is drawn compressed (0.02 m per ft); the readout shows the real values.
+- tools/check_usli_scene.mjs: "104 checks passed, 0 failed" (mapping rules, phase and altitude at all 10 JSON events, fire, chutes, cords, island only below 260 ft, both crossings, event lanes clear, z checkpoints, every label number found in the JSON).
+- Scene: src/js/usli-scene.js (lazy chunk 16.2 kB gzip), reuses createStage; clipping plane z = 0 with back-face caps; mountUsli wires ScrollTrigger (pin progress to time; a second trigger sets data-behind between p 0.45 and 0.58). tools/vite-plugin-site.mjs: "scene" layout for nasa-student-launch only (stills, HUD, visually hidden step list built from the JSON). src/js/projects.js: initUsli mounts near the viewport, never under reduced motion. The text block is sticky in the pin with a solid page-color fill.
+- Failed attempts: (1) only the booster drew: GLB positions are int16-quantized and baking node transforms clamped them; fixed by copying to floats first. (2) the text scrolled away in the first 10 percent of the pin, so nothing was left to cross; fixed with the sticky text block. (3) the charge flash read as a box (cylinder); now spheres. (4) the island ran under the readout; it is now eased into the frame box and the subject sits in the upper 74 percent. (5) the dev server reloads when a still is written; all four are rendered first.
+- Stills: rendered with scene.snapshot from a scratch headless Chrome script (the poster plugin is outside this task's scope lock; same pattern): scene-1-pad (t 0), scene-2-apogee (t 21.0), scene-3-600ft (t 69.2; 68.9 caught the backup flash), scene-4-landing (t 105.099). Alt text and captions in content/media.json.
+- Checked by screenshots (headless Chrome, swiftshader): 1440 live at p 0 to 0.99 (front crossing at p 0.25, behind at p 0.5, events in the left lane, console clean); 375 live; 1440 reduced motion (stills, state "still"); 375 and 1440 with JS off (stills and text readable).
+- Commands: `npm run build` ok; `npm run check` 0 em dashes (src + content + tools, dist), 0 bracket placeholders; `node tools/verify_content.mjs` OK; `node tools/audit_a11y.mjs --widths 1440,768,375` OK (0 below threshold at each width; it skipped 59 to 91 text elements still fading in; not compared with main).
+- Not done or not measured: phone frame rate (unmeasured); a check in a real GPU browser outside headless swiftshader; text crossing below 900 px (the text sits under the scene there).
+- Next: Charles reviews the PR and decides the USLI items in TODO_CHARLES.md. Do not merge without his word.

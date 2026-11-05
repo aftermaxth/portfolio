@@ -58,3 +58,13 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [x] Old site files deleted 2026-11-02 (Charles OK): css/, js/, assets/, tools/*.py, images/hero/engine.webp, plus tools/og-image.html (replaced by tools/og_image.mjs). Git history keeps them. Resume PDF verified at the same public path, same sha256 as the original.
 - [x] Also deleted 2026-11-02 (Charles OK): root 404.html, favicon.ico, favicon.svg, apple-touch-icon.png, og-image.png (all except 404.html were byte-identical to public/), and tools/source/ (the Air Force photo).
 - [x] DONE 2026-11-02 via PR #1 (Charles said go). Was: Merge `redesign` to main (never pushed or merged by me): left to do are the sensor-count alt text, the Pages switch at merge time, and the optional items above. Phone frame rate is unmeasured (see BUILD_LOG).
+
+## USLI scroll scene (branch usli-launch-scene, 2026-11-04)
+- [ ] Approve the new token --color-grass #56704a (src/styles/tokens.css), used only on the island top.
+- [ ] Parachute colors: canopy gores alternate the accent orange and the off-white ink (stylized, not the real canopy colors). Keep?
+- [ ] Payload chain assumption (not in the JSON): payload = payload tube + payload coupler; the payload parachute is packed folded inside the coupler and leaves from its aft end at 600 ft; the payload hangs nose-down with the nosecone 15 ft below it, tip down. Correct?
+- [ ] Review the four still alt texts and captions in content/media.json (nasa-student-launch) and the step list in tools/vite-plugin-site.mjs (usliHTML).
+- [ ] Part map came from file names (no parts list file). Check the BUILD_LOG.md 2026-11-04 table, and that the body tubes and nosecone are the team's own parts (not purchased).
+- [ ] Below 900 px the text sits under the pinned scene, so the rocket crosses the text column only from 900 px up.
+- [ ] Phone frame rate of the scene is unmeasured.
+- [ ] The 600 ft backup charge is drawn 1 s after the main charge (the JSON says "about 1 s later", no exact time).

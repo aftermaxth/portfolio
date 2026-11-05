@@ -12,6 +12,8 @@
   --color-accent: #ff8100;
   --color-accent-ink: #0a0b0d;
   --color-focus: #7cc4ff;
+  /* USLI scene only: the top of the landing island. Pending Charles's approval (TODO_CHARLES.md). */
+  --color-grass: #56704a;
 
   /* Type: one variable sans, one mono for labels and data */
   --font-sans: "Archivo Variable", "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
