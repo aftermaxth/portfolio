@@ -63,17 +63,19 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [x] Also deleted 2026-11-02 (Charles OK): root 404.html, favicon.ico, favicon.svg, apple-touch-icon.png, og-image.png (all except 404.html were byte-identical to public/), and tools/source/ (the Air Force photo).
 - [x] DONE 2026-11-02 via PR #1 (Charles said go). Was: Merge `redesign` to main (never pushed or merged by me): left to do are the sensor-count alt text, the Pages switch at merge time, and the optional items above. Phone frame rate is unmeasured (see BUILD_LOG).
 
-## USLI scroll scene (branch usli-launch-scene, 2026-11-04)
-- [ ] Approve the new token --color-grass #56704a (src/styles/tokens.css), used only on the island top.
-- [ ] Parachute colors: canopy gores alternate the accent orange and the off-white ink (stylized, not the real canopy colors). Keep?
+## USLI card (branch usli-launch-scene, PR #6; redesign 2026-11-06)
+- [x] --color-grass and the island are gone (redesign brief): the landing surface is a grey sheet.
+- [ ] Parachute colors: all three canopies are the accent orange, alternate gores one step darker, darker seams (stylized, not the real canopy colors). Keep?
 - [ ] Payload chain assumption (not in the JSON): payload = payload tube + payload coupler; the payload parachute is packed folded inside the coupler and leaves from its aft end at 600 ft; the payload hangs nose-down with the nosecone 15 ft below it, tip down. Correct?
-- [ ] Review the four still alt texts and captions in content/media.json (nasa-student-launch) and the step list in tools/vite-plugin-site.mjs (usliHTML).
+- [ ] Review the four still alt texts and captions in content/media.json (nasa-student-launch, re-rendered 2026-11-06) and the step list in tools/vite-plugin-site.mjs (usliPlayerHTML).
 - [ ] Part map came from file names (no parts list file). Check the BUILD_LOG.md 2026-11-04 table, and that the body tubes and nosecone are the team's own parts (not purchased).
-- [ ] Below 900 px the text sits under the pinned scene, so the rocket crosses the text column only from 900 px up.
-- [ ] Phone frame rate of the scene is unmeasured.
-- [ ] The 600 ft backup charge is drawn 1 s after the main charge (the JSON says "about 1 s later", no exact time).
-- [x] USLI scene under reduced motion: it now plays anyway (Charles, chat 2026-11-04). Note: visitors who ask their system for reduced motion will still see this scroll animation; the rest of the site keeps honoring the setting.
-- [ ] USLI rework (2026-11-04): diameter drawn at 1.8 times real (stylization.diameterScale in content/usli-flight.json). Canopy diameters are scaled by the same factor to keep their proportion to the tube; say if canopies should stay real size instead.
-- [ ] USLI rework: on narrow screens the descent side shifts left so the main canopy stays inside the card (the landing point is then left of 88 percent).
-- [ ] USLI rework: the brief asked for no autoplay under reduced motion; per your earlier call it still autoplays. Confirm.
+- [ ] Schematic facts added to content/usli-flight.json from usli-schematic.svg: nosecone shape ogive, avionics bay 12 in coupler with 2 bulkheads, 3 centering rings, 4 trapezoidal fins, 2 rail buttons, drawing scale 2x. Rail button stations (2 in and 44 in from the aft end) were measured off the drawing. Confirm.
+- [ ] Schematic labels are drawn at 13.5 viewBox units instead of 11 (and the caption at 13.5 instead of 10) so they render at 12 px or more; the drawing itself is unchanged. Below a 680 px wide drawing the side labels hide and the same text shows as a list.
+- [ ] At 1440 px the schematic is about 1027 px tall and the collapsed text column about 634 px: matching the text height would push the labels under 12 px, so the drawing keeps its width and is taller. Say if you prefer it shorter with the list instead.
+- [ ] Sideways drift in the animation (20 m to apogee, 8 m more to the main landing, scene meters) is illustrative, not from the simulation; height is altitude x 0.04 (content/usli-flight.json scene).
+- [ ] Faint altitude lines every 500 ft with mono labels sit behind the pieces so the climb reads against something. Keep?
+- [ ] Frame rate: unmeasured on a desktop GPU and on a phone (only headless software rendering here).
+- [ ] The 600 ft backup charge time is 1 s after the main charge (the JSON says "about 1 s later"); it shows only in the step list now.
+- [x] Reduced motion: nothing autoplays any more; with reduced motion the four stills show until Play is pressed, then it plays.
+- [ ] Diameter drawn at 1.8 times real (stylization.diameterScale). Canopy diameters scaled by the same factor; say if canopies should stay real size instead.
 - [ ] Main has 17 training-hub-v2 strings (PR #4) that tools/verify_content.mjs cannot find in Portfolio Source Material.md; add them to the source file or the verifier will keep failing.

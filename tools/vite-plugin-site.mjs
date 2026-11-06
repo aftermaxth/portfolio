@@ -97,43 +97,82 @@ export default function sitePlugin() {
     return `<figure class="figure${wide}"><div class="figure__frame">${inner}</div>${cap}</figure>`;
   };
 
-  // USLI card markup (the li's contents). Without JS or without WebGL the still frames show (the scene also plays
-  // with reduced motion); usli-scene.js switches data-state to "live": the canvas sits behind the whole card,
-  // the page scrolls normally. [data-usli-text] marks the text blocks the rocket fades behind.
-  // The step list is built from content/usli-flight.json.
-  function usliHTML(f, stills, head, body) {
+  // USLI schematic (images/nasa-student-launch/usli-schematic.svg, the team's labeled side view), inlined so it
+  // uses the site tokens: every hex in it becomes var(--token, hex), presentation attributes become style
+  // properties (CSS variables do not work in attributes), the <style> rules are scoped to this SVG, and the
+  // title and desc ids get unique names. The drawing itself is not changed.
+  const SCHEMATIC_TOKENS = { "#111317": "--color-surface", "#a0a6ad": "--color-ink-muted", "#f2f1ee": "--color-ink", "#23272d": "--color-rule", "#ff8100": "--color-accent" };
+  function schematicSVG(raw) {
+    const tok = (hex) => {
+      const t = SCHEMATIC_TOKENS[hex.toLowerCase()];
+      if (!t) throw new Error(`usli-schematic.svg: no token for ${hex}`);
+      return `var(${t}, ${hex})`;
+    };
+    const s = raw.replace(/<\?xml[^>]*\?>/, "").trim()
+      .replace('aria-labelledby="t d"', 'aria-labelledby="usli-schematic-title usli-schematic-desc"')
+      .replace('id="t"', 'id="usli-schematic-title"').replace('id="d"', 'id="usli-schematic-desc"')
+      .replace(/<style>([\s\S]*?)<\/style>/, (_, css) => `<style>${css
+        .replace(/(^|\})([^{}]+)\{/g, (m, end, sel) => `${end}${sel.split(",").map((x) => `.usli-schematic ${x.trim()}`).join(",")}{`)
+        .replace(/#[0-9a-f]{6}\b/gi, tok)}</style>`)
+      .replace(/<(\w+)([^<>]*?)(\/?)>/g, (m, tag, attrs, close) => {
+        const style = [];
+        const rest = attrs.replace(/\s(fill|stroke)="(#[0-9a-fA-F]{6})"/g, (_, k, hex) => { style.push(`${k}:${tok(hex)}`); return ""; });
+        return style.length ? `<${tag}${rest} style="${style.join(";")}"${close}>` : m;
+      })
+      .replace("<svg ", '<svg class="usli-schematic" focusable="false" ');
+    if (/#[0-9a-f]{6}\b/i.test(s.replace(/var\(--[\w-]+, #[0-9a-f]{6}\)/gi, ""))) throw new Error("usli-schematic.svg: a hex color was not tokenized");
+    return s;
+  }
+  // The schematic's side labels as a definition list, top to bottom. Shown under the drawing when the drawing is
+  // too narrow for its labels to stay at 12 px or more; otherwise visually hidden (still read by screen readers).
+  function schematicLegend(raw) {
+    const items = [...raw.matchAll(/<text class="t1( ta)?"[^>]*\by="([\d.]+)"[^>]*>([^<]+)<\/text><text class="t2"[^>]*>([^<]+)<\/text>/g)]
+      .map(([, accent, y, k, v]) => ({ y: +y, k, v, accent: !!accent })).sort((a, b) => a.y - b.y);
+    const overall = raw.match(/<text class="t2" transform[^>]*>([^<]+)<\/text>/)?.[1];
+    const cap = raw.match(/<text class="cap"[^>]*>([^<]+)<\/text>/)?.[1];
+    const row = (k, v, accent) => `<div class="usli__legend-row"><dt${accent ? ' class="usli__legend-accent"' : ""}>${esc(k)}</dt><dd>${esc(v)}</dd></div>`;
+    return `<dl class="usli__legend">${items.map((i) => row(i.k, i.v, i.accent)).join("")}${overall ? row("LENGTH", overall) : ""}</dl>${cap ? `<p class="usli__legend-cap">${esc(cap)}</p>` : ""}`;
+  }
+
+  // USLI recovery sequence player, at the bottom of the write-up (left column on wide screens). Without JS, without
+  // WebGL, or with reduced motion until Play is pressed, the four still frames show. projects.js loads the WebGL
+  // chunk (usli-scene.js) only when the write-up opens. Nothing autoplays.
+  // The step list for screen readers is built from content/usli-flight.json.
+  function usliPlayerHTML(f, stills) {
     const ev = Object.fromEntries(f.events.map((e) => [e.id, e]));
     const chute = Object.fromEntries(f.parachutes.map((c) => [c.id, c]));
     const cord = Object.fromEntries(f.shockCords.map((c) => [c.id, c]));
     const pins = f.separations.map((s) => s.shearPins);
     const sep = ev["main-and-payload-separation"];
     const steps = [
-      `On the pad: the ${f.vehicle.lengthIn} in rocket, ${f.vehicle.diameterIn} in in diameter, is drawn cut in half. The drogue is packed in the forward 17 in of the booster, the main in the main bay, and the payload parachute is folded and held by its release device.`,
-      `Motor burn: the ${f.vehicle.motor.name} fires from liftoff at ${ev.liftoff.t} s to burnout at ${f.vehicle.motor.burnoutS} s, with fire and smoke from the aft end.`,
+      `On the pad: the ${f.vehicle.lengthIn} in rocket, ${f.vehicle.diameterIn} in in diameter, stands on the sheet. The drogue is packed in the forward 17 in of the booster, the main in the main bay, and the payload parachute is folded and held by its release device.`,
+      `Motor burn: the ${f.vehicle.motor.name} fires from liftoff at ${ev.liftoff.t} s to burnout at ${f.vehicle.motor.burnoutS} s.`,
       `Coast to apogee: ${ev.apogee.altFt} ft at ${ev.apogee.t} s.`,
       `Apogee: the primary drogue charge (${ev["drogue-charge-primary"].chargeG} g) fires at ${ev["drogue-charge-primary"].t} s and the backup (${ev["drogue-charge-backup"].chargeG} g) at ${ev["drogue-charge-backup"].t} s. ${pins[0]} shear pins break, the booster separates, and the ${chute.drogue.diameterIn} in drogue is pulled out and opens on its ${cord["drogue-forward"].lengthFt} ft and ${cord["drogue-aft"].lengthFt} ft cords.`,
       `Drogue descent to ${sep.altFt} ft.`,
       `${sep.altFt} ft at ${sep.t} s: the main charge (${sep.chargeG} g, backup ${sep.backupChargeG} g) fires at the forward avionics bulkhead. ${pins[1]} shear pins break, the nosecone and payload tube separate, the ${chute.main.diameterIn} in main is pulled out on its ${cord.main.lengthFt} ft Kevlar cord and opens, and the payload and nosecone fall free, tethered together. The drogue stays attached between the middle body and the booster.`,
       `${ev["payload-parachute-release"].altFt} ft at ${ev["payload-parachute-release"].t} s: the ${chute.payload.diameterIn} in payload parachute is released and opens on its ${cord["payload-to-parachute"].lengthFt} ft cord, with the nosecone ${cord["payload-to-nosecone"].lengthFt} ft below the payload.`,
-      `Landing: a small island fades in on final approach. The payload and nosecone land first at ${ev["payload-landing"].t} s (${ev["payload-landing"].speedFtS} ft/s); the middle body and booster land under the main at ${ev["main-booster-landing"].t} s (${ev["main-booster-landing"].speedFtS} ft/s).`,
+      `Landing on the sheet: the payload and nosecone land first at ${ev["payload-landing"].t} s (${ev["payload-landing"].speedFtS} ft/s); the middle body and booster land under the main at ${ev["main-booster-landing"].t} s (${ev["main-booster-landing"].speedFtS} ft/s).`,
     ];
     const still = (m) => `<figure class="figure usli__still"><div class="figure__frame"><img src="${m.src}" width="${m.width}" height="${m.height}" alt="${esc(m.alt)}" loading="lazy" decoding="async"></div>${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
-    return `<div class="usli__canvas-wrap" data-usli-canvas></div>
-      <div class="usli__top" aria-hidden="true"></div>
-      ${head}
-      ${stills.length ? `<div class="container usli__stills">${stills.map(still).join("")}</div>` : ""}
-      <div class="container grid project__row usli__row">${body}</div>
-      <div class="usli__ground" data-usli-ground aria-hidden="true"></div>
-      <div class="container usli__hud-wrap"><div class="usli__hud" data-usli-text>
-        <p class="usli__readout" aria-hidden="true"><span data-r-time></span><span data-r-alt></span><span data-r-phase></span></p>
-        <div class="usli__controls" data-usli-controls hidden><button type="button" class="usli__button" data-usli-toggle aria-pressed="false">Play</button><button type="button" class="usli__button" data-usli-restart>Restart</button></div>
+    return `<section class="usli__player" data-usli data-state="still" aria-labelledby="usli-player-title">
+        <h4 class="label usli__player-title" id="usli-player-title">Recovery sequence</h4>
+        <div class="usli__stage">
+          <div class="usli__canvas-wrap" data-usli-canvas><p class="usli__tag" data-usli-tag aria-hidden="true"></p></div>
+          ${stills.length ? `<div class="usli__stills">${stills.map(still).join("")}</div>` : ""}
+        </div>
+        <div class="usli__bar" data-usli-controls hidden>
+          <button type="button" class="usli__button" data-usli-toggle aria-pressed="false">Play</button>
+          <button type="button" class="usli__button" data-usli-restart>Restart</button>
+          <p class="usli__readout" aria-hidden="true"><span data-r-time>T+ 0.0 s</span><span data-r-alt>Altitude 0 ft</span><span data-r-phase>On the pad</span></p>
+        </div>
         <p class="usli__note">Illustrative, path not to scale. Based on the team's OpenRocket simulation of the PDR design.</p>
-      </div></div>
-      <div class="visually-hidden" id="usli-sequence" data-usli-sequence>
-        <h4>Launch and recovery sequence, from the team's OpenRocket simulation (draft PDR values)</h4>
-        <ol>${steps.map((x) => `<li>${esc(x)}</li>`).join("")}</ol>
-        <p>The path is not to scale. Shock cords and parachute lines are drawn at ${f.scene.cordScale} of their real length; the tube, fin and canopy diameters at ${f.stylization.diameterScale} times real.</p>
-      </div>`;
+        <div class="visually-hidden" id="usli-sequence" data-usli-sequence>
+          <h5>Launch and recovery sequence, from the team's OpenRocket simulation (draft PDR values)</h5>
+          <ol>${steps.map((x) => `<li>${esc(x)}</li>`).join("")}</ol>
+          <p>The path is not to scale. Shock cords and parachute lines are drawn at ${f.scene.cordScale} of their real length; the tube, fin and canopy diameters at ${f.stylization.diameterScale} times real.</p>
+        </div>
+      </section>`;
   }
 
   function projectHTML(p, i, assets) {
@@ -172,14 +211,26 @@ export default function sitePlugin() {
       : "";
     const more = moreSecs.length ? `<div class="project__more" id="more-${p.slug}" data-more>${moreSecs.map(sec).join("")}</div>` : "";
 
+    // USLI card: the schematic fills the column left of the text (no canvas, no WebGL); the write-up opens below
+    // as its own grid row with the recovery sequence player at its bottom, left column.
     if (layout === "scene") {
-      const body = `<div class="project__body" data-reveal data-usli-text><p class="project__lede">${esc(p.oneLiner)}</p><dl class="facts">${facts}</dl>${chips}${cardSecs.map(sec).join("")}${toggle}${more}</div>`;
-      const head = `<div class="container grid project__head" data-reveal>
-        <p class="project__index label" data-usli-text><span>${num}</span>${p.kicker ? ` / ${esc(p.kicker)}` : ""}</p>
-        <h3 class="project__title" data-usli-text>${esc(p.title)}</h3>
+      const figure = assets.schematic
+        ? `<figure class="usli__schematic">${schematicSVG(assets.schematic)}${schematicLegend(assets.schematic)}</figure>`
+        : "";
+      const extension = `<div class="container grid project__more usli__more" id="more-${p.slug}" data-more>
+        <div class="usli__more-text">${moreSecs.map(sec).join("")}</div>
+        ${usliPlayerHTML(assets.flight, stills)}
       </div>`;
-      return `<li class="project usli" id="${p.slug}" data-project data-layout="scene" data-usli data-state="still">
-      ${usliHTML(assets.flight, stills, head, body)}
+      return `<li class="project usli" id="${p.slug}" data-project data-layout="scene">
+      <div class="container grid project__head" data-reveal>
+        <p class="project__index label"><span>${num}</span>${p.kicker ? ` / ${esc(p.kicker)}` : ""}</p>
+        <h3 class="project__title">${esc(p.title)}</h3>
+      </div>
+      <div class="container grid project__row usli__row">
+        ${figure}
+        <div class="project__body" data-reveal><p class="project__lede">${esc(p.oneLiner)}</p><dl class="facts">${facts}</dl>${chips}${cardSecs.map(sec).join("")}${toggle}</div>
+      </div>
+      ${moreSecs.length ? extension : ""}
     </li>`;
     }
 
@@ -288,6 +339,8 @@ export default function sitePlugin() {
         const mediaMeta = existsSync(resolve(root, "content/media.json")) ? read("content/media.json") : {};
         const assets = scan(mediaMeta);
         assets.flight = existsSync(resolve(root, "content/usli-flight.json")) ? read("content/usli-flight.json") : null;
+        const schematic = resolve(root, "images", USLI_SLUG, "usli-schematic.svg");
+        assets.schematic = existsSync(schematic) ? readFileSync(schematic, "utf8") : null;
         return html
           .replace(/%TITLE%/g, esc(site.title))
           .replace(/%DESCRIPTION%/g, esc(site.description))

@@ -11,7 +11,8 @@
     "sectionsTopToBottom": [
       {
         "id": "nosecone",
-        "lengthIn": 30
+        "lengthIn": 30,
+        "shape": "ogive"
       },
       {
         "id": "payload-tube",
@@ -37,7 +38,18 @@
       "name": "Aerotech L1940X",
       "burnoutS": 2.309,
       "note": "no motor in the CAD: draw a plain cylinder"
-    }
+    },
+    "avionicsBay": {
+      "couplerIn": 12,
+      "bulkheads": 2
+    },
+    "centeringRings": 3,
+    "fins": {
+      "count": 4,
+      "shape": "trapezoidal"
+    },
+    "railButtons": 2,
+    "schematicNote": "avionicsBay, centeringRings, fins, railButtons and the nosecone shape as labeled in images/nasa-student-launch/usli-schematic.svg (labeled side view generated from the team's OpenRocket geometry; length to scale, diameter drawn 2 times real). The centering ring and fin counts also appear in the booster note above."
   },
   "events": [
     {
@@ -192,25 +204,23 @@
   },
   "scene": {
     "cordScale": 0.25,
-    "cordScaleNote": "Display only. Every shock cord and parachute line in the scene is drawn at 0.25 of its real length (6, 24, 25, 15, 15 ft become 1.5, 6, 6.25, 3.75, 3.75 ft), so all keep their real proportions to each other. Canopy diameters keep their proportion to the tube diameter (see stylization)."
+    "cordScaleNote": "Display only. Every shock cord and parachute line in the scene is drawn at 0.25 of its real length (6, 24, 25, 15, 15 ft become 1.5, 6, 6.25, 3.75, 3.75 ft), so all keep their real proportions to each other. Canopy diameters keep their proportion to the tube diameter (see stylization).",
+    "altitudeScale": 0.04,
+    "ascentDriftM": 20,
+    "descentDriftM": 8,
+    "displayNote": "Display only, path not to scale. Height above the landing sheet is altitude times altitudeScale (apogee about 59 m in scene meters while the rocket keeps its real 129 in length). The horizontal drift (ascentDriftM from the pad to apogee, descentDriftM from apogee to the main landing) is illustrative, not from the simulation."
   },
   "stylization": {
     "diameterScale": 1.8,
-    "note": "Display only. The tube diameter, fins and canopy diameters are drawn at 1.8 times real so the rocket reads at card size; every length stays real."
-  },
-  "path": {
-    "note": "Display only, path not to scale. Normalized card space: x 0 at the left edge to 1 at the right edge; y 0 at the apex line above the headline to 1 at the ground line above the readout. Two cubic Bezier halves meet at the apex with a level tangent. Height on the curve is proportional to altitude, so apogee sits exactly at the apex; the horizontal extent is illustrative.",
-    "pad": [0.08, 1],
-    "ascentControls": [[0.09, 0.35], [0.24, 0]],
-    "apex": [0.55, 0],
-    "descentControls": [[0.78, 0], [0.88, 0.45]],
-    "landing": [0.88, 1]
+    "note": "Display only. The tube diameter, fins and canopy diameters are drawn at 1.8 times real so the rocket reads at card size; every length stays real.",
+    "schematicDiameterScale": 2,
+    "schematicNote": "usli-schematic.svg draws the diameter 2 times real (its caption); length to scale."
   },
   "altitudeCurveFtByTimeS": {
     "note": "[time s, altitude ft AGL] from the OpenRocket run. Shared until the 600 ft separation, then one curve per body.",
     "ascentAndDrogue": [
       [
-        0.0,
+        0,
         0
       ],
       [

@@ -1,22 +1,23 @@
 // USLI launch and recovery timeline. Pure functions, no three.js and no DOM, so tools/check_usli_scene.mjs
 // can test it in Node. Every flight number comes from content/usli-flight.json (passed in as `data`).
 //
-//   const tl = createTimeline(data, { aspect })   // aspect = card width / height (path tangents)
-//   tl.flightAt(s)    play clock seconds (0..PLAY_SECONDS) -> flight time in s (PLAY_WINDOWS)
-//   tl.stateAt(t)     everything the scene draws at flight time t
+//   const tl = createTimeline(data)
+//   tl.flightAt(s)     play clock seconds (0..PLAY_SECONDS) -> flight time in s (PLAY_WINDOWS)
+//   tl.stateInto(t)    everything the scene draws at flight time t, written into one reused object (no allocation)
+//   tl.stateAt(t)      the same as a fresh copy (tests)
 //
-// Where things are: each piece belongs to a chain ("shared" until the 600 ft separation, then "main" or
-// "payload"). The chain's anchor is a point on the arc (src/js/usli-path.js) whose height is proportional to
-// that chain's altitude: the booster aft end for shared and main, the nosecone tip for payload. Piece poses
-// are in meters relative to their chain's anchor. A pose {x, y, rot} places the CAD frame of the STL export:
-// station s (inches from the aft end, on the rocket axis) sits at (x - s * IN * sin(rot), y + s * IN * cos(rot)).
+// World: scene meters, y up, the landing sheet at y = 0. Each piece belongs to a chain ("shared" until the 600 ft
+// separation, then "main" or "payload"). The chain's anchor sits at height altitude x scene.altitudeScale above
+// the sheet (path not to scale) and drifts sideways by an illustrative amount (scene.ascentDriftM, descentDriftM).
+// The anchor is the booster aft end for shared and main, the nosecone tip for payload. Piece poses are in meters
+// relative to their chain's anchor. A pose {x, y, rot} places the CAD frame of the STL export: station s (inches
+// from the aft end, on the rocket axis) sits at (x - s * IN * sin(rot), y + s * IN * cos(rot)).
 // rot 0 = nose up, -PI = nose down, -PI/2 = nose to the right.
-import { createPath } from "./usli-path.js";
 
 export const IN = 0.0254;
 const FT = 0.3048;
 
-// Play time map (BUILD_LOG.md, 2026-11-04 rework): [play from, play to, flight from, flight to, id, slowed]
+// Play time map (BUILD_LOG.md, 2026-11-04): [play from, play to, flight from, flight to, id, slowed]
 export const PLAY_WINDOWS = [
   [0, 4, 0, null, "burn", true], // flight to = burnout from the JSON
   [4, 10, null, 17.0, "coast", false],
@@ -44,8 +45,8 @@ function stations(data) {
     nose: { aft: 92.9, fwd: noseTip, attach: 93.1, center: (92.9 + noseTip) / 2 }, // nosecone shoulder and bulkhead (STL)
     upper: { aft: 40.0, fwd: noseTip, attach: 40.1, center: (40 + noseTip) / 2 }, // middle + payload + nose before 600 ft
     bays: { drogue: [boosterFwd - 17, 40.0], main: [51.9, 72.9], payloadChute: [74.5, 81.5] },
-    pins: { apogee: 43.0, main: 77.0 }, // shear pin stations: booster wall into the avionics coupler, main-bay tube into the payload coupler
     switchband: [boosterFwd, switchFwd],
+    railButtons: [2.0, 44.0], // measured from images/nasa-student-launch/usli-schematic.svg (count 2 in the JSON)
     finSpanIn: 6.0,
     radiusIn: data.vehicle.diameterIn / 2,
   };
@@ -76,22 +77,38 @@ function withEvents(curve, points) {
   return out;
 }
 
-// Pose helpers
-const at = (pose, s) => ({ x: pose.x - s * IN * Math.sin(pose.rot), y: pose.y + s * IN * Math.cos(pose.rot) });
-const poseWith = (s, point, rot) => ({ x: point.x + s * IN * Math.sin(rot), y: point.y - s * IN * Math.cos(rot), rot });
-const blendPose = (a, b, s, k) => { const ca = at(a, s), cb = at(b, s); return poseWith(s, { x: lerp(ca.x, cb.x, k), y: lerp(ca.y, cb.y, k) }, lerp(a.rot, b.rot, k)); };
-const along = (pose, s, d) => ({ x: pose.x - (s * IN + d) * Math.sin(pose.rot), y: pose.y + (s * IN + d) * Math.cos(pose.rot) });
-const mix = (a, b, k) => ({ x: lerp(a.x, b.x, k), y: lerp(a.y, b.y, k) });
-const shift = (pose, d) => ({ x: pose.x - d * Math.sin(pose.rot), y: pose.y + d * Math.cos(pose.rot), rot: pose.rot });
+// Pose helpers. Each writes into `out` and returns it, so the per-frame path allocates nothing. Inputs are read
+// before `out` is written, so `out` may be one of the inputs.
+const P = () => ({ x: 0, y: 0, rot: 0 });
+const V = () => ({ x: 0, y: 0 });
+const sa = V(), sb = V();
+function at(pose, s, out) {
+  const x = pose.x - s * IN * Math.sin(pose.rot), y = pose.y + s * IN * Math.cos(pose.rot);
+  out.x = x; out.y = y; return out;
+}
+function poseWith(s, px, py, rot, out) { out.x = px + s * IN * Math.sin(rot); out.y = py - s * IN * Math.cos(rot); out.rot = rot; return out; }
+function blendPose(a, b, s, k, out) {
+  at(a, s, sa); at(b, s, sb);
+  return poseWith(s, lerp(sa.x, sb.x, k), lerp(sa.y, sb.y, k), lerp(a.rot, b.rot, k), out);
+}
+function along(pose, s, d, out) {
+  const x = pose.x - (s * IN + d) * Math.sin(pose.rot), y = pose.y + (s * IN + d) * Math.cos(pose.rot);
+  out.x = x; out.y = y; return out;
+}
+function shift(pose, d, out) {
+  const x = pose.x - d * Math.sin(pose.rot), y = pose.y + d * Math.cos(pose.rot);
+  out.x = x; out.y = y; out.rot = pose.rot; return out;
+}
+function mix(a, b, k, out) { const x = lerp(a.x, b.x, k), y = lerp(a.y, b.y, k); out.x = x; out.y = y; return out; }
+function copy(src, out) { out.x = src.x; out.y = src.y; if ("rot" in out) out.rot = src.rot; return out; }
 
-export function createTimeline(data, { aspect = 1 } = {}) {
+export function createTimeline(data) {
   const ev = Object.fromEntries(data.events.map((e) => [e.id, e]));
   const chute = Object.fromEntries(data.parachutes.map((c) => [c.id, c]));
   const cordFt = Object.fromEntries(data.shockCords.map((c) => [c.id, c.lengthFt]));
   const k = data.scene.cordScale;
   const D = data.stylization.diameterScale;
   const S = stations(data);
-  const path = createPath(data.path);
   const cord = (id) => cordFt[id] * FT * k;
   const lines = (id) => chute[id].lineLengthIn * IN * k;
   const diameter = (id) => chute[id].diameterIn * IN * D; // keeps its proportion to the (stylized) tube
@@ -126,13 +143,38 @@ export function createTimeline(data, { aspect = 1 } = {}) {
   const altMain = (t) => (t < T.main ? altShared(t) : interp(mainCurve, t));
   const altPayload = (t) => (t < T.main ? altShared(t) : interp(payloadCurve, t));
 
-  // ---- anchors on the arc: height proportional to altitude, apogee at the apex ----
-  const anchorAt = (t, chain = "shared") => {
-    const alt = chain === "payload" ? altPayload(t) : chain === "main" ? altMain(t) : altShared(t);
-    // The run reads 4862 ft from 17.48 s already; hold the height a hair (at most 0.2 percent of the arc) under
-    // the apex until the apogee time, so the rocket keeps moving and reaches the apex exactly at apogee.
-    const settle = t < T.apogee ? 0.002 * clamp((T.apogee - t) / 0.5) : 0;
-    return path.atAltitude(alt / apogeeFt - settle, t < T.apogee ? "up" : "down", aspect);
+  // ---- world anchors: height from altitude at one fixed ratio, illustrative sideways drift ----
+  const HS = data.scene.altitudeScale;
+  const heightOf = (ft) => ft * FT * HS;
+  const apex = heightOf(apogeeFt);
+  // The run reads 4862 ft from 17.48 s already; hold the height a hair (at most 0.2 percent) under apogee until the
+  // apogee time, so the rocket keeps moving and reaches the top exactly at apogee. The hold ramps in over the
+  // second before (slower than the climb there) and out over the last 0.5 s.
+  const hold = (t) => (t >= T.apogee ? 0 : 0.002 * apex * Math.min(clamp((t - (T.apogee - 1.5)) / 1.0), clamp((T.apogee - t) / 0.5)));
+  const sharedHeight = (t) => heightOf(altShared(t)) - hold(t);
+  const XA = data.scene.ascentDriftM, XD = data.scene.descentDriftM, TAU = 2;
+  const climb = T.apogee - T.liftoff;
+  const vApogee = (2 * XA) / climb; // sideways speed at apogee (x = XA u^2 on the way up)
+  const vDrift = Math.max(0, (XD - vApogee * TAU) / (T.mainLanding - T.apogee));
+  const driftX = (t) => {
+    if (t <= T.liftoff) return 0;
+    if (t <= T.apogee) { const u = (t - T.liftoff) / climb; return XA * u * u; }
+    const d = t - T.apogee;
+    return XA + vApogee * TAU * (1 - Math.exp(-d / TAU)) + vDrift * d;
+  };
+  const heightAt = (t, chain) => (t < T.main || chain === "shared" ? sharedHeight(t) : heightOf(chain === "payload" ? altPayload(t) : altMain(t)));
+  // Landed chains stop drifting.
+  const xAt = (t, chain) => driftX(chain === "payload" ? Math.min(t, T.payloadLanding) : Math.min(t, T.mainLanding));
+  const anchorAt = (t, chain = "shared", out = V()) => { out.x = xAt(t, chain); out.y = heightAt(t, chain); return out; };
+
+  // Rocket axis along the velocity on the way up (vertical on the pad, level at apogee), level after apogee.
+  const stackRot = (t) => {
+    if (t >= T.apogee) return -Math.PI / 2;
+    const vx = t <= T.liftoff ? 0 : (2 * XA * (t - T.liftoff)) / (climb * climb);
+    const h = 0.3, t0 = Math.max(0, t - h), t1 = t + h;
+    const vy = (sharedHeight(t1) - sharedHeight(t0)) / (t1 - t0);
+    const raw = vx === 0 && vy <= 0 ? 0 : -Math.atan2(vx, Math.max(vy, 0));
+    return lerp(raw, -Math.PI / 2, smooth(T.apogee - 0.6, T.apogee, t));
   };
 
   // ---- play clock ----
@@ -156,170 +198,211 @@ export function createTimeline(data, { aspect = 1 } = {}) {
     { id: "pad", from: -Infinity, label: "On the pad" },
     { id: "burn", from: T.liftoff, label: `Motor burn, ${data.vehicle.motor.name}` },
     { id: "coast", from: T.burnout, label: "Burnout, coasting to apogee" },
-    { id: "apogee", from: T.apogee, label: `Apogee, primary drogue charge ${g("drogue-charge-primary")} g` },
-    { id: "drogue-deploy", from: T.drogueBackup, label: `Backup drogue charge ${g("drogue-charge-backup")} g, drogue opens` },
+    { id: "apogee", from: T.apogee, label: `Apogee, drogue charge ${g("drogue-charge-primary")} g` },
+    { id: "drogue-deploy", from: T.drogueBackup, label: `Backup charge ${g("drogue-charge-backup")} g, drogue opens` },
     { id: "drogue-descent", from: windows[3].t0, label: "Descent under the drogue" },
-    { id: "main-deploy", from: T.main, label: `${ev["main-and-payload-separation"].altFt} ft, main charge ${g("main-and-payload-separation")} g, main and payload separate` },
+    { id: "main-deploy", from: T.main, label: `${ev["main-and-payload-separation"].altFt} ft, main charge ${g("main-and-payload-separation")} g` },
     { id: "payload-release", from: T.payloadRelease, label: `${ev["payload-parachute-release"].altFt} ft, payload parachute released` },
     { id: "main-descent", from: windows[6].t0, label: "Descent under the main and payload parachutes" },
-    { id: "payload-landed", from: T.payloadLanding, label: `Payload and nosecone land at ${ev["payload-landing"].speedFtS} ft/s` },
+    { id: "payload-landed", from: T.payloadLanding, label: `Payload lands at ${ev["payload-landing"].speedFtS} ft/s` },
     { id: "landed", from: T.mainLanding, label: `Middle body and booster land at ${ev["main-booster-landing"].speedFtS} ft/s` },
   ];
   const phaseAt = (t) => { let p = PHASES[0]; for (const x of PHASES) if (t >= x.from) p = x; return p; };
 
-  // ---- configurations, relative to the chain anchors ----
+  // ---- event labels: shown for TAG_PLAY_S seconds of play from the event, next to where it happens ----
+  const TAG_PLAY_S = 2.6;
+  const TAGS = [
+    { id: "apogee", t: T.apogee, label: "Apogee, separation" },
+    { id: "drogue-backup", t: T.drogueBackup, label: "Backup charge" },
+    { id: "main", t: T.main, label: `${ev["main-and-payload-separation"].altFt} ft separation` },
+    { id: "payload-release", t: T.payloadRelease, label: `${ev["payload-parachute-release"].altFt} ft release` },
+    { id: "payload-landing", t: T.payloadLanding, label: "Payload lands" },
+    { id: "main-landing", t: T.mainLanding, label: "Booster lands" },
+  ].map((x) => ({ ...x, play: playAt(x.t) }));
+
+  // ---- configurations, relative to the chain anchors (persistent objects, rewritten each call) ----
   const sway = (t, f, a) => a * Math.sin(t * f) * smooth(T.apogee, T.apogee + 4, t);
   const SPREAD = 0.24 * D; // side spacing between pieces hanging next to each other
   const PAYLOAD_OFFSET = -(diameter("main") + diameter("payload")) / 2 - 0.4; // payload chain hangs left of the main chain
 
-  // Rocket nose along the arc tangent (burn, coast and the pitch-over at apogee). Anchor = aft end.
-  const stackRot = (t) => ((anchorAt(Math.min(t, T.apogee + 1.2)).angle - 90) * Math.PI) / 180;
-
   // Under the drogue (apogee to 600 ft): booster nose-up on the 24 ft cord, the rest nose-down on the 6 ft cord.
+  const dC = { booster: P(), upper: P(), drogueCf: V() };
   function drogueConfig(t) {
-    const booster = poseWith(0, { x: SPREAD + sway(t, 0.7, 0.04), y: 0 }, 0);
-    const cf = { x: sway(t, 0.5, 0.05), y: at(booster, S.booster.attach).y + cord("drogue-aft") };
-    const upper = poseWith(S.upper.attach, { x: -SPREAD + sway(t, 0.6, 0.04), y: cf.y - cord("drogue-forward") }, -Math.PI);
-    return { booster, upper, drogueCf: cf };
+    poseWith(0, SPREAD + sway(t, 0.7, 0.04), 0, 0, dC.booster);
+    dC.drogueCf.x = sway(t, 0.5, 0.05);
+    dC.drogueCf.y = at(dC.booster, S.booster.attach, sa).y + cord("drogue-aft");
+    poseWith(S.upper.attach, -SPREAD + sway(t, 0.6, 0.04), dC.drogueCf.y - cord("drogue-forward"), -Math.PI, dC.upper);
+    return dC;
   }
 
   // Under the main (after 600 ft): main / 25 ft / middle (nose-up) / 6 ft / drogue / 24 ft / booster.
   // Payload chain: payload parachute / 15 ft / payload (nose-down) / 15 ft / nosecone (tip down).
+  const mC = { booster: P(), middle: P(), payload: P(), nose: P(), drogueCf: V(), mainCf: V(), payloadCf: V() };
   function mainConfig(t) {
-    const booster = poseWith(0, { x: sway(t, 0.45, 0.05), y: 0 }, 0);
-    const drogueCf = { x: booster.x + 0.04, y: at(booster, S.booster.attach).y + cord("drogue-aft") };
-    const middle = poseWith(S.middle.attachAft, { x: booster.x - 0.02, y: drogueCf.y + cord("drogue-forward") }, 0);
-    const mainCf = { x: middle.x, y: at(middle, S.middle.attachFwd).y + cord("main") };
+    poseWith(0, sway(t, 0.45, 0.05), 0, 0, mC.booster);
+    mC.drogueCf.x = mC.booster.x + 0.04;
+    mC.drogueCf.y = at(mC.booster, S.booster.attach, sa).y + cord("drogue-aft");
+    poseWith(S.middle.attachAft, mC.booster.x - 0.02, mC.drogueCf.y + cord("drogue-forward"), 0, mC.middle);
+    mC.mainCf.x = mC.middle.x;
+    mC.mainCf.y = at(mC.middle, S.middle.attachFwd, sa).y + cord("main");
     const xp = PAYLOAD_OFFSET + sway(t, 0.55, 0.05);
-    const nose = poseWith(S.nose.fwd, { x: xp, y: 0 }, -Math.PI);
-    const payload = poseWith(S.payload.attachFwd, { x: xp, y: at(nose, S.nose.attach).y + cord("payload-to-nosecone") }, -Math.PI);
-    const payloadCf = { x: xp, y: at(payload, S.payload.attachAft).y + cord("payload-to-parachute") };
-    return { booster, middle, payload, nose, drogueCf, mainCf, payloadCf };
+    poseWith(S.nose.fwd, xp, 0, -Math.PI, mC.nose);
+    poseWith(S.payload.attachFwd, xp, at(mC.nose, S.nose.attach, sa).y + cord("payload-to-nosecone"), -Math.PI, mC.payload);
+    mC.payloadCf.x = xp;
+    mC.payloadCf.y = at(mC.payload, S.payload.attachAft, sa).y + cord("payload-to-parachute");
+    return mC;
   }
 
-  // Payload and nosecone after touchdown: both tip over and lie on the island, the canopy settles beside them.
-  function settledPayload() {
-    const nose = poseWith(S.nose.center, { x: PAYLOAD_OFFSET - 0.5, y: R }, -Math.PI / 2);
-    const payload = poseWith(S.payload.center, { x: PAYLOAD_OFFSET + 0.6, y: R }, -1.5 * Math.PI); // a quarter turn from nose-down, like the nosecone
-    return { nose, payload, payloadCf: { x: PAYLOAD_OFFSET + 1.4, y: 0.1 } };
-  }
+  // Payload and nosecone after touchdown: both tip over and lie on the sheet, the canopy deflates flat beside them.
+  const sP = { nose: P(), payload: P(), payloadCf: { x: PAYLOAD_OFFSET + 1.6, y: 0.02 } };
+  poseWith(S.nose.center, PAYLOAD_OFFSET - 0.5, R, -Math.PI / 2, sP.nose);
+  poseWith(S.payload.center, PAYLOAD_OFFSET + 0.6, R, -1.5 * Math.PI, sP.payload); // a quarter turn from nose-down, like the nosecone
 
-  function stateAt(tIn) {
+  // ---- the state object, reused on every call ----
+  const chuteState = (id) => ({ pos: V(), rot: 0, inflate: 0, deployed: false, held: false, settle: 0, diameter: diameter(id), lineLength: lines(id), gores: chute[id].lines, chain: "shared" });
+  const ST = {
+    t: 0, phase: PHASES[0],
+    altFt: { main: 0, payload: 0, split: false },
+    anchors: { shared: V(), main: V(), payload: V() },
+    bodies: { booster: { ...P(), chain: "shared" }, middle: { ...P(), chain: "shared" }, payload: { ...P(), chain: "shared" }, nose: { ...P(), chain: "shared" } },
+    chutes: { drogue: chuteState("drogue"), main: chuteState("main"), payload: chuteState("payload") },
+    cords: ["drogue-forward", "drogue-aft", "main", "payload-to-parachute", "payload-to-nosecone"].map((id) => ({ id, on: false, chain: "shared", a: V(), b: V() })),
+    fire: 0,
+    tag: { id: "", label: "", on: false, chain: "shared", x: 0, y: 0 },
+  };
+  const stack = P(), upper = P(), tmp = P(), pt = V(), pt2 = V();
+  const B = ST.bodies, C = ST.chutes, CORD = Object.fromEntries(ST.cords.map((c) => [c.id, c]));
+  const setCord = (id, chain, a, b) => { const c = CORD[id]; c.on = true; c.chain = chain; copy(a, c.a); copy(b, c.b); };
+
+  function stateInto(tIn) {
     const t = clamp(tIn, 0, T.mainLanding);
-    const phase = phaseAt(t);
     const split = t >= T.main;
-    const stack = { x: 0, y: 0, rot: stackRot(t) };
+    ST.t = t;
+    ST.phase = phaseAt(t);
+    ST.altFt.main = altMain(t); ST.altFt.payload = altPayload(t); ST.altFt.split = split;
+    stack.x = 0; stack.y = 0; stack.rot = stackRot(t);
 
     // ---- apogee: separation gap along the axis, then blend to the drogue configuration ----
     const gapA = smooth(T.apogee + 0.02, T.apogee + 0.9, t) * 0.55;
     const toDrogue = smooth(T.apogee + 1.2, T.apogee + 2.9, t);
-    const dC = drogueConfig(t);
-    let booster = t < T.apogee ? stack : blendPose(shift(stack, -gapA), dC.booster, S.booster.center, toDrogue);
-    let upper = t < T.apogee ? stack : blendPose(stack, dC.upper, S.upper.center, toDrogue);
-    let middle = upper, payload = upper, nose = upper;
+    drogueConfig(t);
+    const booster = B.booster;
+    if (t < T.apogee) { copy(stack, booster); copy(stack, upper); }
+    else {
+      blendPose(shift(stack, -gapA, tmp), dC.booster, S.booster.center, toDrogue, booster);
+      blendPose(stack, dC.upper, S.upper.center, toDrogue, upper);
+    }
+    copy(upper, B.middle); copy(upper, B.payload); copy(upper, B.nose);
 
-    const drogueBay = at(booster, (S.bays.drogue[0] + S.bays.drogue[1]) / 2);
+    const drogue = C.drogue;
     const drogueOut = smooth(T.apogee + 0.4, T.apogee + 1.1, t);
-    const gapMid = along(booster, S.booster.fwd, gapA / 2);
-    const gapSide = { x: gapMid.x + 0.25 * D, y: gapMid.y + 0.2 };
-    let drogue = {
-      pos: mix(mix(drogueBay, gapSide, drogueOut), dC.drogueCf, toDrogue),
-      rot: lerp(booster.rot, 0, drogueOut),
-      inflate: smooth(T.apogee + 1.2, T.apogee + 2.0, t),
-      deployed: t >= T.apogee + 0.4,
-      diameter: diameter("drogue"), lineLength: lines("drogue"), gores: chute.drogue.lines,
-    };
+    at(booster, (S.bays.drogue[0] + S.bays.drogue[1]) / 2, pt); // in the drogue bay
+    along(booster, S.booster.fwd, gapA / 2, pt2); // middle of the gap, off to the side
+    pt2.x += 0.25 * D; pt2.y += 0.2;
+    mix(pt, pt2, drogueOut, drogue.pos);
+    mix(drogue.pos, dC.drogueCf, toDrogue, drogue.pos);
+    drogue.rot = lerp(booster.rot, 0, drogueOut);
+    drogue.inflate = smooth(T.apogee + 1.2, T.apogee + 2.0, t);
+    drogue.deployed = t >= T.apogee + 0.4;
+    drogue.held = false;
 
     // ---- 600 ft: payload section leaves the main-bay tube, main comes out and opens ----
-    const mC = t >= T.main - 0.5 ? mainConfig(t) : null;
-    const sepP = smooth(T.main + 0.02, T.main + 0.3, t) * 0.5;
-    const sepN = smooth(T.main + 0.2, T.main + 0.45, t) * 0.35;
-    const toMain = smooth(T.main + 0.3, T.main + 1.2, t);
-    let main = {
-      pos: at(upper, (S.bays.main[0] + S.bays.main[1]) / 2), rot: upper.rot, inflate: 0, deployed: false,
-      diameter: diameter("main"), lineLength: lines("main"), gores: chute.main.lines,
-    };
-    let payloadChute = {
-      pos: at(upper, (S.bays.payloadChute[0] + S.bays.payloadChute[1]) / 2), rot: upper.rot, inflate: 0, deployed: false,
-      diameter: diameter("payload"), lineLength: lines("payload"), gores: chute.payload.lines, held: true,
-    };
+    const main = C.main, pchute = C.payload;
+    at(upper, (S.bays.main[0] + S.bays.main[1]) / 2, main.pos);
+    main.rot = upper.rot; main.inflate = 0; main.deployed = false; main.held = false;
+    at(upper, (S.bays.payloadChute[0] + S.bays.payloadChute[1]) / 2, pchute.pos);
+    pchute.rot = upper.rot; pchute.inflate = 0; pchute.deployed = false; pchute.held = true; pchute.settle = 0;
     if (split) {
-      const pSep = shift(upper, sepP), nSep = shift(pSep, sepN);
-      middle = blendPose(upper, mC.middle, S.middle.center, toMain);
-      payload = blendPose(pSep, mC.payload, S.payload.center, toMain);
-      nose = blendPose(nSep, mC.nose, S.nose.center, toMain);
-      booster = blendPose(dC.booster, mC.booster, S.booster.center, toMain);
-      drogue = { ...drogue, pos: mix(dC.drogueCf, mC.drogueCf, toMain), inflate: lerp(1, 0.55, toMain) };
+      mainConfig(t);
+      const sepP = smooth(T.main + 0.02, T.main + 0.3, t) * 0.5;
+      const sepN = smooth(T.main + 0.2, T.main + 0.45, t) * 0.35;
+      const toMain = smooth(T.main + 0.3, T.main + 1.2, t);
+      blendPose(upper, mC.middle, S.middle.center, toMain, B.middle);
+      shift(upper, sepP, tmp); // payload section, parted along the axis
+      blendPose(tmp, mC.payload, S.payload.center, toMain, B.payload);
+      shift(tmp, sepN, tmp); // nosecone, parted a little further
+      blendPose(tmp, mC.nose, S.nose.center, toMain, B.nose);
+      blendPose(dC.booster, mC.booster, S.booster.center, toMain, booster);
+      mix(dC.drogueCf, mC.drogueCf, toMain, drogue.pos);
+      drogue.inflate = lerp(1, 0.55, toMain);
 
       const mainExit = smooth(T.main + 0.1, T.main + 0.3, t);
-      const bay = at(middle, (S.bays.main[0] + S.bays.main[1]) / 2);
-      const exitPt = along(middle, S.middle.fwd, 0.35);
       const placed = smooth(T.main + 0.3, T.main + 0.9, t);
-      main = { ...main, pos: mix(mix(bay, exitPt, mainExit), mC.mainCf, placed), rot: lerp(middle.rot, 0, mainExit), deployed: true, inflate: smooth(T.main + 0.3, T.main + 0.3 + mainOpen, t) };
+      at(B.middle, (S.bays.main[0] + S.bays.main[1]) / 2, pt);
+      along(B.middle, S.middle.fwd, 0.35, pt2);
+      mix(pt, pt2, mainExit, main.pos);
+      mix(main.pos, mC.mainCf, placed, main.pos);
+      main.rot = lerp(B.middle.rot, 0, mainExit);
+      main.deployed = true;
+      main.inflate = smooth(T.main + 0.3, T.main + 0.3 + mainOpen, t);
 
       const bundleOut = smooth(T.main + 0.25, T.main + 0.8, t);
-      const pBay = at(payload, (S.bays.payloadChute[0] + S.bays.payloadChute[1]) / 2);
-      payloadChute = { ...payloadChute, pos: mix(pBay, mC.payloadCf, bundleOut), rot: lerp(payload.rot, 0, bundleOut), deployed: true };
+      at(B.payload, (S.bays.payloadChute[0] + S.bays.payloadChute[1]) / 2, pt);
+      mix(pt, mC.payloadCf, bundleOut, pchute.pos);
+      pchute.rot = lerp(B.payload.rot, 0, bundleOut);
+      pchute.deployed = true;
     }
     if (t >= T.payloadRelease) {
-      payloadChute = { ...payloadChute, held: false, inflate: smooth(T.payloadRelease, T.payloadRelease + payloadOpen, t) };
+      pchute.held = false;
+      pchute.inflate = smooth(T.payloadRelease, T.payloadRelease + payloadOpen, t);
     }
     if (t >= T.payloadLanding) {
       const s = smooth(T.payloadLanding, T.payloadLanding + 2.0, t);
-      const st = settledPayload();
-      payload = blendPose(mC.payload, st.payload, S.payload.center, s);
-      nose = blendPose(mC.nose, st.nose, S.nose.center, s);
-      payloadChute = { ...payloadChute, pos: mix(mC.payloadCf, st.payloadCf, s), rot: lerp(0, -Math.PI / 2, s), inflate: lerp(1, 0.25, s) };
+      blendPose(mC.payload, sP.payload, S.payload.center, s, B.payload);
+      blendPose(mC.nose, sP.nose, S.nose.fwd, s, B.nose); // pivots on its tip, which stays on the sheet
+      mix(mC.payloadCf, sP.payloadCf, s, pchute.pos);
+      pchute.rot = 0;
+      pchute.settle = s; // the scene flattens the canopy onto the sheet
     }
 
-    const chainOf = { booster: split ? "main" : "shared", middle: split ? "main" : "shared", payload: split ? "payload" : "shared", nose: split ? "payload" : "shared" };
-    const bodies = {
-      booster: { ...booster, chain: chainOf.booster }, middle: { ...middle, chain: chainOf.middle },
-      payload: { ...payload, chain: chainOf.payload }, nose: { ...nose, chain: chainOf.nose },
-    };
-    const chutes = {
-      drogue: { ...drogue, chain: chainOf.booster }, main: { ...main, chain: chainOf.middle }, payload: { ...payloadChute, chain: chainOf.payload },
-    };
+    const mainChain = split ? "main" : "shared", payloadChain = split ? "payload" : "shared";
+    B.booster.chain = B.middle.chain = mainChain;
+    B.payload.chain = B.nose.chain = payloadChain;
+    drogue.chain = main.chain = mainChain;
+    pchute.chain = payloadChain;
 
     // ---- cords (shown once a separation has started), in the frame of their chain ----
-    const cords = [];
+    for (const c of ST.cords) c.on = false;
     if (t >= T.apogee + 0.02) {
-      cords.push({ id: "drogue-forward", chain: chainOf.booster, a: drogue.pos, b: at(middle, S.middle.attachAft) });
-      cords.push({ id: "drogue-aft", chain: chainOf.booster, a: drogue.pos, b: at(booster, S.booster.attach) });
+      setCord("drogue-forward", mainChain, drogue.pos, at(B.middle, S.middle.attachAft, pt));
+      setCord("drogue-aft", mainChain, drogue.pos, at(booster, S.booster.attach, pt));
     }
     if (t >= T.main + 0.02) {
-      cords.push({ id: "main", chain: "main", a: main.pos, b: at(middle, S.middle.attachFwd) });
-      cords.push({ id: "payload-to-parachute", chain: "payload", a: payloadChute.pos, b: at(payload, S.payload.attachAft) });
-      cords.push({ id: "payload-to-nosecone", chain: "payload", a: at(payload, S.payload.attachFwd), b: at(nose, S.nose.attach) });
+      setCord("main", "main", main.pos, at(B.middle, S.middle.attachFwd, pt));
+      setCord("payload-to-parachute", "payload", pchute.pos, at(B.payload, S.payload.attachAft, pt));
+      setCord("payload-to-nosecone", "payload", at(B.payload, S.payload.attachFwd, pt2), at(B.nose, S.nose.attach, pt));
     }
 
-    // ---- charge flashes, on the avionics bulkheads (body-local stations): full at the event, gone 0.4 s later ----
-    const pulse = (t0) => (t >= t0 && t < t0 + 0.4 ? (1 - (t - t0) / 0.4) ** 1.5 : 0);
-    const flashes = [
-      { id: "drogue-charge-primary", body: "middle", station: S.middle.attachAft - 0.8, dir: -1, k: pulse(T.apogee) },
-      { id: "drogue-charge-backup", body: "middle", station: S.middle.attachAft - 0.8, dir: -1, k: pulse(T.drogueBackup) },
-      { id: "main-charge", body: "middle", station: S.middle.attachFwd + 0.8, dir: 1, k: pulse(T.main) },
-      { id: "main-charge-backup", body: "middle", station: S.middle.attachFwd + 0.8, dir: 1, k: pulse(T.mainBackup) },
-    ];
+    // ---- motor: glow and plume from ignition, fading out at burnout ----
+    ST.fire = (t < T.liftoff ? 0.6 * smooth(T.ignition, T.liftoff, t) : 1) * (1 - smooth(T.burnout - 0.12, T.burnout + 0.12, t));
 
-    // ---- motor fire: on from ignition to burnout, then off ----
-    const fire = t < T.burnout ? smooth(T.ignition, T.liftoff, t) * 0.6 + 0.4 * (t >= T.liftoff ? 1 : 0) : 0;
+    // ---- event label: the latest event within TAG_PLAY_S of play; the landing label stays ----
+    const tag = ST.tag, s = playAt(t);
+    tag.on = false;
+    for (const x of TAGS) {
+      if (t < x.t || (s - x.play > TAG_PLAY_S && x.id !== "main-landing")) continue;
+      tag.on = true; tag.id = x.id; tag.label = x.label;
+    }
+    if (tag.on) {
+      const id = tag.id;
+      if (id === "apogee" || id === "drogue-backup") { along(booster, S.booster.fwd, gapA / 2, pt); tag.chain = mainChain; }
+      else if (id === "main") { at(B.middle, S.middle.fwd, pt); tag.chain = "main"; }
+      else if (id === "payload-release") { copy(pchute.pos, pt); tag.chain = "payload"; }
+      else if (id === "payload-landing") { at(B.nose, S.nose.center, pt); tag.chain = "payload"; }
+      else { at(booster, 0, pt); tag.chain = "main"; }
+      tag.x = pt.x; tag.y = pt.y;
+    }
 
-    // ---- island: under the landing point, fades in on final approach only ----
-    const lowest = Math.min(altMain(t), altPayload(t));
-    const island = { opacity: split ? 1 - smooth(150, 260, lowest) : 0, offsetX: PAYLOAD_OFFSET / 2, radius: Math.abs(PAYLOAD_OFFSET) / 2 + 1.3, depth: 0.3 };
-
-    const anchors = { shared: anchorAt(t, "shared"), main: anchorAt(t, "main"), payload: anchorAt(t, "payload") };
-
-    return {
-      t, phase,
-      altFt: { main: altMain(t), payload: altPayload(t), split },
-      anchors, bodies, chutes, cords, flashes, fire, island,
-    };
+    anchorAt(t, "shared", ST.anchors.shared);
+    anchorAt(t, "main", ST.anchors.main);
+    anchorAt(t, "payload", ST.anchors.payload);
+    return ST;
   }
 
   return {
-    stateAt, flightAt, playAt, anchorAt, windows, phases: PHASES, phaseAt, times: T, stations: S, path,
-    cordScale: k, diameterScale: D, radius: R, altShared, altMain, altPayload,
+    stateInto,
+    stateAt: (t) => JSON.parse(JSON.stringify(stateInto(t))),
+    flightAt, playAt, anchorAt, heightOf, driftX, stackRot, windows, phases: PHASES, phaseAt, tags: TAGS, times: T, stations: S,
+    cordScale: k, diameterScale: D, radius: R, altShared, altMain, altPayload, apex, payloadOffset: PAYLOAD_OFFSET,
   };
 }

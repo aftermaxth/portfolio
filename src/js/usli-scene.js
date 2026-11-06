@@ -1,25 +1,20 @@
-// USLI launch scene: the team's rocket (STL export, cut in half by a live clipping plane) flies the
-// OpenRocket timeline from content/usli-flight.json along one big arc over the card, on its own clock
-// (about 40 s, src/js/usli-timeline.js). The canvas sits behind the card text; the page scrolls normally.
-// Lazy chunk, loaded by projects.js near the viewport (also with reduced motion, Charles 2026-11-04).
-// Renders only while visible (render.js).
+// USLI recovery sequence: the team's rocket (STL export, whole and solid) flies the OpenRocket timeline from
+// content/usli-flight.json on its own clock (about 40 s, src/js/usli-timeline.js) and lands on a grey sheet.
+// Lazy chunk: projects.js loads it only when the write-up opens (or when Play is pressed with reduced motion).
+// Renders only while the player is visible (render.js). Nothing autoplays.
 //
-//   const scene = await mountUsli(root)   // root = the USLI card ([data-usli]); wires controls and autoplay
+//   const scene = await mountUsli(root)   // root = the player ([data-usli]); sets data-state="live"
 //   scene.play() / pause() / restart() / seek(t)
 //   scene.snapshot(t, w, h)              // still frame as a WebP blob (images/nasa-student-launch/)
-//   scene.debug()                        // piece and text rects in client px (tools/check_usli_scene.mjs --browser)
+//   scene.debug()                        // QA: pieces in canvas px and world meters (tools/check_usli_scene.mjs --browser)
 import {
-  AdditiveBlending, BackSide, BufferAttribute, BufferGeometry, CanvasTexture, Color, CylinderGeometry, DirectionalLight,
-  DoubleSide, Float32BufferAttribute, Group, LatheGeometry, LineBasicMaterial, LineSegments, MathUtils, Mesh, MeshBasicMaterial,
-  MeshPhysicalMaterial, MeshStandardMaterial, Plane, PlaneGeometry, PointLight, Points, ShaderMaterial, SphereGeometry, Box3,
-  TorusGeometry, Vector2, Vector3,
+  AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture, Color, CylinderGeometry, DirectionalLight, DoubleSide,
+  Group, LineBasicMaterial, LineSegments, MathUtils, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial,
+  PCFSoftShadowMap, PlaneGeometry, PointLight, ShaderMaterial, Sprite, SpriteMaterial, SRGBColorSpace, TorusGeometry, Vector2, Vector3,
 } from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/addons/libs/meshopt_decoder.module.js";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
-import { Line2 } from "three/addons/lines/Line2.js";
-import { LineGeometry } from "three/addons/lines/LineGeometry.js";
-import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 import { createStage } from "./render.js";
 import { createTimeline, IN, PLAY_SECONDS } from "./usli-timeline.js";
 import data from "../../content/usli-flight.json";
@@ -27,11 +22,16 @@ import data from "../../content/usli-flight.json";
 const MODEL_URL = `${import.meta.env.BASE_URL}models/usli/rocket.glb`;
 const AXIS = 0.19325; // the STL export's rocket axis sits at x = z = 193.25 mm
 const CREASE = MathUtils.degToRad(35);
-const FOV = 6; // narrow lens far away: nearly orthographic, so the scale stays the same across the card
-const YAW = 0.2; // a slight turn so the cut-open interior reads in depth
-const COSY = Math.cos(YAW);
-const FADE_TO = 0.35; // opacity while a piece overlaps a text block
-const ROCKET_LEN_M = 129 * IN;
+// One fixed lens and one view height for the whole run: the camera only translates (smoothed follow), never zooms.
+const FOV = 20;
+const YAW = 0.24; // camera a little to the left, so the tubes read round against the key light from the right
+const PITCH = -0.1; // looking down a little, so the sheet reads as a surface
+const VIEW_H = 11.5; // meters of world visible top to bottom (wide canvases)
+const MIN_VIEW_W = 10.5; // meters of world visible left to right (narrow canvases grow the view height instead)
+const GROUND_MARGIN = 1.1; // the view never drops so low that the sheet line sits more than this above the bottom edge
+const FOLLOW_S = 0.55; // follow time constant, seconds
+const BAND = 0.3; // the focus never leaves the middle 2 x BAND of the frame (fast climb)
+const LADDER_FT = [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500];
 
 // Part classes by node name (the GLB keeps the STL file names).
 const BODY_OF = (n) => (/^(Body_Bot|Motor_Mount|centering_ring|newFin|bulkhead2)/.test(n) ? "booster"
@@ -42,6 +42,8 @@ const CLASS_OF = (n) => (/^Body_Mid/.test(n) ? "switchband"
   : /^(Body_Bot|Body_Top|Nosecone)/.test(n) ? "tube"
     : /Bulkhead/i.test(n) ? "metal"
       : /^newFin/.test(n) ? "fin" : "inner");
+const BODY_IDS = ["booster", "middle", "payload", "nose"];
+const CHUTE_IDS = ["drogue", "main", "payload"];
 
 const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -49,31 +51,43 @@ const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 export async function createUsliScene(root) {
   const C = {
     accent: new Color(token("--color-accent")), ink: new Color(token("--color-ink")), muted: new Color(token("--color-ink-muted")),
-    rule: new Color(token("--color-rule")), surface2: new Color(token("--color-surface-2")), grass: new Color(token("--color-grass")),
     bg: new Color(token("--color-bg")),
   };
-  const narrow = matchMedia("(max-width: 599px)").matches;
   const mount = root.querySelector("[data-usli-canvas]");
+  const tagEl = root.querySelector("[data-usli-tag]");
   const stage = await createStage(mount, {
     fov: FOV, exposure: 1.0, canvasClass: "usli__canvas",
-    label: "Animation of the team's rocket, drawn cut in half, flying its simulated launch and recovery along an arc. The steps are listed below.",
+    label: "Animation of the team's rocket flying its simulated launch and recovery and landing on a grey sheet. The steps are listed below.",
   });
-  const { renderer, scene, camera, canvas } = stage;
+  const { renderer, scene, camera, canvas, key } = stage;
   canvas.setAttribute("aria-describedby", root.querySelector("[data-usli-sequence]").id);
-  renderer.localClippingEnabled = true;
-  const cut = [new Plane(new Vector3(0, 0, -1), 0)]; // keep z <= 0: the half facing the camera is cut away
-  // A weak rim light from behind, in this scene only (createStage output for other viewers is unchanged).
-  const rim = new DirectionalLight(0xffffff, 0.7);
-  rim.position.set(-4, 2, -3);
+
+  // This stage has its own renderer (render.js), so the shadow map and lights below change no other viewer.
+  // The key light's shadow map is the one extra render pass.
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = PCFSoftShadowMap;
+  key.castShadow = true;
+  key.shadow.mapSize.set(1024, 1024);
+  key.shadow.camera.left = key.shadow.camera.bottom = -7;
+  key.shadow.camera.right = key.shadow.camera.top = 7;
+  key.shadow.camera.near = 1;
+  key.shadow.camera.far = 60;
+  key.shadow.camera.updateProjectionMatrix();
+  key.shadow.bias = -0.0004;
+  key.shadow.normalBias = 0.02;
+  scene.add(key.target);
+  const KEY_DIR = new Vector3(3, 5, 4).normalize();
+  const rim = new DirectionalLight(0xffffff, 0.6); // weak light from behind left, so edges separate from the page
+  rim.position.set(-4, 3, -5);
   scene.add(rim);
 
-  let tl = createTimeline(data);
+  const tl = createTimeline(data);
   const S = tl.stations;
   const D = tl.diameterScale;
   const R = tl.radius;
 
-  // ---- materials: physically based, neutral structure, one accent part (the switchband) ----
-  // Subtle procedural grain: roughness varies along a winding pattern, so tubes read as composite layup.
+  // ---- materials: physically based per part class, neutral structure ----
+  // Subtle procedural roughness variation (a winding pattern plus fine grain) so the composite does not read as plastic.
   const grain = (m, amount) => {
     m.onBeforeCompile = (sh) => {
       sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vGrain;").replace("#include <begin_vertex>", "#include <begin_vertex>\nvGrain = position;");
@@ -88,36 +102,34 @@ export async function createUsliScene(root) {
     m.customProgramCacheKey = () => `grain${amount}`;
     return m;
   };
-  const physical = (color, { grain: amount = 0.08, ...o }) => grain(new MeshPhysicalMaterial({ color, envMapIntensity: 1.0, clippingPlanes: cut, ...o }), amount);
-  const graphite = C.muted.clone().multiplyScalar(0.45);
+  const physical = (color, { grain: amount = 0.06, ...o }) => grain(new MeshPhysicalMaterial({ color, envMapIntensity: 1.0, ...o }), amount);
+  const offWhite = C.ink.clone().multiplyScalar(0.94);
+  const graphite = C.muted.clone().multiplyScalar(0.32);
   const MAT = {
-    tube: () => physical(C.ink.clone().multiplyScalar(0.92), { roughness: 0.5, metalness: 0, clearcoat: 0.35, clearcoatRoughness: 0.35 }),
-    switchband: () => physical(C.accent, { roughness: 0.4, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.25 }),
-    inner: () => physical(C.muted.clone().multiplyScalar(0.85), { roughness: 0.62, metalness: 0, clearcoat: 0.1 }),
-    metal: () => physical(graphite, { roughness: 0.3, metalness: 0.85, grain: 0.05 }),
-    fin: () => physical(graphite.clone().multiplyScalar(1.3), { roughness: 0.45, metalness: 0, clearcoat: 0.3, clearcoatRoughness: 0.3 }),
-  };
-  const fadeables = new Map(); // piece id -> materials that fade together
-  const track = (id, ...mats) => { if (!fadeables.has(id)) fadeables.set(id, []); fadeables.get(id).push(...mats); };
-  // Solid part: lit outer faces plus a darker cap drawn from the inside, so cut solids read as solid walls.
-  const solid = (geometry, material, parent, id) => {
-    const face = new Mesh(geometry, material);
-    const cap = new Mesh(geometry, new MeshBasicMaterial({ color: material.color.clone().multiplyScalar(0.28), side: BackSide, clippingPlanes: cut }));
-    parent.add(face, cap);
-    track(id, face.material, cap.material);
-    return face;
+    tube: physical(offWhite, { roughness: 0.42, metalness: 0, clearcoat: 0.35, clearcoatRoughness: 0.22 }),
+    fin: physical(offWhite.clone().multiplyScalar(0.9), { roughness: 0.5, metalness: 0, clearcoat: 0.25, clearcoatRoughness: 0.3, grain: 0.08 }),
+    switchband: physical(C.accent, { roughness: 0.38, metalness: 0, clearcoat: 0.5, clearcoatRoughness: 0.2 }),
+    inner: physical(offWhite.clone().multiplyScalar(0.72), { roughness: 0.6, metalness: 0, clearcoat: 0.1 }),
+    metal: physical(graphite, { roughness: 0.3, metalness: 0.9, grain: 0.04 }),
   };
 
   // ---- the rocket: body group (pose) > scaler (diameter x D) > parts in CAD coordinates ----
   const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(MODEL_URL);
   const bodies = {}, scalers = {};
-  for (const id of ["booster", "middle", "payload", "nose"]) {
+  for (const id of BODY_IDS) {
     bodies[id] = new Group();
     scalers[id] = new Group();
     scalers[id].scale.set(D, 1, D);
     bodies[id].add(scalers[id]);
     scene.add(bodies[id]);
   }
+  const part = (geometry, material, parent) => {
+    const m = new Mesh(geometry, material);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    parent.add(m);
+    return m;
+  };
   gltf.scene.updateMatrixWorld(true);
   gltf.scene.traverse((node) => {
     if (!node.isMesh) return;
@@ -125,499 +137,388 @@ export async function createUsliScene(root) {
     if (!body) return;
     // Positions are quantized (int16) in the GLB: copy them to floats before baking the node transform.
     const src = node.geometry.attributes.position, flat = new Float32Array(src.count * 3);
-    for (let i = 0; i < src.count; i++) flat.set([src.getX(i), src.getY(i), src.getZ(i)], i * 3);
+    for (let i = 0; i < src.count; i++) { flat[i * 3] = src.getX(i); flat[i * 3 + 1] = src.getY(i); flat[i * 3 + 2] = src.getZ(i); }
     const raw = new BufferGeometry();
     raw.setAttribute("position", new BufferAttribute(flat, 3));
     if (node.geometry.index) raw.setIndex(node.geometry.index.clone());
     const geometry = toCreasedNormals(raw.applyMatrix4(node.matrixWorld), CREASE);
     geometry.translate(-AXIS, 0, -AXIS);
-    solid(geometry, MAT[CLASS_OF(node.name)](), scalers[body], body);
+    part(geometry, MAT[CLASS_OF(node.name)], scalers[body]);
   });
-
   // Motor: not in the CAD, so a plain cylinder inside the motor mount (79.2 mm OD, 508 mm long, from the STL).
-  solid(new CylinderGeometry(0.037, 0.037, 0.5, 32).translate(0, 0.254, 0), MAT.metal(), scalers.booster, "booster");
-  // Shear pins: 3 per joint, each split into an outer and an inner half that part at separation.
-  const r0 = (S.radiusIn) * IN;
-  const pins = (station, outer, inner) => {
-    for (let k = 0; k < 3; k++) {
-      const a = (k * 2 * Math.PI) / 3;
-      for (const [body, a0, a1] of [[outer, r0 - 0.006, r0 + 0.003], [inner, r0 - 0.016, r0 - 0.006]]) {
-        const g = new CylinderGeometry(0.003, 0.003, a1 - a0, 8).rotateZ(Math.PI / 2).translate((a0 + a1) / 2, 0, 0).rotateY(-a).translate(0, station * IN, 0);
-        solid(g, MAT.metal(), scalers[body], body);
-      }
-    }
-  };
-  pins(S.pins.apogee, "booster", "middle");
-  pins(S.pins.main, "middle", "payload");
+  part(new CylinderGeometry(0.037, 0.037, 0.5, 32).translate(0, 0.254, 0), MAT.metal, scalers.booster);
+  // Rail buttons: 2 (JSON), at the stations measured from the schematic, on the booster wall facing the camera side.
+  const buttonGeo = new CylinderGeometry(0.011, 0.011, 0.016, 16).rotateZ(Math.PI / 2);
+  for (const st of S.railButtons) part(buttonGeo, MAT.metal, bodies.booster).position.set(-(R + 0.008), st * IN, 0);
 
-  // ---- motor fire: a soft camera-facing plume (gradient allowed inside the plume only) ----
-  const fireMat = new ShaderMaterial({
-    uniforms: { k: { value: 0 }, time: { value: 0 }, white: { value: new Color(1, 0.97, 0.9) }, accent: { value: C.accent } },
+  // ---- engine: one soft additive glow and a short plume (white-hot core, orange edge), fading out at burnout ----
+  const plumeMat = new ShaderMaterial({
+    uniforms: { k: { value: 0 }, time: { value: 0 }, white: { value: new Color(1, 0.96, 0.88) }, accent: { value: C.accent } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
     fragmentShader: `uniform float k; uniform float time; uniform vec3 white; uniform vec3 accent; varying vec2 vUv;
-      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-      float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
-        return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
       void main(){
         float along = vUv.y;                                   // 0 at the nozzle, 1 at the tail
         float across = abs(vUv.x - 0.5) * 2.0;
-        float turb = n(vec2(vUv.x * 5.0, along * 7.0 - time * 9.0)) * 0.6 + n(vec2(vUv.x * 11.0, along * 15.0 - time * 17.0)) * 0.4;
-        float width = mix(0.55, 1.0, smoothstep(0.0, 0.35, along)) * (1.0 - along * 0.55) * (0.8 + 0.4 * turb);
-        float body = 1.0 - smoothstep(width * 0.35, width, across);
-        float fade = pow(1.0 - along, 1.3) * smoothstep(0.0, 0.04, along);
-        float a = body * fade * k * (0.75 + 0.5 * turb);
-        float hot = 1.0 - smoothstep(0.0, 0.55, across / max(width, 0.01) + along * 0.9);
+        float flicker = 0.92 + 0.08 * sin(time * 31.0 + along * 9.0) * sin(time * 17.0);
+        float width = mix(0.42, 1.0, smoothstep(0.0, 0.5, along)) * (1.0 - 0.35 * along);
+        float body = 1.0 - smoothstep(width * 0.25, width, across);
+        float fade = pow(1.0 - along, 1.6) * smoothstep(0.0, 0.05, along);
+        float a = body * fade * k * flicker;
+        float hot = 1.0 - smoothstep(0.0, 0.6, across / max(width, 0.01) + along * 1.3);
         gl_FragColor = vec4(mix(accent, white, hot) * a, a);
       }`,
     transparent: true, depthWrite: false, blending: AdditiveBlending, toneMapped: false,
   });
-  const FIRE_LEN = 1.5, FIRE_W = R * 3.2;
-  const fire = new Mesh(new PlaneGeometry(FIRE_W, FIRE_LEN).translate(0, -FIRE_LEN / 2, 0), fireMat);
-  fire.geometry.attributes.uv.array.forEach((v, i, arr) => { if (i % 2) arr[i] = 1 - v; }); // uv.y 0 at the nozzle
-  fire.position.set(0, -0.01, 0.05);
-  bodies.booster.add(fire);
-  const fireLight = new PointLight(C.accent, 0, 3, 2);
-  fireLight.position.set(0, -0.3, 0.3);
-  bodies.booster.add(fireLight);
+  const PLUME_LEN = 0.95, PLUME_W = R * 2.2;
+  const plumeGeo = new PlaneGeometry(PLUME_W, PLUME_LEN).translate(0, -PLUME_LEN / 2, 0);
+  const uv = plumeGeo.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setY(i, 1 - uv.getY(i)); // uv.y 0 at the nozzle
+  const plume = new Mesh(plumeGeo, plumeMat);
+  plume.rotation.y = -YAW; // faces the camera
+  bodies.booster.add(plume);
+  const glowTex = (() => {
+    const cv = document.createElement("canvas"); cv.width = cv.height = 128;
+    const g = cv.getContext("2d"), grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, "rgba(255,236,210,1)"); grad.addColorStop(0.25, "rgba(255,160,70,0.55)"); grad.addColorStop(1, "rgba(255,129,0,0)");
+    g.fillStyle = grad; g.fillRect(0, 0, 128, 128);
+    const t = new CanvasTexture(cv); t.colorSpace = SRGBColorSpace; return t;
+  })();
+  const glow = new Sprite(new SpriteMaterial({ map: glowTex, blending: AdditiveBlending, depthWrite: false, transparent: true, toneMapped: false }));
+  glow.scale.setScalar(1.3);
+  scene.add(glow);
+  const engineLight = new PointLight(new Color(1, 0.62, 0.3), 0, 9, 1.6);
+  scene.add(engineLight);
 
-  // ---- smoke: soft billboard sprites with a noise-based alpha, drifting and growing ----
-  const SMOKE = narrow ? 90 : 220;
-  const smokeGeo = new BufferGeometry();
-  const smokePos = new Float32Array(SMOKE * 3), smokeSize = new Float32Array(SMOKE), smokeAlpha = new Float32Array(SMOKE), smokeSeed = new Float32Array(SMOKE);
-  for (let i = 0; i < SMOKE; i++) smokeSeed[i] = Math.random() * 100;
-  smokeGeo.setAttribute("position", new BufferAttribute(smokePos, 3));
-  smokeGeo.setAttribute("size", new BufferAttribute(smokeSize, 1));
-  smokeGeo.setAttribute("alpha", new BufferAttribute(smokeAlpha, 1));
-  smokeGeo.setAttribute("seed", new BufferAttribute(smokeSeed, 1));
-  const smokeMat = new ShaderMaterial({
-    uniforms: { color: { value: C.ink.clone().lerp(C.muted, 0.5) }, scale: { value: 1 } },
-    vertexShader: `attribute float size; attribute float alpha; attribute float seed; varying float vA; varying float vS; uniform float scale;
-      void main(){ vA = alpha; vS = seed; vec4 mv = modelViewMatrix * vec4(position, 1.0); gl_PointSize = size * scale / -mv.z; gl_Position = projectionMatrix * mv; }`,
-    fragmentShader: `uniform vec3 color; varying float vA; varying float vS;
-      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-      float n(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
-        return mix(mix(h(i), h(i + vec2(1, 0)), f.x), mix(h(i + vec2(0, 1)), h(i + vec2(1, 1)), f.x), f.y); }
-      void main(){
-        vec2 p = gl_PointCoord - 0.5; float d = length(p) * 2.0;
-        float puff = n(p * 3.5 + vS) * 0.65 + n(p * 7.0 - vS) * 0.35;
-        float a = (1.0 - smoothstep(0.25, 1.0, d + (puff - 0.5) * 0.5)) * vA;
-        if (a < 0.003) discard;
-        gl_FragColor = vec4(color * (0.85 + 0.25 * puff), a);
-      }`,
-    transparent: true, depthWrite: false,
-  });
-  const smoke = new Points(smokeGeo, smokeMat);
-  smoke.frustumCulled = false;
-  scene.add(smoke);
-  const rnd = (i, s) => { const x = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return x - Math.floor(x); };
-  let smokeEmit = []; // per particle: emission time, world point at the nozzle, exhaust direction (recomputed on layout)
-
-  // ---- charge flash: a brief burst at the avionics bulkhead, inside the tube, venting toward the open bay ----
-  const flashes = new Map();
-  for (const id of ["drogue-charge-primary", "drogue-charge-backup", "main-charge", "main-charge-backup"]) {
-    const g = new Group();
-    const core = new Mesh(new SphereGeometry(1, 20, 12), new MeshBasicMaterial({ color: 0xffffff, transparent: true, depthWrite: false, blending: AdditiveBlending, toneMapped: false }));
-    const gas = new Mesh(new SphereGeometry(1, 20, 12), new MeshBasicMaterial({ color: C.accent, transparent: true, depthWrite: false, blending: AdditiveBlending, toneMapped: false }));
-    g.add(core, gas);
-    g.visible = false;
-    scalers.middle.add(g);
-    flashes.set(id, g);
-  }
-  const flashLight = new PointLight(C.accent, 0, 2.5, 2);
-  scalers.middle.add(flashLight);
-
-  // ---- parachutes: cloth gores (accent and ink, stylized) with darker seams, sheen, double-sided ----
-  function canopy(gores) {
-    const pos = [], col = [], STEPS = 12, ACROSS = 5;
-    for (let g = 0; g < gores; g++) {
-      const base = g % 2 ? C.ink : C.accent;
-      const a0 = (g / gores) * Math.PI * 2, a1 = ((g + 1) / gores) * Math.PI * 2;
-      const point = (v, u) => {
-        const a = a0 + (a1 - a0) * u;
-        const bulge = 1 + 0.07 * Math.sin(Math.PI * u) * Math.sin((v * Math.PI) / 2);
-        const r = Math.sin((v * Math.PI) / 2) * bulge, h = Math.cos((v * Math.PI) / 2) * 0.48;
-        return [Math.cos(a) * r, h, Math.sin(a) * r];
-      };
-      const shade = (u) => (u < 0.06 || u > 0.94 ? 0.62 : 1); // seam
-      for (let s = 0; s < STEPS; s++) for (let u = 0; u < ACROSS; u++) {
-        const v0 = s / STEPS, v1 = (s + 1) / STEPS, u0 = u / ACROSS, u1 = (u + 1) / ACROSS;
-        const q = [[v0, u0], [v1, u0], [v1, u1], [v0, u1]];
-        for (const i of [0, 1, 2, 0, 2, 3]) {
-          pos.push(...point(q[i][0], q[i][1]));
-          const k = shade(q[i][1]) * (q[i][0] > 0.93 ? 0.8 : 1); // reinforced skirt band
-          col.push(base.r * k, base.g * k, base.b * k);
-        }
+  // ---- parachutes: cloth gores with seams, slight sheen, double sided, gentle billow ----
+  const CLOTH = 0.4; // a darker base keeps the accent orange (not peach) after AgX tone mapping in the lit areas
+  function canopyGeometry(gores) {
+    const PER = 8, A = gores * PER, V = 16;
+    const pos = new Float32Array((A + 1) * (V + 1) * 3), col = new Float32Array((A + 1) * (V + 1) * 3), idx = [];
+    for (let v = 0; v <= V; v++) {
+      const phi = (v / V) * (Math.PI / 2);
+      for (let a = 0; a <= A; a++) {
+        const ang = (a / A) * Math.PI * 2, local = (a % PER) / PER, gore = Math.floor(a / PER) % gores;
+        const bulge = 1 + 0.055 * Math.sin(Math.PI * local) * Math.sin(phi); // each gore bellies out between its seams
+        const r = Math.sin(phi) * bulge, h = Math.cos(phi) * 0.5 - 0.035 * Math.sin(Math.PI * local) * Math.sin(phi * 2);
+        const i = (v * (A + 1) + a) * 3;
+        pos[i] = Math.cos(ang) * r; pos[i + 1] = h; pos[i + 2] = Math.sin(ang) * r;
+        let shade = gore % 2 ? 0.86 : 1; // alternate gores a step darker, all in the accent
+        if (local === 0) shade *= 0.6; // seam
+        if (v >= V - 1) shade *= 0.72; // reinforced skirt band
+        if (v <= 1) shade *= 0.8; // vent band
+        col[i] = C.accent.r * shade * CLOTH; col[i + 1] = C.accent.g * shade * CLOTH; col[i + 2] = C.accent.b * shade * CLOTH;
       }
     }
+    for (let v = 0; v < V; v++) for (let a = 0; a < A; a++) {
+      const p = v * (A + 1) + a, q = p + A + 1;
+      idx.push(p, q, p + 1, p + 1, q, q + 1);
+    }
     const geo = new BufferGeometry();
-    geo.setAttribute("position", new Float32BufferAttribute(pos, 3));
-    geo.setAttribute("color", new Float32BufferAttribute(col, 3));
+    geo.setAttribute("position", new BufferAttribute(pos, 3));
+    geo.setAttribute("color", new BufferAttribute(col, 3));
+    geo.setIndex(idx);
     geo.computeVertexNormals();
     return geo;
   }
+  const clothMat = new MeshPhysicalMaterial({
+    vertexColors: true, roughness: 0.6, sheen: 0.35, sheenRoughness: 0.5, sheenColor: C.accent.clone().lerp(new Color(1, 1, 1), 0.35),
+    side: DoubleSide, envMapIntensity: 0.45,
+  });
+  const lineMat = new LineBasicMaterial({ color: C.muted.clone().multiplyScalar(0.85) });
+  const bagMat = new MeshPhysicalMaterial({ color: offWhite.clone().multiplyScalar(0.7), roughness: 0.85, sheen: 0.4, sheenColor: new Color(1, 1, 1) });
   const chutes = {};
-  const spec0 = tl.stateAt(0).chutes;
-  for (const id of ["drogue", "main", "payload"]) {
+  const spec0 = tl.stateInto(0).chutes;
+  for (const id of CHUTE_IDS) {
     const spec = spec0[id];
     const group = new Group();
-    const domeMat = new MeshPhysicalMaterial({ vertexColors: true, roughness: 0.72, sheen: 1, sheenRoughness: 0.45, sheenColor: new Color(1, 1, 1), side: DoubleSide, envMapIntensity: 0.8 });
-    const dome = new Mesh(canopy(spec.gores), domeMat);
+    const dome = new Mesh(canopyGeometry(spec.gores), clothMat);
+    dome.castShadow = dome.receiveShadow = true;
     const lineGeo = new BufferGeometry();
     lineGeo.setAttribute("position", new BufferAttribute(new Float32Array(spec.gores * 6), 3));
-    const lineMat = new LineBasicMaterial({ color: C.muted, transparent: true });
     const lines = new LineSegments(lineGeo, lineMat);
     lines.frustumCulled = false;
     const bundleLen = { drogue: 0.2, main: 0.42, payload: 0.18 }[id];
-    const bagMat = new MeshPhysicalMaterial({ color: C.ink.clone().multiplyScalar(0.8), roughness: 0.85, sheen: 0.6, sheenColor: new Color(1, 1, 1) });
     const bundle = new Mesh(new CylinderGeometry(0.06 * D, 0.06 * D, bundleLen, 20), bagMat);
+    bundle.castShadow = true;
     group.add(dome, lines, bundle);
-    const entry = { group, dome, lines, bundle, spec };
-    track(`chute-${id}`, domeMat, lineMat, bagMat);
+    const entry = { group, dome, lines, bundle, band: null, phase: id.length * 1.7 };
     if (id === "payload") { // stand-in for the release device band (not modeled in detail)
-      const bandMat = new MeshPhysicalMaterial({ color: graphite, roughness: 0.35, metalness: 0.6 });
-      entry.band = new Mesh(new TorusGeometry(0.064 * D, 0.012 * D, 8, 24).rotateX(Math.PI / 2), bandMat);
+      entry.band = new Mesh(new TorusGeometry(0.064 * D, 0.012 * D, 8, 24).rotateX(Math.PI / 2), MAT.metal);
       bundle.add(entry.band);
-      track(`chute-${id}`, bandMat);
     }
     chutes[id] = entry;
     scene.add(group);
   }
   let clock = 0;
-  const placeChute = (c, s, at) => {
+  function placeChute(c, s, x, y) {
     const { group, dome, lines, bundle, band } = c;
-    group.position.set(at.x, at.y, -0.03);
+    group.position.set(x, y, -0.05);
     group.rotation.z = s.rot;
     const open = s.deployed ? s.inflate : 0;
+    group.visible = s.deployed;
     bundle.visible = open < 0.35;
     bundle.scale.setScalar(1 - open);
     if (band) band.visible = s.held;
     dome.visible = lines.visible = s.deployed && open > 0.01;
     if (!dome.visible) return;
-    const billow = 1 + 0.025 * Math.sin(clock * 2.1 + s.diameter) * open;
+    lines.visible = s.settle < 0.5;
+    const billow = 1 + 0.022 * Math.sin(clock * 1.7 + c.phase) * open;
     const r = MathUtils.lerp(0.05, s.diameter / 2, open ** 0.8);
     const stretch = MathUtils.lerp(3.2, 1, open);
     const skirt = s.lineLength * MathUtils.lerp(0.7, 1, open);
-    dome.scale.set(r * billow, r * stretch * (2 - billow), r * billow);
-    dome.position.y = skirt;
+    const flat = 1 - 0.94 * s.settle;
+    dome.scale.set(r * billow * (1 + 0.25 * s.settle), r * stretch * (2 - billow) * flat, r * billow * (1 + 0.25 * s.settle));
+    dome.position.y = skirt * flat;
     const p = lines.geometry.attributes.position.array, n = p.length / 6;
     for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2;
-      p.set([Math.cos(a) * r * billow, skirt, Math.sin(a) * r * billow, 0, 0, 0], i * 6);
+      const a = (i / n) * Math.PI * 2, j = i * 6;
+      p[j] = Math.cos(a) * r * billow; p[j + 1] = skirt; p[j + 2] = Math.sin(a) * r * billow;
+      p[j + 3] = 0; p[j + 4] = 0; p[j + 5] = 0;
     }
     lines.geometry.attributes.position.needsUpdate = true;
-  };
+  }
 
   // ---- shock cords: thin matte tubes ----
-  const cordMat = new MeshStandardMaterial({ color: C.muted, roughness: 0.9, transparent: true });
-  const cordGeo = new CylinderGeometry(0.018, 0.018, 1, 6).translate(0, 0.5, 0);
-  const cords = new Map();
-  const placeCord = (id, a, b) => {
-    let m = cords.get(id);
-    if (!m) { m = new Mesh(cordGeo, cordMat); scene.add(m); cords.set(id, m); }
-    const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
-    m.position.set(a.x, a.y, -0.04);
-    m.scale.set(1, Math.max(len, 1e-4), 1);
-    m.rotation.z = Math.atan2(-dx, dy);
-    m.visible = true;
-  };
-
-  // ---- landing island: low, wide, soft edge, tone variation in --color-grass; fades in on final approach ----
-  const island = new Group();
-  const isl0 = tl.stateAt(0).island;
-  const profile = [];
-  const IR = isl0.radius, ID = isl0.depth;
-  for (let i = 0; i <= 10; i++) { const u = i / 10; profile.push(new Vector2(IR * 0.86 * u, 0.02 * (1 - u * u))); }
-  for (let i = 1; i <= 8; i++) { const a = (i / 8) * (Math.PI / 2); profile.push(new Vector2(IR * 0.86 + IR * 0.14 * Math.sin(a), -ID * 0.45 * (1 - Math.cos(a)))); }
-  profile.push(new Vector2(IR * 0.8, -ID * 0.85), new Vector2(0, -ID));
-  const islGeo = new LatheGeometry(profile.reverse(), 72); // bottom-to-top profile, so the faces point outward
-  const islCol = [], ip = islGeo.attributes.position;
-  for (let i = 0; i < ip.count; i++) {
-    const y = ip.getY(i), x = ip.getX(i), z = ip.getZ(i);
-    const tone = 0.88 + 0.12 * Math.sin(x * 3.1 + Math.sin(z * 2.3) * 2) * Math.cos(z * 2.7 - x * 0.9);
-    const top = y > -0.01 ? 1 : clamp(1 + y / (ID * 0.25));
-    const c = C.surface2.clone().multiplyScalar(1.5).lerp(C.grass.clone().multiplyScalar(tone), top);
-    islCol.push(c.r, c.g, c.b);
-  }
-  islGeo.setAttribute("color", new Float32BufferAttribute(islCol, 3));
-  // Low environment reflection: at this grazing view the studio HDRI would wash --color-grass out to grey.
-  const islMat = new MeshStandardMaterial({ vertexColors: true, roughness: 1, envMapIntensity: 0.12, transparent: true });
-  island.add(new Mesh(islGeo, islMat));
-  island.rotation.x = 0.32; // tipped toward the camera so the grass top reads (the camera has no pitch)
-  // contact shadows under landed pieces (soft blob texture, in the 3D scene only)
-  const blob = (() => {
-    const cv = document.createElement("canvas"); cv.width = cv.height = 64;
-    const g = cv.getContext("2d"), grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grad.addColorStop(0, "rgba(0,0,0,0.55)"); grad.addColorStop(1, "rgba(0,0,0,0)");
-    g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
-    return new CanvasTexture(cv);
-  })();
-  const shadows = ["main", "payload"].map(() => {
-    const m = new Mesh(new PlaneGeometry(1, 1).rotateX(-Math.PI / 2), new MeshBasicMaterial({ map: blob, transparent: true, depthWrite: false, toneMapped: false }));
-    m.renderOrder = 1;
+  const cordMat = new MeshStandardMaterial({ color: C.muted.clone().multiplyScalar(0.8), roughness: 0.92 });
+  const cordGeo = new CylinderGeometry(0.012, 0.012, 1, 8).translate(0, 0.5, 0);
+  const cordMeshes = tl.stateInto(0).cords.map(() => {
+    const m = new Mesh(cordGeo, cordMat);
+    m.castShadow = true;
+    m.visible = false;
     scene.add(m);
     return m;
   });
-  scene.add(island);
-
-  // ---- trail: the path behind the rocket, 2 px, ink-muted, fading out in solid steps ----
-  const TRAIL_STEPS = 8;
-  const trail = Array.from({ length: TRAIL_STEPS }, (_, i) => {
-    const m = new LineMaterial({ color: C.muted, linewidth: 2, transparent: true, opacity: 0.5 * ((i + 1) / TRAIL_STEPS) ** 1.5, depthWrite: false });
-    const l = new Line2(new LineGeometry(), m);
-    l.frustumCulled = false;
-    scene.add(l);
-    return l;
-  });
-
-  // ---- layout: card px <-> world meters, arc bounds, spacing so events happen in clear areas ----
-  const L = { W: 1, apexY: 0, groundY: 1, ppm: 1, shift: 0, text: [] };
-  const texts = () => [...root.querySelectorAll("[data-usli-text]")];
-  const toWorld = (xPx, yPx) => ({ x: xPx / L.ppm / COSY, y: -yPx / L.ppm });
-  // On the descent side the pieces shift left (up to L.shift m, reached at landing) when the main canopy would
-  // otherwise cross the card's right edge (narrow screens).
-  const anchorWorld = (a) => {
-    const w = toWorld(a.x * L.W, L.apexY + a.y * (L.groundY - L.apexY));
-    return { x: w.x + L.shift * clamp((a.p - 0.5) / 0.5), y: w.y };
-  };
-  const extentAbove = (state, chain) => { // meters above the chain anchor reached by its pieces
-    let top = 0;
-    for (const [id, b] of Object.entries(state.bodies)) {
-      if (b.chain !== chain) continue;
-      const s = S[id];
-      for (const st of [s.aft, s.fwd]) top = Math.max(top, b.y + st * IN * Math.cos(b.rot));
-    }
-    for (const c of Object.values(state.chutes)) {
-      if (c.chain !== chain || !c.deployed) continue;
-      top = Math.max(top, c.pos.y + Math.cos(c.rot) * (c.lineLength + (c.diameter / 2) * 0.5 * c.inflate) + 0.1);
-    }
-    return top;
-  };
-  const relRect = (el, cr) => { const r = el.getBoundingClientRect(); return { l: r.left - cr.left, t: r.top - cr.top, r: r.right - cr.left, b: r.bottom - cr.top, el }; };
-
-  function layout() {
-    const cr = root.getBoundingClientRect();
-    L.W = cr.width;
-    L.ppm = clamp(0.17 * L.W, 110, 240) / ROCKET_LEN_M;
-    const landX = toWorld(data.path.landing[0] * L.W, 0).x, edge = toWorld(L.W - 16, 0).x;
-    L.shift = Math.min(0, edge - (landX + tl.stateAt(0).chutes.main.diameter / 2 + 0.15));
-    const T = tl.times;
-    // Room above the apex line for the pieces that hang above the apex right after apogee.
-    let above = 0;
-    for (let t = T.apogee; t <= T.apogee + 4; t += 0.25) above = Math.max(above, extentAbove(tl.stateAt(t), "shared"));
-    root.style.setProperty("--usli-top", `${Math.ceil(above * L.ppm + 40)}px`);
-    // Landing zone under the text: deep enough that the 600 ft and 500 ft moments sit below the text.
-    root.style.setProperty("--usli-zone", "0px");
-    const measure = () => {
-      const c = root.getBoundingClientRect();
-      const title = root.querySelector(".project__head").getBoundingClientRect();
-      L.apexY = title.top - c.top - 64; // clear margin above the headline
-      L.groundY = root.querySelector("[data-usli-ground]").getBoundingClientRect().top - c.top;
-      return c;
-    };
-    let c = measure();
-    const bodyBottom = root.querySelector(".usli__row").getBoundingClientRect().bottom - c.top;
-    let need = 0;
-    for (const t of [T.main, T.main + 0.3, T.payloadRelease, T.payloadRelease + 0.25]) {
-      const st = tl.stateAt(t);
-      for (const chain of ["main", "payload"]) {
-        const y = st.anchors[chain].y; // groundY must satisfy: apexY + y (G - apexY) - E >= bodyBottom + margin
-        const E = extentAbove(st, chain) * L.ppm;
-        const G = (bodyBottom + 32 + E - L.apexY) / y + L.apexY;
-        need = Math.max(need, G - L.groundY);
-      }
-    }
-    root.style.setProperty("--usli-zone", `${Math.ceil(Math.max(0, need))}px`);
-    c = measure();
-    tl = createTimeline(data, { aspect: L.W / Math.max(1, L.groundY - L.apexY) });
-    L.text = texts().map((el) => relRect(el, c));
-    // Smoke emission points (fixed per layout): nozzle position and exhaust direction at each emission time.
-    smokeEmit = Array.from({ length: SMOKE }, (_, i) => {
-      const te = T.liftoff + (i / SMOKE) * (T.burnout - T.liftoff);
-      const a = tl.anchorAt(te);
-      const w = anchorWorld(a), ang = (a.angle * Math.PI) / 180;
-      return { te, x: w.x, y: w.y, dx: -Math.cos(ang), dy: -Math.sin(ang) };
-    });
+  function placeCord(m, ax, ay, bx, by) {
+    const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy);
+    m.position.set(ax, ay, -0.05);
+    m.scale.set(1, Math.max(len, 1e-4), 1);
+    m.rotation.z = Math.atan2(-dx, dy);
+    m.visible = true;
   }
 
-  // ---- camera: the canvas is a viewport-tall window onto the card; follow it as the page scrolls ----
+  // ---- landing sheet: large grey, shiny but not a mirror, soft shadows; edges fade into the page background ----
+  const SHEET_CENTER = new Vector2(0, -2); // follows the camera, so the lit floor is always around the subject
   const res = new Vector2();
-  let framing = null; // set by snapshot(): frame a world box instead of the card window
-  function fitCamera(cam) {
+  const sheetMat = new MeshPhysicalMaterial({
+    color: C.muted.clone().multiplyScalar(0.22), roughness: 0.3, metalness: 0, clearcoat: 0.6, clearcoatRoughness: 0.2,
+    envMapIntensity: 0.4, transparent: true,
+  });
+  sheetMat.onBeforeCompile = (sh) => {
+    sh.uniforms.sheetCenter = { value: SHEET_CENTER };
+    sh.uniforms.viewRes = { value: res };
+    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vSheet;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvSheet = (modelMatrix * vec4(position, 1.0)).xyz;");
+    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec3 vSheet; uniform vec2 sheetCenter; uniform vec2 viewRes;")
+      .replace("#include <dithering_fragment>", `#include <dithering_fragment>
+        float rr = length((vSheet.xz - sheetCenter) * vec2(0.85, 1.6));
+        float edge = smoothstep(0.0, 0.08, gl_FragCoord.y / viewRes.y);
+        gl_FragColor.a *= (1.0 - smoothstep(2.5, 13.0, rr)) * edge;`);
+  };
+  sheetMat.customProgramCacheKey = () => "usli-sheet";
+  const sheet = new Mesh(new PlaneGeometry(140, 140).rotateX(-Math.PI / 2), sheetMat);
+  sheet.position.set((data.scene.ascentDriftM + data.scene.descentDriftM) / 2, 0, -20);
+  sheet.receiveShadow = true;
+  sheet.renderOrder = -1;
+  scene.add(sheet);
+
+  // ---- altitude ladder: faint lines every 500 ft with mono labels, so the climb reads against something ----
+  const LADDER_Z = -3;
+  const LADDER_DY = LADDER_Z * (-Math.sin(PITCH) / (Math.cos(YAW) * Math.cos(PITCH))); // view ray drop over the 3 m
+  const ladderPos = new Float32Array(LADDER_FT.length * 6);
+  LADDER_FT.forEach((f, i) => { const y = tl.heightOf(f) + LADDER_DY; ladderPos.set([-40, y, LADDER_Z, 80, y, LADDER_Z], i * 6); });
+  const ladderGeo = new BufferGeometry();
+  ladderGeo.setAttribute("position", new BufferAttribute(ladderPos, 3));
+  const ladder = new LineSegments(ladderGeo, new LineBasicMaterial({ color: C.muted, transparent: true, opacity: 0.16, depthWrite: false }));
+  ladder.frustumCulled = false;
+  scene.add(ladder);
+  try { await document.fonts.load('500 32px "DM Mono"'); } catch { /* falls back to the system mono */ }
+  const ladderLabels = LADDER_FT.map((f) => {
+    const cv = document.createElement("canvas"); cv.width = 256; cv.height = 48;
+    const g = cv.getContext("2d");
+    g.font = '500 32px "DM Mono", ui-monospace, monospace';
+    g.fillStyle = token("--color-ink-muted");
+    g.textBaseline = "middle";
+    g.fillText(`${f.toLocaleString("en-US")} FT`, 4, 25);
+    const tex = new CanvasTexture(cv); tex.colorSpace = SRGBColorSpace;
+    const sp = new Sprite(new SpriteMaterial({ map: tex, transparent: true, opacity: 0.7, depthWrite: false, toneMapped: false }));
+    sp.center.set(0, 0);
+    sp.userData.y = tl.heightOf(f) + LADDER_DY;
+    scene.add(sp);
+    return sp;
+  });
+
+  // ---- contact shadows: soft blobs under the lowest pieces as they reach the sheet ----
+  const blobTex = (() => {
+    const cv = document.createElement("canvas"); cv.width = cv.height = 64;
+    const g = cv.getContext("2d"), grad = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0, "rgba(0,0,0,0.6)"); grad.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = grad; g.fillRect(0, 0, 64, 64);
+    return new CanvasTexture(cv);
+  })();
+  const blobGeo = new PlaneGeometry(1, 1).rotateX(-Math.PI / 2);
+  const blobs = [0, 1].map(() => {
+    const m = new Mesh(blobGeo, new MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false, toneMapped: false }));
+    scene.add(m);
+    return m;
+  });
+  function placeBlob(m, x, h, w) {
+    m.visible = h < 1.2;
+    m.position.set(x, 0.004, 0);
+    m.scale.set(w, 1, w * 0.7);
+    m.material.opacity = clamp(1 - h / 1.2);
+  }
+
+  // ---- camera: fixed lens and orientation, smoothed follow of the pieces ----
+  const v3 = new Vector3();
+  const look = new Vector3(-Math.sin(YAW) * Math.cos(PITCH), -Math.sin(PITCH), Math.cos(YAW) * Math.cos(PITCH)); // target to camera
+  const cam = { x: 0, y: 0, ready: false };
+  const focus = { x: 0, y: 0 };
+  let viewH = VIEW_H, viewW = VIEW_H, dist = 1;
+  function fitCamera(c) {
     renderer.getSize(res);
-    let cx, cy, viewH;
-    if (framing) { cx = framing.cx; cy = framing.cy; viewH = framing.h; }
-    else {
-      const mr = mount.getBoundingClientRect(), cr = root.getBoundingClientRect();
-      const w = toWorld(mr.left - cr.left + mr.width / 2, mr.top - cr.top + mr.height / 2);
-      cx = w.x; cy = w.y; viewH = mr.height / L.ppm;
+    const cssH = Math.max(1, res.y);
+    c.aspect = res.x / cssH;
+    viewH = Math.max(VIEW_H, MIN_VIEW_W / c.aspect);
+    viewW = viewH * c.aspect;
+    dist = viewH / 2 / Math.tan(MathUtils.degToRad(FOV / 2));
+    c.fov = FOV;
+    c.near = 1;
+    c.far = dist + 140;
+    c.position.set(cam.x + look.x * dist, cam.y + look.y * dist, look.z * dist);
+    c.lookAt(cam.x, cam.y, 0);
+    c.updateProjectionMatrix();
+    res.multiplyScalar(renderer.getPixelRatio()); // device px, for the sheet's edge fade
+    // ladder labels: about 13 CSS px tall, pinned near the left edge of the view
+    const k = (dist - LADDER_Z) / dist, h = (viewH / cssH) * 13 * k;
+    const edgeX = cam.x + LADDER_Z * (look.x / look.z) - (viewW / 2) * k + h * 0.8;
+    for (const sp of ladderLabels) {
+      sp.scale.set(h * (256 / 48), h, 1);
+      sp.position.set(edgeX, sp.userData.y + h * 0.15, LADDER_Z);
+      v3.copy(sp.position).project(c); // hide a label the canvas edge would cut
+      sp.visible = v3.y < 1 - (2 * 22) / cssH && v3.y > -1 + (2 * 6) / cssH;
     }
-    const dist = viewH / 2 / Math.tan(MathUtils.degToRad(FOV / 2));
-    cam.fov = FOV;
-    cam.position.set(cx + Math.sin(YAW) * dist, cy, Math.cos(YAW) * dist);
-    cam.lookAt(cx, cy, 0);
-    cam.near = Math.max(0.1, dist - 60);
-    cam.far = dist + 60;
-    cam.clearViewOffset();
-    cam.updateProjectionMatrix();
-    smokeMat.uniforms.scale.value = res.y / (2 * Math.tan(MathUtils.degToRad(FOV / 2)));
-    for (const l of trail) l.material.resolution.copy(res);
   }
   stage.setFit(fitCamera);
 
   // ---- apply a state ----
   const readout = { time: root.querySelector("[data-r-time]"), alt: root.querySelector("[data-r-alt]"), phase: root.querySelector("[data-r-phase]") };
-  const ft = (v) => `${Math.round(v).toLocaleString("en-US")} ft`;
+  const shown = { tenth: -1, main: -2, payload: -2, phase: null, tag: "", tagX: -1e9, tagY: -1e9, tagSide: "" };
   let state = null, flightT = 0;
-  const fade = new Map(); // piece id -> current opacity
-  const box = new Box3(), tmpBox = new Box3(), v3 = new Vector3();
+  const box = { l: 0, r: 0, b: 0, t: 0 };
+  const grow = (x, y) => { if (x < box.l) box.l = x; if (x > box.r) box.r = x; if (y < box.b) box.b = y; if (y > box.t) box.t = y; };
+  const bodyPoint = (b, s) => grow(state.anchors[b.chain].x + b.x - s * IN * Math.sin(b.rot), state.anchors[b.chain].y + b.y + s * IN * Math.cos(b.rot));
+
+  function updateFocus() {
+    box.l = box.b = Infinity; box.r = box.t = -Infinity;
+    for (const id of BODY_IDS) { const b = state.bodies[id]; bodyPoint(b, S[id].aft); bodyPoint(b, S[id].fwd); }
+    for (const id of CHUTE_IDS) {
+      const c = state.chutes[id];
+      if (!c.deployed || c.inflate < 0.05) continue;
+      const a = state.anchors[c.chain], top = c.lineLength + (c.diameter / 2) * 0.55 * c.inflate;
+      const tx = a.x + c.pos.x - Math.sin(c.rot) * top, ty = a.y + c.pos.y + Math.cos(c.rot) * top, half = (c.diameter / 2) * c.inflate;
+      grow(tx - half, ty); grow(tx + half, ty);
+    }
+    focus.x = (box.l + box.r) / 2;
+    focus.y = (box.b + box.t) / 2;
+  }
+  const minCamY = () => viewH / 2 - GROUND_MARGIN;
+  function follow(dt, snap) {
+    const tx = focus.x, ty = Math.max(focus.y, minCamY());
+    if (snap || !cam.ready) { cam.x = tx; cam.y = ty; cam.ready = true; return false; }
+    const k = 1 - Math.exp(-dt / FOLLOW_S);
+    cam.x += (tx - cam.x) * k;
+    cam.y += (ty - cam.y) * k;
+    const bx = BAND * viewW, by = BAND * viewH;
+    if (focus.x - cam.x > bx) cam.x = focus.x - bx; else if (cam.x - focus.x > bx) cam.x = focus.x + bx;
+    if (focus.y - cam.y > by) cam.y = focus.y - by; else if (cam.y - focus.y > by) cam.y = focus.y + by;
+    if (cam.y < minCamY()) cam.y = minCamY();
+    return Math.abs(tx - cam.x) > 0.002 || Math.abs(ty - cam.y) > 0.002;
+  }
 
   function apply(t) {
     flightT = t;
-    state = tl.stateAt(t);
-    const A = Object.fromEntries(Object.entries(state.anchors).map(([k, a]) => [k, anchorWorld(a)]));
-    const local = (chain, p) => ({ x: A[chain].x + p.x, y: A[chain].y + p.y });
-    for (const [id, pose] of Object.entries(state.bodies)) {
-      const w = local(pose.chain, pose);
-      bodies[id].position.set(w.x, w.y, 0);
-      bodies[id].rotation.z = pose.rot;
+    state = tl.stateInto(t);
+    const A = state.anchors;
+    for (const id of BODY_IDS) {
+      const b = state.bodies[id], a = A[b.chain];
+      bodies[id].position.set(a.x + b.x, a.y + b.y, 0);
+      bodies[id].rotation.z = b.rot;
     }
-    for (const [id, s] of Object.entries(state.chutes)) placeChute(chutes[id], s, local(s.chain, s.pos));
-    for (const m of cords.values()) m.visible = false;
-    for (const c of state.cords) placeCord(c.id, local(c.chain, c.a), local(c.chain, c.b));
-
-    // charge flashes
-    let light = 0;
-    for (const f of state.flashes) {
-      const g = flashes.get(f.id);
-      g.visible = f.k > 0;
-      if (!g.visible) continue;
-      const grow = 1 - f.k;
-      g.position.set(0, (f.station + f.dir * grow * 2.5) * IN, 0);
-      g.children[0].scale.set(r0 * (0.55 + grow * 0.3), r0 * (0.35 + grow * 0.5), r0 * (0.55 + grow * 0.3));
-      g.children[1].scale.set(r0 * (0.85 + grow * 0.15), r0 * (0.7 + grow * 2.2), r0 * (0.85 + grow * 0.15));
-      g.children[0].material.opacity = f.k;
-      g.children[1].material.opacity = f.k * 0.75;
-      flashLight.position.copy(g.position);
-      light = Math.max(light, f.k);
-    }
-    flashLight.intensity = light * 8;
-
-    // fire and smoke
-    fire.visible = state.fire > 0;
-    fireMat.uniforms.k.value = state.fire;
-    fire.scale.set(1, 0.7 + 0.3 * state.fire, 1);
-    fireLight.intensity = state.fire * 5;
-    for (let i = 0; i < SMOKE; i++) {
-      const e = smokeEmit[i];
-      const age = t - (e?.te ?? 1e9), life = 2.5 + rnd(i, 1) * 2;
-      if (!e || age < 0 || age > life) { smokeAlpha[i] = 0; smokeSize[i] = 0; continue; }
-      const speed = 2.2 + rnd(i, 3) * 2, tau = 0.45;
-      const d = speed * tau * (1 - Math.exp(-age / tau));
-      const side = (rnd(i, 2) - 0.5) * 0.9 * d;
-      smokePos[i * 3] = e.x + e.dx * d - e.dy * side + age * 0.12;
-      smokePos[i * 3 + 1] = e.y + e.dy * d + e.dx * side + age * 0.08;
-      smokePos[i * 3 + 2] = -0.2 - rnd(i, 5) * 0.4;
-      smokeSize[i] = (0.35 + age * 0.5) * D;
-      smokeAlpha[i] = Math.min(1, age * 5) * (1 - age / life) * 0.32;
-    }
-    smokeGeo.attributes.position.needsUpdate = smokeGeo.attributes.size.needsUpdate = smokeGeo.attributes.alpha.needsUpdate = true;
-
-    // island and contact shadows
-    const land = { x: toWorld(data.path.landing[0] * L.W, 0).x + L.shift, y: toWorld(0, L.groundY).y };
-    island.visible = state.island.opacity > 0;
-    island.position.set(land.x + state.island.offsetX, land.y, -0.6);
-    islMat.opacity = state.island.opacity;
-    islMat.depthWrite = state.island.opacity > 0.99;
-    const groundGap = (chain) => clamp(1 - (A[chain].y - land.y) / 2.5);
-    [["main", state.bodies.booster], ["payload", state.bodies.nose]].forEach(([chain, b], i) => {
-      const m = shadows[i], w = local(chain, b);
-      m.visible = island.visible;
-      m.position.set(w.x, land.y + 0.005, -0.2);
-      m.scale.set(1.8 * D, 1, 0.9);
-      m.material.opacity = state.island.opacity * groundGap(chain);
-    });
-
-    // trail behind the leading chain
-    const lead = state.altFt.split ? state.anchors.main : state.anchors.shared;
-    const p1 = lead.p, p0 = Math.max(0, p1 - 0.22);
-    for (let i = 0; i < TRAIL_STEPS; i++) {
-      const a = p0 + ((p1 - p0) * i) / TRAIL_STEPS, b = p0 + ((p1 - p0) * (i + 1)) / TRAIL_STEPS, pts = [];
-      for (let j = 0; j <= 6; j++) {
-        const pj = a + ((b - a) * j) / 6;
-        const w = anchorWorld({ ...tl.path.pathAt(pj), p: pj });
-        pts.push(w.x, w.y, -0.5);
-      }
-      trail[i].geometry.setPositions(pts);
-      trail[i].visible = p1 - p0 > 0.002 && !state.altFt.split;
+    for (const id of CHUTE_IDS) { const s = state.chutes[id], a = A[s.chain]; placeChute(chutes[id], s, a.x + s.pos.x, a.y + s.pos.y); }
+    for (let i = 0; i < state.cords.length; i++) {
+      const c = state.cords[i];
+      if (!c.on) { cordMeshes[i].visible = false; continue; }
+      const a = A[c.chain];
+      placeCord(cordMeshes[i], a.x + c.a.x, a.y + c.a.y, a.x + c.b.x, a.y + c.b.y);
     }
 
-    if (readout.time) {
-      const txt = (el, s) => { if (el.textContent !== s) el.textContent = s; };
-      txt(readout.time, `T+ ${state.t.toFixed(1)} s`);
-      txt(readout.alt, state.altFt.split ? `Main ${ft(state.altFt.main)} / Payload ${ft(state.altFt.payload)}` : `Altitude ${ft(state.altFt.main)}`);
-      txt(readout.phase, state.phase.label);
-    }
+    // engine
+    const fire = state.fire;
+    plume.visible = glow.visible = fire > 0.001;
+    plumeMat.uniforms.k.value = fire;
+    plumeMat.uniforms.time.value = clock;
+    plume.scale.set(1, 0.75 + 0.25 * fire, 1);
+    const bo = bodies.booster, sn = Math.sin(bo.rotation.z), cs = Math.cos(bo.rotation.z);
+    glow.position.set(bo.position.x + sn * 0.12, bo.position.y - cs * 0.12, 0.25);
+    glow.material.opacity = fire * 0.85;
+    engineLight.position.set(bo.position.x + sn * 0.5, bo.position.y - cs * 0.5, 0.4);
+    engineLight.intensity = fire * 40;
+
+    // contact blobs: under the booster aft end (main) and the nosecone (payload), stronger as they reach the sheet
+    placeBlob(blobs[0], bodies.booster.position.x, bodies.booster.position.y, 0.55 * D);
+    const nb = bodies.nose, tipX = nb.position.x - S.nose.fwd * IN * Math.sin(nb.rotation.z), tipY = nb.position.y + S.nose.fwd * IN * Math.cos(nb.rotation.z);
+    const pb = bodies.payload, pcx = pb.position.x - S.payload.center * IN * Math.sin(pb.rotation.z);
+    const landed = t >= tl.times.payloadLanding;
+    placeBlob(blobs[1], landed ? (tipX + pcx) / 2 : tipX, Math.max(0, tipY), landed ? 1.6 * D : 0.6 * D);
+
+    updateFocus();
+    updateHud();
   }
 
-  // ---- text rule: a piece whose screen rect overlaps a text block fades to FADE_TO ----
-  const pieceIds = ["booster", "middle", "payload", "nose", "chute-drogue", "chute-main", "chute-payload"];
-  const pieceObject = (id) => (id.startsWith("chute-") ? chutes[id.slice(6)].group : bodies[id]);
-  function pieceRects() {
-    const cr = root.getBoundingClientRect(), mr = mount.getBoundingClientRect();
-    renderer.getSize(res);
-    return pieceIds.map((id) => {
-      const obj = pieceObject(id);
-      box.makeEmpty();
-      obj.updateWorldMatrix(true, true);
-      // Only meshes that are actually drawn (hidden flash spheres and closed canopies would inflate the rect).
-      obj.traverseVisible((o) => { if (o.isMesh && o !== fire) { o.geometry.boundingBox ?? o.geometry.computeBoundingBox(); tmpBox.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); box.union(tmpBox); } });
-      if (box.isEmpty()) return { id, rect: null };
-      let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
-      for (let i = 0; i < 8; i++) {
-        v3.set(i & 1 ? box.max.x : box.min.x, i & 2 ? box.max.y : box.min.y, i & 4 ? box.max.z : box.min.z).project(camera);
-        const x = ((v3.x + 1) / 2) * mr.width + mr.left - cr.left, y = ((1 - v3.y) / 2) * mr.height + mr.top - cr.top;
-        l = Math.min(l, x); r = Math.max(r, x); t = Math.min(t, y); b = Math.max(b, y);
-      }
-      return { id, rect: { l, t, r, b } };
-    });
+  const ftText = (v) => `${v.toLocaleString("en-US")} ft`;
+  function updateHud() {
+    const tenth = Math.round(state.t * 10);
+    if (tenth !== shown.tenth) { shown.tenth = tenth; readout.time.textContent = `T+ ${(tenth / 10).toFixed(1)} s`; }
+    const m = Math.round(state.altFt.main), p = state.altFt.split ? Math.round(state.altFt.payload) : -1;
+    if (m !== shown.main || p !== shown.payload) {
+      shown.main = m; shown.payload = p;
+      readout.alt.textContent = p < 0 ? `Altitude ${ftText(m)}` : `Main ${ftText(m)} / Payload ${ftText(p)}`;
+    }
+    if (state.phase !== shown.phase) { shown.phase = state.phase; readout.phase.textContent = state.phase.label; }
   }
-  const overlaps = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
-  function updateFades(dt, snap = false) {
-    let moving = false;
-    const opacityOf = {};
-    // Pieces of one chain (the whole rocket before separation, then each descending group) fade together.
-    const chainOfPiece = (id) => (id.startsWith("chute-") ? state.chutes[id.slice(6)].chain : state.bodies[id].chain);
-    const hit = {};
-    const rects = pieceRects();
-    for (const { id, rect } of rects) if (rect && L.text.some((tr) => overlaps(rect, tr))) hit[chainOfPiece(id)] = true;
-    for (const { id } of rects) {
-      const target = hit[chainOfPiece(id)] ? FADE_TO : 1;
-      const cur = fade.get(id) ?? target;
-      const next = snap ? target : cur + (target - cur) * Math.min(1, dt / 0.25);
-      if (Math.abs(next - target) > 0.002) moving = true;
-      fade.set(id, Math.abs(next - target) <= 0.002 ? target : next);
-      opacityOf[id] = fade.get(id);
-    }
-    for (const [id, mats] of fadeables) {
-      const o = opacityOf[id] ?? 1;
-      for (const m of mats) {
-        const base = m.userData.baseOpacity ?? (m.userData.baseOpacity = m.opacity);
-        m.opacity = base * o;
-        const want = o < 0.999 || base < 1;
-        if (m.transparent !== want) { m.transparent = want; m.needsUpdate = true; }
-        m.depthWrite = !want;
-      }
-    }
-    const chain = (c) => Math.min(...Object.entries(state.bodies).filter(([, b]) => b.chain === c).map(([id]) => opacityOf[id] ?? 1));
-    cordMat.opacity = Math.min(chain("main"), chain("shared"), chain("payload"));
-    fireMat.uniforms.k.value = state.fire * (opacityOf.booster ?? 1);
-    return moving;
+  function placeTag() {
+    const tag = state.tag;
+    if (!tag.on) { if (shown.tag) { tagEl.removeAttribute("data-on"); shown.tag = ""; } return; }
+    if (tag.label !== shown.tag) { tagEl.textContent = tag.label; tagEl.setAttribute("data-on", ""); shown.tag = tag.label; }
+    const a = state.anchors[tag.chain];
+    v3.set(a.x + tag.x, a.y + tag.y, 0).project(camera);
+    const w = mount.clientWidth, h = mount.clientHeight;
+    const y = ((1 - v3.y) / 2) * h;
+    // beside everything drawn: right of the pieces, or left of them when the right side has no room
+    v3.set(box.r, a.y + tag.y, 0).project(camera); const right = ((v3.x + 1) / 2) * w;
+    v3.set(box.l, a.y + tag.y, 0).project(camera); const left = ((v3.x + 1) / 2) * w;
+    const tw = tagEl.offsetWidth;
+    const side = right + 24 + tw < w ? "right" : left - 24 - tw > 0 ? "left" : "top"; // "top": no room beside, top left of the canvas
+    const x = side === "right" ? right + 6 : left - 6;
+    if (side !== shown.tagSide) { tagEl.dataset.side = side; shown.tagSide = side; }
+    const px = Math.round(side === "top" ? 0 : side === "left" ? x - tw - 10 : x + 10), py = Math.round(side === "top" ? 8 : y - tagEl.offsetHeight / 2);
+    if (px !== shown.tagX || py !== shown.tagY) { tagEl.style.transform = `translate3d(${px}px, ${py}px, 0)`; shown.tagX = px; shown.tagY = py; }
+  }
+  function placeCameraAndLight() {
+    fitCamera(camera);
+    // The shadow camera follows the view where it meets the sheet; the shadow pass is skipped while the sheet is out of view.
+    const nearGround = cam.y - viewH / 2 < 3;
+    renderer.shadowMap.autoUpdate = nearGround;
+    SHEET_CENTER.x = cam.x;
+    key.target.position.set(cam.x, 0, 0);
+    key.position.set(cam.x + KEY_DIR.x * 25, KEY_DIR.y * 25, KEY_DIR.z * 25);
+    key.target.updateMatrixWorld();
   }
 
   // ---- playback clock ----
   let playS = 0, playing = false, last = 0;
   const listeners = new Set();
-  const emit = () => listeners.forEach((f) => f({ playing, finished: playS >= PLAY_SECONDS }));
+  const emit = () => { const finished = playS >= PLAY_SECONDS; listeners.forEach((f) => f({ playing, finished })); };
   stage.setStep((time) => {
     const dt = last ? Math.min(0.1, (time - last) / 1000) : 0;
     last = time;
@@ -625,103 +526,86 @@ export async function createUsliScene(root) {
     if (playing) {
       playS = Math.min(PLAY_SECONDS, playS + dt);
       apply(tl.flightAt(playS));
-      fireMat.uniforms.time.value = clock;
       if (playS >= PLAY_SECONDS) { playing = false; emit(); }
     }
-    fitCamera(camera);
-    const fading = updateFades(dt);
-    if (!playing) last = fading ? last : 0;
-    return playing || fading;
+    const moving = follow(dt, false);
+    placeCameraAndLight();
+    placeTag();
+    if (!playing && !moving) last = 0;
+    return playing || moving;
   });
 
-  addEventListener("scroll", () => stage.wake(), { passive: true });
-  const relayout = () => { layout(); apply(flightT); updateFades(0, true); stage.resize(); stage.wake(); };
-  new ResizeObserver(relayout).observe(root.querySelector(".usli__row"));
-  addEventListener("resize", relayout);
-  layout();
-  apply(0);
+  const snapTo = (t) => { apply(t); follow(0, true); placeCameraAndLight(); renderer.shadowMap.needsUpdate = true; placeTag(); };
+  snapTo(0);
   root.dataset.state = "live";
   stage.resize();
-  updateFades(0, true);
+  placeTag();
 
   return {
-    play() { if (playS >= PLAY_SECONDS) playS = 0; playing = true; last = 0; stage.wake(); emit(); },
+    play() { if (playS >= PLAY_SECONDS) { playS = 0; snapTo(0); } playing = true; last = 0; stage.wake(); emit(); },
     pause() { playing = false; emit(); stage.wake(); },
-    restart() { playS = 0; playing = true; last = 0; apply(0); stage.wake(); emit(); },
-    seek(t) { playing = false; playS = tl.playAt(t); apply(t); fitCamera(camera); updateFades(0, true); stage.wake(); emit(); },
+    restart() { playS = 0; playing = true; last = 0; snapTo(0); stage.wake(); emit(); },
+    seek(t) { playing = false; playS = tl.playAt(t); snapTo(t); stage.wake(); emit(); },
     get playing() { return playing; },
     get finished() { return playS >= PLAY_SECONDS; },
+    get playSeconds() { return playS; },
     onChange(f) { listeners.add(f); },
     timeline: () => tl,
+    frames: () => stage.frames(),
     debug() {
-      fitCamera(camera);
-      const cr = root.getBoundingClientRect();
-      const toClient = (r) => r && { l: r.l + cr.left, t: r.t + cr.top, r: r.r + cr.left, b: r.b + cr.top };
-      return {
-        t: flightT,
-        pieces: pieceRects().map((p) => ({ id: p.id, rect: toClient(p.rect), opacity: fade.get(p.id) ?? 1 })),
-        text: L.text.map((r) => ({ name: r.el.className.split(" ")[0], rect: toClient(r) })),
-      };
+      const w = mount.clientWidth, h = mount.clientHeight;
+      const pieces = BODY_IDS.map((id) => {
+        const b = state.bodies[id], a = state.anchors[b.chain];
+        let minY = Infinity, l = Infinity, r = -Infinity, top = Infinity, bot = -Infinity;
+        for (const st of [S[id].aft, S[id].fwd]) {
+          const x = a.x + b.x - st * IN * Math.sin(b.rot), y = a.y + b.y + st * IN * Math.cos(b.rot);
+          minY = Math.min(minY, y - Math.abs(Math.sin(b.rot)) * R);
+          v3.set(x, y, 0).project(camera);
+          const px = ((v3.x + 1) / 2) * w, py = ((1 - v3.y) / 2) * h;
+          l = Math.min(l, px); r = Math.max(r, px); top = Math.min(top, py); bot = Math.max(bot, py);
+        }
+        return { id, minY, rect: { l, r, t: top, b: bot } };
+      });
+      return { t: flightT, playS, playing, finished: playS >= PLAY_SECONDS, canvas: { w, h }, cam: { x: cam.x, y: cam.y }, viewH, pieces, tag: state.tag.on ? state.tag.label : "" };
     },
-    // Still frame: frame all visible pieces (and the island) on the page background, WebP.
+    // Still frame at flight time t, framed as the player frames it (snapped camera), WebP.
     async snapshot(t, width, height) {
       const prev = { dpr: renderer.getPixelRatio(), clear: renderer.getClearColor(new Color()), alpha: renderer.getClearAlpha() };
-      apply(t);
-      updateFades(0, true);
-      for (const [, mats] of fadeables) for (const m of mats) { m.opacity = m.userData.baseOpacity ?? 1; }
-      const all = new Box3();
-      for (const id of pieceIds) { const o = pieceObject(id); box.setFromObject(o); if (!box.isEmpty()) all.union(box); }
-      if (island.visible) { box.setFromObject(island); all.union(box); }
-      const c = all.getCenter(new Vector3()), sz = all.getSize(new Vector3());
-      framing = { cx: c.x, cy: c.y, h: Math.max(sz.y * 1.25, (sz.x * 1.25 * height) / width / COSY, 4.2) };
       renderer.setPixelRatio(1);
       renderer.setSize(width, height, false);
-      camera.aspect = width / height;
-      fitCamera(camera);
+      snapTo(t);
       renderer.setClearColor(C.bg, 1);
-      fireMat.uniforms.k.value = state.fire;
       renderer.render(scene, camera);
       const blob = await new Promise((r) => canvas.toBlob(r, "image/webp", 0.92));
-      framing = null;
       renderer.setClearColor(prev.clear, prev.alpha);
       renderer.setPixelRatio(prev.dpr);
       stage.resize();
+      snapTo(flightT);
       return blob;
     },
     dispose() { stage.dispose(); },
   };
 }
 
-// Wires the controls and the autoplay rule: plays once when at least half the card (or half the viewport)
-// is showing, pauses when the card leaves the viewport or the tab is hidden, stops at landing.
+// Mounts the scene and keeps the controls in sync. projects.js owns the clicks (Play works before the chunk has
+// loaded). Playback pauses when the player leaves the viewport or the tab is hidden and resumes on return.
 export async function mountUsli(root) {
   const scene = await createUsliScene(root);
-  const controls = root.querySelector("[data-usli-controls]");
   const toggle = root.querySelector("[data-usli-toggle]");
-  const restart = root.querySelector("[data-usli-restart]");
-  controls.hidden = false;
-  let auto = false, heldByVisibility = false, inView = false;
   const sync = ({ playing }) => {
     toggle.setAttribute("aria-pressed", String(playing));
     toggle.textContent = playing ? "Pause" : "Play";
   };
   scene.onChange(sync);
   sync({ playing: false });
-  toggle.addEventListener("click", () => { heldByVisibility = false; scene.playing ? scene.pause() : scene.play(); });
-  restart.addEventListener("click", () => { heldByVisibility = false; scene.restart(); });
 
-  const io = new IntersectionObserver(([e]) => {
-    inView = e.isIntersecting;
-    const enough = e.intersectionRatio >= 0.5 || e.intersectionRect.height >= innerHeight * 0.5;
-    if (enough && !auto) { auto = true; scene.play(); }
-    if (!inView && scene.playing) { heldByVisibility = true; scene.pause(); }
-    if (inView && heldByVisibility && !document.hidden) { heldByVisibility = false; scene.play(); }
-  }, { threshold: Array.from({ length: 21 }, (_, i) => i / 20) });
-  io.observe(root);
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && scene.playing) { heldByVisibility = true; scene.pause(); }
-    else if (!document.hidden && heldByVisibility && inView) { heldByVisibility = false; scene.play(); }
-  });
+  let held = false, inView = true;
+  const hold = () => { if (scene.playing) { scene.pause(); held = true; } };
+  const resume = () => { if (held && inView && !document.hidden) { held = false; scene.play(); } };
+  scene.onChange(({ playing }) => { if (playing) held = false; }); // a press of Play or Restart clears the hold
+  new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (inView) resume(); else hold(); }).observe(root);
+  document.addEventListener("visibilitychange", () => (document.hidden ? hold() : resume()));
   root.usliScene = scene; // QA hook for tools/check_usli_scene.mjs --browser
+  root.usliHeld = () => held;
   return scene;
 }
