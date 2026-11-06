@@ -8,7 +8,7 @@
 // Browser checks (DevTools protocol, no dependencies, same approach as tools/audit_a11y.mjs): collapsed card has the
 // schematic and no canvas and no scene chunk; label text at 12 px or more; the write-up opens the player at its bottom
 // with the controls and readout in one row; nothing autoplays; Play, Pause, the end on the sheet, the off-screen
-// pause; with reduced motion the stills show until Play is pressed.
+// pause; with reduced motion only the pad frame shows until Play is pressed.
 import { readFileSync, mkdtempSync, rmSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
@@ -292,8 +292,8 @@ async function browserCheck() {
     await load(w, true);
     await evaluate(`document.querySelector("#nasa-student-launch [data-toggle]").click(); true`);
     await sleep(1500);
-    const r0 = await evaluate(`({ chunk: ${chunkLoaded}, state: ${Q}.dataset.state, stills: [...${Q}.querySelectorAll(".usli__still img")].filter((i) => i.getBoundingClientRect().height > 0 && i.alt).length, controls: !${Q}.querySelector("[data-usli-controls]").hidden })`);
-    ok(!r0.chunk && r0.state === "still" && r0.stills === 4 && r0.controls, `${w}px reduced motion: four stills with alt text and the controls, no scene chunk yet`);
+    const r0 = await evaluate(`({ chunk: ${chunkLoaded}, state: ${Q}.dataset.state, poster: /scene-1-pad/.test(${Q}.querySelector("img.usli__poster")?.src || ""), stills: [...${Q}.querySelectorAll("img")].filter((i) => i.getBoundingClientRect().height > 0 && i.alt).length, controls: !${Q}.querySelector("[data-usli-controls]").hidden })`);
+    ok(!r0.chunk && r0.state === "still" && r0.stills === 1 && r0.poster && r0.controls, `${w}px reduced motion: only the pad frame (with alt text) and the controls, no scene chunk yet`);
     await evaluate(`${Q}.scrollIntoView({ block: "center" }); ${Q}.querySelector("[data-usli-toggle]").click(); true`);
     const rl = await waitFor(`!!${Q}.usliScene && ${Q}.usliScene.playing`);
     ok(rl, `${w}px reduced motion: Play loads the scene and plays`);

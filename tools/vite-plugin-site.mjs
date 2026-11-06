@@ -135,7 +135,7 @@ export default function sitePlugin() {
   }
 
   // USLI recovery sequence player, at the bottom of the write-up (left column on wide screens). Without JS, without
-  // WebGL, or with reduced motion until Play is pressed, the four still frames show. projects.js loads the WebGL
+  // WebGL, or with reduced motion until Play is pressed, the first still frame (the pad) shows. projects.js loads the WebGL
   // chunk (usli-scene.js) only when the write-up opens. Nothing autoplays.
   // The step list for screen readers is built from content/usli-flight.json.
   function usliPlayerHTML(f, stills) {
@@ -154,12 +154,14 @@ export default function sitePlugin() {
       `${ev["payload-parachute-release"].altFt} ft at ${ev["payload-parachute-release"].t} s: the ${chute.payload.diameterIn} in payload parachute is released and opens on its ${cord["payload-to-parachute"].lengthFt} ft cord, with the nosecone ${cord["payload-to-nosecone"].lengthFt} ft below the payload.`,
       `Landing on the sheet: the payload and nosecone land first at ${ev["payload-landing"].t} s (${ev["payload-landing"].speedFtS} ft/s); the middle body and booster land under the main at ${ev["main-booster-landing"].t} s (${ev["main-booster-landing"].speedFtS} ft/s).`,
     ];
-    const still = (m) => `<figure class="figure usli__still"><div class="figure__frame"><img src="${m.src}" width="${m.width}" height="${m.height}" alt="${esc(m.alt)}" loading="lazy" decoding="async"></div>${m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : ""}</figure>`;
+    // Only the first frame (the pad) shows until Play: same box and crop as the canvas, no caption.
+    const first = stills.find((m) => /^scene-1-/.test(m.file)) || stills[0];
+    const poster = first ? `<img class="usli__poster" src="${first.src}" width="${first.width}" height="${first.height}" alt="${esc(first.alt)}" loading="lazy" decoding="async">` : "";
     return `<section class="usli__player" data-usli data-state="still" aria-labelledby="usli-player-title">
         <h4 class="label usli__player-title" id="usli-player-title">Recovery sequence</h4>
         <div class="usli__stage">
           <div class="usli__canvas-wrap" data-usli-canvas><p class="usli__tag" data-usli-tag aria-hidden="true"></p></div>
-          ${stills.length ? `<div class="usli__stills">${stills.map(still).join("")}</div>` : ""}
+          ${poster}
         </div>
         <div class="usli__bar" data-usli-controls hidden>
           <button type="button" class="usli__button" data-usli-toggle aria-pressed="false">Play</button>

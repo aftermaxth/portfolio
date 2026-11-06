@@ -67,7 +67,8 @@ Rule since 2026-11-02 (Charles, chat): /toDo is correct and the old live site is
 - [x] --color-grass and the island are gone (redesign brief): the landing surface is a grey sheet.
 - [ ] Parachute colors: all three canopies are the accent orange, alternate gores one step darker, darker seams (stylized, not the real canopy colors). Keep?
 - [ ] Payload chain assumption (not in the JSON): payload = payload tube + payload coupler; the payload parachute is packed folded inside the coupler and leaves from its aft end at 600 ft; the payload hangs nose-down with the nosecone 15 ft below it, tip down. Correct?
-- [ ] Review the four still alt texts and captions in content/media.json (nasa-student-launch, re-rendered 2026-11-06) and the step list in tools/vite-plugin-site.mjs (usliPlayerHTML).
+- [ ] Review the pad still alt text in content/media.json (nasa-student-launch) and the step list in tools/vite-plugin-site.mjs (usliPlayerHTML).
+- [ ] scene-2-apogee, scene-3-600ft and scene-4-landing.webp are no longer shown (only the pad frame before Play). Delete them and their media.json entries? (Needs your OK; they ship in dist until then.)
 - [ ] Part map came from file names (no parts list file). Check the BUILD_LOG.md 2026-11-04 table, and that the body tubes and nosecone are the team's own parts (not purchased).
 - [ ] Schematic facts added to content/usli-flight.json from usli-schematic.svg: nosecone shape ogive, avionics bay 12 in coupler with 2 bulkheads, 3 centering rings, 4 trapezoidal fins, 2 rail buttons, drawing scale 2x. Rail button stations (2 in and 44 in from the aft end) were measured off the drawing. Confirm.
 - [ ] Schematic labels are drawn at 13.5 viewBox units instead of 11 (and the caption at 13.5 instead of 10) so they render at 12 px or more; the drawing itself is unchanged. Below a 680 px wide drawing the side labels hide and the same text shows as a list.
