@@ -131,10 +131,12 @@ export default function sitePlugin() {
     const overall = raw.match(/<text class="t2" transform[^>]*>([^<]+)<\/text>/)?.[1];
     const cap = raw.match(/<text class="cap"[^>]*>([^<]+)<\/text>/)?.[1];
     const row = (k, v, accent) => `<div class="usli__legend-row"><dt${accent ? ' class="usli__legend-accent"' : ""}>${esc(k)}</dt><dd>${esc(v)}</dd></div>`;
-    return `<dl class="usli__legend">${items.map((i) => row(i.k, i.v, i.accent)).join("")}${overall ? row("LENGTH", overall) : ""}</dl>${cap ? `<p class="usli__legend-cap">${esc(cap)}</p>` : ""}`;
+    // A details element: open (and its summary hidden) when the drawing carries its own labels; on a phone-width
+    // drawing, projects.js closes it so the list does not push the summary text down the page.
+    return `<details class="usli__parts" open data-usli-parts><summary class="usli__parts-sum"><span>Parts list</span><span aria-hidden="true" class="usli__parts-glyph">+</span></summary><dl class="usli__legend">${items.map((i) => row(i.k, i.v, i.accent)).join("")}${overall ? row("LENGTH", overall) : ""}</dl>${cap ? `<p class="usli__legend-cap">${esc(cap)}</p>` : ""}</details>`;
   }
 
-  // USLI recovery sequence player, at the bottom of the write-up (left column on wide screens). Without JS, without
+  // USLI recovery sequence player, under the drawing (left column on wide screens; after the toggle on a phone). Without JS, without
   // WebGL, or with reduced motion until Play is pressed, the first still frame (the pad) shows. projects.js loads the WebGL
   // chunk (usli-scene.js) only when the write-up opens. Nothing autoplays.
   // The step list for screen readers is built from content/usli-flight.json.
@@ -157,7 +159,7 @@ export default function sitePlugin() {
     // Only the first frame (the pad) shows until Play: same box and crop as the canvas, no caption.
     const first = stills.find((m) => /^scene-1-/.test(m.file)) || stills[0];
     const poster = first ? `<img class="usli__poster" src="${first.src}" width="${first.width}" height="${first.height}" alt="${esc(first.alt)}" loading="lazy" decoding="async">` : "";
-    return `<section class="usli__player" data-usli data-state="still" aria-labelledby="usli-player-title">
+    return `<section class="usli__player" data-usli data-more data-state="still" aria-labelledby="usli-player-title">
         <h4 class="label usli__player-title" id="usli-player-title">Recovery sequence</h4>
         <div class="usli__stage">
           <div class="usli__canvas-wrap" data-usli-canvas><p class="usli__tag" data-usli-tag aria-hidden="true"></p></div>
@@ -219,20 +221,24 @@ export default function sitePlugin() {
       const figure = assets.schematic
         ? `<figure class="usli__schematic">${schematicSVG(assets.schematic)}${schematicLegend(assets.schematic)}</figure>`
         : "";
-      const extension = `<div class="container grid project__more usli__more" id="more-${p.slug}" data-more>
-        <div class="usli__more-text">${moreSecs.map(sec).join("")}</div>
-        ${usliPlayerHTML(assets.flight, stills)}
-      </div>`;
+      // Two columns on a laptop (left: drawing, then the player under it; right: summary, toggle, then the write-up
+      // text directly under the toggle, so no column has a gap). On a phone the wrappers dissolve (display: contents)
+      // and CSS order gives: summary, drawing, toggle, player, write-up text.
+      const moreText = moreSecs.length ? `<div class="project__more usli__more-text" id="more-${p.slug}" data-more>${moreSecs.map(sec).join("")}</div>` : "";
+      const player = moreSecs.length ? usliPlayerHTML(assets.flight, stills) : "";
       return `<li class="project usli" id="${p.slug}" data-project data-layout="scene">
       <div class="container grid project__head" data-reveal>
         <p class="project__index label"><span>${num}</span>${p.kicker ? ` / ${esc(p.kicker)}` : ""}</p>
         <h3 class="project__title">${esc(p.title)}</h3>
       </div>
       <div class="container grid project__row usli__row">
-        ${figure}
-        <div class="project__body" data-reveal><p class="project__lede">${esc(p.oneLiner)}</p><dl class="facts">${facts}</dl>${chips}${cardSecs.map(sec).join("")}${toggle}</div>
+        <div class="usli__left">${figure}${player}</div>
+        <div class="usli__right">
+          <div class="project__body" data-reveal><p class="project__lede">${esc(p.oneLiner)}</p><dl class="facts">${facts}</dl>${chips}${cardSecs.map(sec).join("")}</div>
+          ${toggle}
+          ${moreText}
+        </div>
       </div>
-      ${moreSecs.length ? extension : ""}
     </li>`;
     }
 

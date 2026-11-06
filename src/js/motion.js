@@ -45,8 +45,8 @@ export function initMotion() {
 
   // ---- Write-up opens: content eases in ----
   document.addEventListener("write-up-toggle", (event) => {
-    const { more, open } = event.detail;
-    if (open) gsap.fromTo(more.children, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: DUR.base, ease, stagger: 0.06 });
+    const { more, mores = [more], open } = event.detail;
+    if (open) gsap.fromTo(mores.flatMap((m) => [...m.children]), { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: DUR.base, ease, stagger: 0.06 });
     ScrollTrigger.refresh();
   });
 

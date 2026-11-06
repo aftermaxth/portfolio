@@ -4,22 +4,25 @@
 export function initProjects() {
   for (const project of document.querySelectorAll("[data-project]")) {
     const toggle = project.querySelector("[data-toggle]");
-    const more = project.querySelector("[data-more]");
+    // Most cards have one write-up block; the USLI card has two (the text and the player), opened together.
+    const mores = [...project.querySelectorAll("[data-more]")];
+    const more = mores[0];
     if (!toggle || !more) continue;
 
-    more.hidden = true;
+    for (const m of mores) m.hidden = true;
     toggle.hidden = false;
     const label = toggle.querySelector("[data-toggle-label]");
     toggle.addEventListener("click", () => {
       const open = toggle.getAttribute("aria-expanded") !== "true";
       toggle.setAttribute("aria-expanded", String(open));
       label.textContent = open ? "Close the write-up" : "Read the full write-up";
-      more.hidden = !open;
-      document.dispatchEvent(new CustomEvent("write-up-toggle", { detail: { project, more, open } }));
+      for (const m of mores) m.hidden = !open;
+      document.dispatchEvent(new CustomEvent("write-up-toggle", { detail: { project, more, mores, open } }));
     });
   }
 
   initUsli();
+  initUsliParts();
 
   const roots = document.querySelectorAll("[data-viewer]");
   if (!roots.length) return;
@@ -56,7 +59,25 @@ export function initProjects() {
   roots.forEach((r) => io.observe(r));
 }
 
-// USLI card: the recovery sequence player sits at the bottom of the write-up. The WebGL chunk loads only when the
+// USLI card: the parts list under the drawing is a disclosure only when the drawing is too narrow for its own
+// labels (the same 680 px container width the CSS uses). It starts closed there, so the summary text is not buried;
+// it stays open (and visually hidden for screen readers) when the drawing carries its labels.
+function initUsliParts() {
+  const parts = document.querySelector("[data-usli-parts]");
+  const fig = parts?.closest(".usli__schematic");
+  if (!fig) return;
+  let narrow = null;
+  const sync = () => {
+    const now = fig.clientWidth < 680;
+    if (now === narrow) return;
+    narrow = now;
+    parts.open = !now;
+  };
+  sync();
+  if ("ResizeObserver" in window) new ResizeObserver(sync).observe(fig);
+}
+
+// USLI card: the recovery sequence player sits under the drawing (left column on a laptop, after the toggle on a phone). The WebGL chunk loads only when the
 // write-up opens (with reduced motion: only when Play is pressed; the still frames show until then). Nothing autoplays.
 // Without WebGL, or if loading fails, the still frames stay and the controls hide.
 function initUsli() {

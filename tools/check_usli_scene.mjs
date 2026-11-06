@@ -221,7 +221,7 @@ async function browserCheck() {
         const t = [...svg.querySelectorAll("text")].filter((x) => getComputedStyle(x).display !== "none");
         const scale = svg.getScreenCTM().a;
         const labelPx = t.length ? Math.min(...t.map((x) => parseFloat(getComputedStyle(x).fontSize) * scale)) : null;
-        const legend = card.querySelector(".usli__legend"), lv = getComputedStyle(legend).position !== "absolute";
+        const legend = card.querySelector(".usli__legend"), lv = getComputedStyle(legend).position !== "absolute"; // narrow: the list is a closed disclosure, but its summary row must be there
         const legendPx = lv ? Math.min(...[...legend.querySelectorAll("dt, dd")].map((x) => parseFloat(getComputedStyle(x).fontSize))) : null;
         const sr = svg.getBoundingClientRect(), br = body.getBoundingClientRect();
         return { canvases: card.querySelectorAll("canvas").length, chunk: ${chunkLoaded}, labels: t.length, labelPx, legendVisible: lv, legendPx,
@@ -229,6 +229,10 @@ async function browserCheck() {
       ok(c.canvases === 0 && !c.chunk, `${width}px collapsed: no canvas and no scene chunk (${c.canvases} canvases, chunk ${c.chunk})`);
       ok(c.labels ? c.labelPx >= 11.95 : c.legendVisible && c.legendPx >= 12, `${width}px collapsed: schematic text at 12 px or more (${c.labels ? `${c.labels} SVG labels at ${c.labelPx.toFixed(2)} px` : `legend at ${c.legendPx} px`})`);
       ok(c.scroll <= 0, `${width}px: no horizontal scroll (${c.scroll})`);
+      const pl = await evaluate(`(() => { const d = document.querySelector("#nasa-student-launch .usli__parts"), s = d.querySelector("summary"), r = s.getBoundingClientRect(), was = d.open;
+        s.click(); const toggled = d.open !== was; return { summary: getComputedStyle(s).display !== "none", h: Math.round(r.height), open: was, toggled }; })()`);
+      ok(c.labels ? !pl.summary && pl.open : pl.summary && pl.h >= 44 && !pl.open && pl.toggled, `${width}px: parts list ${c.labels ? "open and visually hidden next to the labeled drawing" : `is a closed disclosure with a ${pl.h} px row that opens`}`);
+      await evaluate(`(() => { const d = document.querySelector("#nasa-student-launch .usli__parts"); if (!${c.labels ? "true" : "false"}) d.open = false; return true; })()`);
       console.log(`  ${width}px collapsed: schematic ${c.svgH} px tall, text column ${c.bodyH} px, ${c.sideBySide ? "side by side" : "stacked"}, ${c.labels ? "SVG labels" : "legend list"}`);
 
       // open the write-up: player at the bottom, scene chunk loads, nothing plays
@@ -237,19 +241,22 @@ async function browserCheck() {
       ok(live, `${width}px: write-up open loads the player`);
       if (!live) continue;
       await sleep(1500);
-      const o = await evaluate(`(() => { const p = ${Q}, more = p.closest("[data-more]"), s = p.usliScene;
+      const o = await evaluate(`(() => { const p = ${Q}, card = p.closest("#nasa-student-launch"), s = p.usliScene;
         const r = (el) => el.getBoundingClientRect();
         const tg = r(p.querySelector("[data-usli-toggle]")), rs = r(p.querySelector("[data-usli-restart]")), ro = r(p.querySelector(".usli__readout")), cv = r(p.querySelector("canvas"));
-        const text = r(more.querySelector(".usli__more-text"));
-        return { playing: s.playing, time: p.querySelector("[data-r-time]").textContent, gap: Math.round(r(more).bottom - r(p).bottom),
-          left: Math.round(r(p).left - r(more).left - parseFloat(getComputedStyle(more).paddingLeft)), textLeft: Math.round(text.left), playerRight: Math.round(r(p).right),
-          oneRow: Math.abs(tg.top - rs.top) < 1 && ro.left >= rs.right && ro.top < tg.bottom && ro.bottom > tg.top,
+        const text = r(card.querySelector(".usli__more-text")), btn = r(card.querySelector(".project__toggle")), fig = r(card.querySelector(".usli__schematic")), body = r(card.querySelector(".project__body")), pr = r(p);
+        return { playing: s.playing, time: p.querySelector("[data-r-time]").textContent,
+          textGap: Math.round(text.top - btn.bottom), playerBelowFig: Math.round(pr.top - fig.bottom), playerLeft: Math.round(pr.left), textLeft: Math.round(text.left), playerRight: Math.round(pr.right),
+          order: body.top < fig.top + 1 && fig.bottom <= btn.top + 1 && btn.bottom <= pr.top + 1 && pr.bottom <= text.top + 1,
+          oneRow: Math.abs(tg.top - rs.top) < 1 && (ro.left >= rs.right ? ro.top < tg.bottom && ro.bottom > tg.top : ro.top >= tg.bottom),
           tap: Math.min(tg.height, rs.height, tg.width, rs.width), canvasBelowTitle: cv.top >= r(p.querySelector(".usli__player-title")).bottom,
-          barBelowCanvas: tg.top >= cv.bottom, position: getComputedStyle(p).position }; })()`);
+          barBelowCanvas: tg.top >= cv.bottom }; })()`);
       ok(!o.playing && o.time === "T+ 0.0 s", `${width}px: nothing autoplays (${o.time})`);
-      ok(o.gap <= 1 && o.position === "static", `${width}px: player at the bottom of the write-up, in normal flow (${o.gap} px from the bottom)`);
-      if (width >= 900) ok(o.left === 0 && o.playerRight <= o.textLeft, `${width}px: player in the left column, text to its right`);
-      ok(o.oneRow && o.barBelowCanvas && o.canvasBelowTitle, `${width}px: canvas on top, then Play, Restart and the readout in one row`);
+      if (width >= 900) {
+        ok(o.textGap >= 0 && o.textGap <= 80, `${width}px: write-up text starts right under the toggle (${o.textGap} px gap, no dead zone)`);
+        ok(o.playerBelowFig >= 0 && o.playerBelowFig <= 80 && o.playerRight <= o.textLeft, `${width}px: player under the drawing, left column, text to its right (${o.playerBelowFig} px below the drawing)`);
+      } else ok(o.order, `${width}px: order is summary, drawing, toggle, player, write-up text`);
+      ok(o.oneRow && o.barBelowCanvas && o.canvasBelowTitle, `${width}px: canvas on top, then Play and Restart in one row, readout beside or under them`);
       ok(o.tap >= 44, `${width}px: 44 px touch targets (${o.tap})`);
 
       // play, pause
