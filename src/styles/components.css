@@ -247,10 +247,10 @@
 @media (max-width: 599px) { .usli__canvas-wrap { aspect-ratio: 4 / 5; } }
 .usli__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .usli__player[data-state="live"] .usli__canvas-wrap { display: block; }
-.usli__player[data-state="live"] .usli__stills { display: none; }
-.usli__stills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); }
-.usli__still .figure__frame { aspect-ratio: 4 / 3; }
-.usli__still .figure__frame img { height: 100%; object-fit: cover; }
+/* Before Play (no JS, no WebGL, reduced motion): the pad frame in the canvas box, with the same crop as the canvas. */
+.usli__poster { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+@media (max-width: 599px) { .usli__poster { aspect-ratio: 4 / 5; } }
+.usli__player[data-state="live"] .usli__poster { display: none; }
 
 /* Thin event label next to the piece where the event happens (the only event marker in the animation). */
 .usli__tag {

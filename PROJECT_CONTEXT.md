@@ -1,7 +1,7 @@
 # PROJECT_CONTEXT
 
 Always-current truth. Edit in place. History lives in BUILD_LOG.md.
-Last updated: 2026-11-06 (USLI card redesigned: schematic when collapsed, recovery sequence player in the write-up; branch usli-launch-scene, PR #6 open, not merged)
+Last updated: 2026-11-06 (USLI redesign merged and live via PR #6; follow-up branch usli-player-poster shows only the pad frame before Play, PR open, not merged)
 
 ## Goal
 Rebuild Charles Thorn's portfolio so it stops reading as vibe coded: solid color, real depth, restrained motion, a real-time 3D hero engine (Phase B), pinned 3D viewers for projects with models. Owner: mechanical engineering at Stevens, seeking Summer 2027 internships (propulsion, thermal, structures, vehicle systems). Long-term goal: engine design for supersonic flight.
@@ -68,7 +68,7 @@ Vite 8 (base '/portfolio/'), three 0.187 (lazy chunk), gsap 3.15 + ScrollTrigger
 ## Asset status
 | Project | Model | Images | Layout now |
 |---|---|---|---|
-| NASA Student Launch | models/usli/rocket.glb 42.8 kB (21 own parts from rocket_stls; 4 purchased U-bolts left out; plain motor cylinder and 2 rail buttons added in code) | usli-schematic.svg (Charles's labeled side view, inlined); scene-1-pad, scene-2-apogee, scene-3-600ft, scene-4-landing (.webp stills of the player, 6 to 20 kB) | branch usli-launch-scene: collapsed = schematic left of the text; write-up = text right, recovery sequence player bottom left (40 s, Play/Pause, Restart, no autoplay; stills for no JS, no WebGL and reduced motion until Play). OpenRocket screenshots not used (Charles). Still needs photos, FMEA screenshot |
+| NASA Student Launch | models/usli/rocket.glb 42.8 kB (21 own parts from rocket_stls; 4 purchased U-bolts left out; plain motor cylinder and 2 rail buttons added in code) | usli-schematic.svg (Charles's labeled side view, inlined); scene-1-pad, scene-2-apogee, scene-3-600ft, scene-4-landing (.webp stills of the player, 6 to 20 kB; only scene-1-pad is shown, the other three are unused) | live (PR #6): collapsed = schematic left of the text; write-up = text right, recovery sequence player bottom left (40 s, Play/Pause, Restart, no autoplay). Before Play it shows the pad frame and stays still (branch usli-player-poster: the pad still replaces the four-still grid for no JS, no WebGL and reduced motion). OpenRocket screenshots not used (Charles). Still needs photos, FMEA screenshot |
 | SAE Aero Design | none | none | text-only. Needs forward fuselage CAD, renders |
 | Robot Arena | robot-arena--housing.glb 24 kB, robot-arena--assembly.glb 17 kB (housing + ArUco panel only) | robot-housing, robot-assembly, robot-build (.webp), shown as an equal row of 3 under the viewer (no full-width image) | pinned viewer (2 tabs) + gallery. Sensor count (3 vs 5) still open; robot-assembly.webp render and its alt text still show the full assembly |
 | Automatic Plant Watering | plant-watering.glb 8 kB | plant-final, plant-wiring (plant-enclosure.webp deleted, Charles: ugly) | pinned viewer + row of 2 |
