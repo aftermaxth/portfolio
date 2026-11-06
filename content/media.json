@@ -1,31 +1,98 @@
 {
-  "robot-arena": {
-    "order": ["robot-housing.webp", "robot-assembly.webp", "robot-build.webp"],
+  "nasa-student-launch": {
+    "order": [
+      "scene-1-pad.webp",
+      "scene-2-apogee.webp",
+      "scene-3-600ft.webp",
+      "scene-4-landing.webp"
+    ],
     "files": {
-      "robot-build.webp": { "alt": "The finished robot on a lab bench: tracked drive base, ultrasonic sensors, and the 3D-printed frame carrying the control boards.", "caption": "Competition robot, final build" },
-      "robot-housing.webp": { "alt": "SolidWorks model of the printed chassis frame: vertical column posts, angled braces, and two circular lightening cutouts through the front sensor panel.", "caption": "Main housing, SolidWorks model" },
-      "robot-assembly.webp": { "alt": "Full robot assembly in SolidWorks: five ultrasonic sensors across the front, control boards on the vertical columns, and the ArUco marker panel raised above them.", "caption": "Sensor array and raised ArUco marker panel" }
+      "scene-1-pad.webp": {
+        "alt": "The team's rocket standing on a grey sheet before launch: off-white nosecone and tubes, the orange switchband, and four fins at the base.",
+        "caption": "On the pad"
+      },
+      "scene-2-apogee.webp": {
+        "alt": "After apogee: the drogue parachute is open, the rest of the rocket hangs nose-down on the shorter cord and the booster hangs on the longer cord beside it.",
+        "caption": "After apogee: drogue open"
+      },
+      "scene-3-600ft.webp": {
+        "alt": "Below 500 ft: the payload and nosecone hang under the payload parachute on the left; the middle body, the drogue and the booster hang under the main parachute on the right.",
+        "caption": "Below 500 ft: main and payload parachutes open"
+      },
+      "scene-4-landing.webp": {
+        "alt": "Landing on the grey sheet: the payload and nosecone lie beside the flattened payload parachute, and the booster touches down under the main parachute.",
+        "caption": "Landing"
+      }
+    }
+  },
+  "robot-arena": {
+    "order": [
+      "robot-housing.webp",
+      "robot-assembly.webp",
+      "robot-build.webp"
+    ],
+    "files": {
+      "robot-build.webp": {
+        "alt": "The finished robot on a lab bench: tracked drive base, ultrasonic sensors, and the 3D-printed frame carrying the control boards.",
+        "caption": "Competition robot, final build"
+      },
+      "robot-housing.webp": {
+        "alt": "SolidWorks model of the printed chassis frame: vertical column posts, angled braces, and two circular lightening cutouts through the front sensor panel.",
+        "caption": "Main housing, SolidWorks model"
+      },
+      "robot-assembly.webp": {
+        "alt": "Full robot assembly in SolidWorks: five ultrasonic sensors across the front, control boards on the vertical columns, and the ArUco marker panel raised above them.",
+        "caption": "Sensor array and raised ArUco marker panel"
+      }
     },
     "models": {
-      "housing": { "label": "Housing" },
-      "assembly": { "label": "Assembly" }
+      "housing": {
+        "label": "Housing"
+      },
+      "assembly": {
+        "label": "Assembly"
+      }
     }
   },
   "plant-watering": {
-    "order": ["plant-final.webp", "plant-wiring.webp"],
+    "order": [
+      "plant-final.webp",
+      "plant-wiring.webp"
+    ],
     "files": {
-      "plant-wiring.webp": { "alt": "Bench wiring: capacitive soil moisture sensor, DHT11 temperature and humidity sensor and a photocell on a breadboard, all wired to an ESP32.", "caption": "Wiring: moisture sensor, DHT11, photocell, ESP32" },
-      "plant-final.webp": { "alt": "The same enclosure from the front, with the motor controller, ESP32 and breadboard each seated in their own slot on the rear shelf.", "caption": "Every board in its own slot on the rear shelf" }
+      "plant-wiring.webp": {
+        "alt": "Bench wiring: capacitive soil moisture sensor, DHT11 temperature and humidity sensor and a photocell on a breadboard, all wired to an ESP32.",
+        "caption": "Wiring: moisture sensor, DHT11, photocell, ESP32"
+      },
+      "plant-final.webp": {
+        "alt": "The same enclosure from the front, with the motor controller, ESP32 and breadboard each seated in their own slot on the rear shelf.",
+        "caption": "Every board in its own slot on the rear shelf"
+      }
     },
     "models": {
-      "model": { "label": "Enclosure" }
+      "model": {
+        "label": "Enclosure"
+      }
     }
   },
   "training-hub-v2": {
-    "order": ["coach-demo.mp4", "athlete-demo.mp4"],
+    "order": [
+      "coach-demo.mp4",
+      "athlete-demo.mp4"
+    ],
     "files": {
-      "coach-demo.mp4": { "width": 720, "height": 1280, "alt": "Screen recording of the coach view, which can switch between athletes and edit prescribed workouts.", "caption": "Coach view" },
-      "athlete-demo.mp4": { "width": 720, "height": 1280, "alt": "Screen recording of the athlete view, which sees only its own rows and can log against a workout but not change it.", "caption": "Athlete view" }
+      "coach-demo.mp4": {
+        "width": 720,
+        "height": 1280,
+        "alt": "Screen recording of the coach view, which can switch between athletes and edit prescribed workouts.",
+        "caption": "Coach view"
+      },
+      "athlete-demo.mp4": {
+        "width": 720,
+        "height": 1280,
+        "alt": "Screen recording of the athlete view, which sees only its own rows and can log against a workout but not change it.",
+        "caption": "Athlete view"
+      }
     }
   }
 }

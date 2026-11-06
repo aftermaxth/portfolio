@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 1116" role="img" aria-labelledby="t d">
+<title id="t">USLI launch vehicle, labeled side view</title>
+<desc id="d">Half-section side view of the 129 inch launch vehicle from nose cone to booster, with the three parachute locations, the avionics bay, the motor mount and the fins labeled. Diameter is exaggerated 2 times. Length is to scale.</desc>
+<style>.o{fill:#111317;stroke:#a0a6ad;stroke-width:1.25}.i{fill:none;stroke:#a0a6ad;stroke-width:1;opacity:.55}.f{fill:#111317;stroke:#a0a6ad;stroke-width:1}.l{stroke:#a0a6ad;stroke-width:1;fill:none}.la{stroke:#ff8100;stroke-width:1;fill:none}.dot{fill:#a0a6ad}.da{fill:#ff8100}.t1{font:500 11px "DM Mono",ui-monospace,monospace;letter-spacing:.08em;fill:#a0a6ad}.t2{font:400 11px "DM Mono",ui-monospace,monospace;fill:#f2f1ee}.ta{fill:#ff8100}.cap{font:400 10px "DM Mono",ui-monospace,monospace;fill:#a0a6ad;letter-spacing:.06em}</style>
+<path class="o" d="M380.0 46.0 L378.4 49.9 L376.8 53.8 L375.3 57.6 L373.8 61.5 L372.3 65.4 L370.8 69.3 L369.4 73.1 L368.0 77.0 L366.6 80.9 L365.3 84.8 L364.0 88.6 L362.7 92.5 L361.4 96.4 L360.2 100.3 L358.9 104.1 L357.8 108.0 L356.6 111.9 L355.5 115.8 L354.4 119.6 L353.3 123.5 L352.3 127.4 L351.2 131.3 L350.2 135.1 L349.3 139.0 L348.3 142.9 L347.4 146.8 L346.5 150.7 L345.7 154.5 L344.8 158.4 L344.0 162.3 L343.3 166.2 L342.5 170.0 L341.8 173.9 L341.1 177.8 L340.4 181.7 L339.8 185.5 L339.1 189.4 L338.5 193.3 L338.0 197.2 L337.4 201.0 L336.9 204.9 L336.4 208.8 L336.0 212.7 L335.5 216.5 L335.1 220.4 L334.7 224.3 L334.4 228.2 L334.1 232.0 L333.8 235.9 L333.5 239.8 L333.2 243.7 L333.0 247.6 L332.8 251.4 L332.6 255.3 L332.5 259.2 L332.4 263.1 L332.3 266.9 L332.2 270.8 L332.2 274.7 L332.2 278.6 L427.8 278.6 L427.8 274.7 L427.8 270.8 L427.7 266.9 L427.6 263.1 L427.5 259.2 L427.4 255.3 L427.2 251.4 L427.0 247.6 L426.8 243.7 L426.5 239.8 L426.2 235.9 L425.9 232.0 L425.6 228.2 L425.3 224.3 L424.9 220.4 L424.5 216.5 L424.0 212.7 L423.6 208.8 L423.1 204.9 L422.6 201.0 L422.0 197.2 L421.5 193.3 L420.9 189.4 L420.2 185.5 L419.6 181.7 L418.9 177.8 L418.2 173.9 L417.5 170.0 L416.7 166.2 L416.0 162.3 L415.2 158.4 L414.3 154.5 L413.5 150.7 L412.6 146.8 L411.7 142.9 L410.7 139.0 L409.8 135.1 L408.8 131.3 L407.7 127.4 L406.7 123.5 L405.6 119.6 L404.5 115.8 L403.4 111.9 L402.2 108.0 L401.1 104.1 L399.8 100.3 L398.6 96.4 L397.3 92.5 L396.0 88.6 L394.7 84.8 L393.4 80.9 L392.0 77.0 L390.6 73.1 L389.2 69.3 L387.7 65.4 L386.2 61.5 L384.7 57.6 L383.2 53.8 L381.6 49.9 L380.0 46.0 Z"/>
+<path class="i" d="M374.5 65.4 L373.0 69.3 L371.6 73.1 L370.2 77.0 L368.8 80.9 L367.5 84.8 L366.2 88.6 L364.9 92.5 L363.6 96.4 L362.4 100.3 L361.1 104.1 L360.0 108.0 L358.8 111.9 L357.7 115.8 L356.6 119.6 L355.5 123.5 L354.5 127.4 L353.4 131.3 L352.4 135.1 L351.5 139.0 L350.5 142.9 L349.6 146.8 L348.7 150.7 L347.9 154.5 L347.0 158.4 L346.2 162.3 L345.5 166.2 L344.7 170.0 L344.0 173.9 L343.3 177.8 L342.6 181.7 L342.0 185.5 L341.3 189.4 L340.7 193.3 L340.2 197.2 L339.6 201.0 L339.1 204.9 L338.6 208.8 L338.2 212.7 L337.7 216.5 L337.3 220.4 L336.9 224.3 L336.6 228.2 L336.3 232.0 L336.0 235.9 L335.7 239.8 L335.4 243.7 L335.2 247.6 L335.0 251.4 L334.8 255.3 L334.7 259.2 L334.6 263.1 L334.5 266.9 L334.4 270.8 L334.4 274.7 L334.4 278.6"/>
+<path class="i" d="M385.5 65.4 L387.0 69.3 L388.4 73.1 L389.8 77.0 L391.2 80.9 L392.5 84.8 L393.8 88.6 L395.1 92.5 L396.4 96.4 L397.6 100.3 L398.9 104.1 L400.0 108.0 L401.2 111.9 L402.3 115.8 L403.4 119.6 L404.5 123.5 L405.5 127.4 L406.6 131.3 L407.6 135.1 L408.5 139.0 L409.5 142.9 L410.4 146.8 L411.3 150.7 L412.1 154.5 L413.0 158.4 L413.8 162.3 L414.5 166.2 L415.3 170.0 L416.0 173.9 L416.7 177.8 L417.4 181.7 L418.0 185.5 L418.7 189.4 L419.3 193.3 L419.8 197.2 L420.4 201.0 L420.9 204.9 L421.4 208.8 L421.8 212.7 L422.3 216.5 L422.7 220.4 L423.1 224.3 L423.4 228.2 L423.7 232.0 L424.0 235.9 L424.3 239.8 L424.6 243.7 L424.8 247.6 L425.0 251.4 L425.2 255.3 L425.3 259.2 L425.4 263.1 L425.5 266.9 L425.6 270.8 L425.6 274.7 L425.6 278.6"/>
+<rect class="o" x="332.2" y="278.6" width="95.7" height="155.0"/>
+<line class="i" x1="334.4" x2="334.4" y1="278.6" y2="433.6"/>
+<line class="i" x1="425.6" x2="425.6" y1="278.6" y2="433.6"/>
+<rect class="o" x="332.2" y="433.6" width="95.7" height="248.1"/>
+<line class="i" x1="334.4" x2="334.4" y1="433.6" y2="681.7"/>
+<line class="i" x1="425.6" x2="425.6" y1="433.6" y2="681.7"/>
+<rect class="o" x="332.2" y="681.7" width="95.7" height="15.5"/>
+<line class="i" x1="334.4" x2="334.4" y1="681.7" y2="697.2"/>
+<line class="i" x1="425.6" x2="425.6" y1="681.7" y2="697.2"/>
+<rect class="o" x="332.2" y="697.2" width="95.7" height="348.8"/>
+<line class="i" x1="334.4" x2="334.4" y1="697.2" y2="1046.0"/>
+<line class="i" x1="425.6" x2="425.6" y1="697.2" y2="1046.0"/>
+<rect x="330.2" y="681.7" width="99.7" height="15.5" fill="#23272d" stroke="#a0a6ad" stroke-width="1.25"/>
+<rect class="f" x="334.4" y="231.0" width="91.3" height="2.0"/>
+<rect class="f" x="334.4" y="356.1" width="2.0" height="124.0"/>
+<rect class="f" x="423.6" y="356.1" width="2.0" height="124.0"/>
+<rect class="f" x="334.4" y="355.1" width="91.3" height="2.0"/>
+<rect class="f" x="334.4" y="479.1" width="91.3" height="2.0"/>
+<rect class="f" x="334.4" y="642.9" width="2.0" height="93.0"/>
+<rect class="f" x="423.6" y="642.9" width="2.0" height="93.0"/>
+<rect class="f" x="334.4" y="641.9" width="91.3" height="2.0"/>
+<rect class="f" x="334.4" y="734.9" width="91.3" height="2.0"/>
+<rect class="f" x="334.4" y="827.9" width="91.3" height="2.0"/>
+<rect class="f" x="355.8" y="891.0" width="2.0" height="155.0"/>
+<rect class="f" x="402.2" y="891.0" width="2.0" height="155.0"/>
+<rect class="f" x="334.4" y="935.9" width="21.4" height="3.2"/>
+<rect class="f" x="404.2" y="935.9" width="21.4" height="3.2"/>
+<rect class="f" x="334.4" y="988.2" width="21.4" height="3.2"/>
+<rect class="f" x="404.2" y="988.2" width="21.4" height="3.2"/>
+<rect class="f" x="334.4" y="1039.0" width="21.4" height="3.2"/>
+<rect class="f" x="404.2" y="1039.0" width="21.4" height="3.2"/>
+<path class="f" d="M332.2 989.8 L259.3 1000.4 L259.3 1025.6 L332.2 1036.3 Z"/>
+<path class="f" d="M427.8 989.8 L500.7 1000.4 L500.7 1025.6 L427.8 1036.3 Z"/>
+<rect class="f" x="327.2" y="701.9" width="5" height="6"/>
+<rect class="f" x="327.2" y="1027.5" width="5" height="6"/>
+<line stroke="#ff8100" stroke-width="2.2" stroke-dasharray="5 3" x1="337.4" x2="422.6" y1="503.4" y2="503.4"/>
+<line stroke="#ff8100" stroke-width="2.2" stroke-dasharray="5 3" x1="337.4" x2="422.6" y1="557.6" y2="557.6"/>
+<line stroke="#ff8100" stroke-width="2.2" stroke-dasharray="5 3" x1="337.4" x2="422.6" y1="759.2" y2="759.2"/>
+<line class="l" x1="412.9" y1="168.1" x2="526.7" y2="168.1"/>
+<circle class="dot" cx="412.9" cy="168.1" r="2.4"/>
+<text class="t1" x="534.7" y="165.1">NOSE CONE</text><text class="t2" x="534.7" y="179.1">Ogive, 30 in</text>
+<line class="la" x1="388.0" y1="503.4" x2="526.7" y2="503.4"/>
+<circle class="da" cx="388.0" cy="503.4" r="2.4"/>
+<text class="t1 ta" x="534.7" y="500.4">PAYLOAD PARACHUTE</text><text class="t2" x="534.7" y="514.4">72 in</text>
+<line class="la" x1="388.0" y1="557.6" x2="526.7" y2="557.6"/>
+<circle class="da" cx="388.0" cy="557.6" r="2.4"/>
+<text class="t1 ta" x="534.7" y="554.6">MAIN PARACHUTE</text><text class="t2" x="534.7" y="568.6">84 in</text>
+<line class="l" x1="388.0" y1="689.4" x2="526.7" y2="689.4"/>
+<circle class="dot" cx="388.0" cy="689.4" r="2.4"/>
+<text class="t1" x="534.7" y="686.4">AVIONICS BAY</text><text class="t2" x="534.7" y="700.4">12 in coupler, 2 bulkheads</text>
+<line class="la" x1="388.0" y1="759.2" x2="526.7" y2="759.2"/>
+<circle class="da" cx="388.0" cy="759.2" r="2.4"/>
+<text class="t1 ta" x="534.7" y="756.2">DROGUE PARACHUTE</text><text class="t2" x="534.7" y="770.2">24 in</text>
+<line class="l" x1="467.9" y1="1011.2" x2="526.7" y2="1011.2"/>
+<circle class="dot" cx="467.9" cy="1011.2" r="2.4"/>
+<text class="t1" x="534.7" y="1008.2">FINS</text><text class="t2" x="534.7" y="1022.2">4, trapezoidal</text>
+<line class="l" x1="335.4" y1="319.5" x2="233.3" y2="319.5"/>
+<circle class="dot" cx="335.4" cy="319.5" r="2.4"/>
+<text class="t1" x="225.3" y="316.5" text-anchor="end">PAYLOAD TUBE</text><text class="t2" x="225.3" y="330.5" text-anchor="end">20 in</text>
+<line class="l" x1="335.4" y1="587.4" x2="233.3" y2="587.4"/>
+<circle class="dot" cx="335.4" cy="587.4" r="2.4"/>
+<text class="t1" x="225.3" y="584.4" text-anchor="end">MAIN BAY TUBE</text><text class="t2" x="225.3" y="598.4" text-anchor="end">32 in</text>
+<line class="l" x1="330.2" y1="689.4" x2="233.3" y2="689.4"/>
+<circle class="dot" cx="330.2" cy="689.4" r="2.4"/>
+<text class="t1" x="225.3" y="686.4" text-anchor="end">SWITCHBAND</text><text class="t2" x="225.3" y="700.4" text-anchor="end">2 in</text>
+<line class="l" x1="335.4" y1="788.7" x2="233.3" y2="788.7"/>
+<circle class="dot" cx="335.4" cy="788.7" r="2.4"/>
+<text class="t1" x="225.3" y="785.7" text-anchor="end">BOOSTER TUBE</text><text class="t2" x="225.3" y="799.7" text-anchor="end">45 in</text>
+<line class="l" x1="356.8" y1="917.8" x2="233.3" y2="917.8"/>
+<circle class="dot" cx="356.8" cy="917.8" r="2.4"/>
+<text class="t1" x="225.3" y="914.8" text-anchor="end">MOTOR MOUNT TUBE</text><text class="t2" x="225.3" y="928.8" text-anchor="end">Aerotech L1940X</text>
+<line class="l" x1="342.4" y1="989.8" x2="233.3" y2="989.8"/>
+<circle class="dot" cx="342.4" cy="989.8" r="2.4"/>
+<text class="t1" x="225.3" y="986.8" text-anchor="end">CENTERING RINGS</text><text class="t2" x="225.3" y="1000.8" text-anchor="end">3</text>
+<line class="l" x1="329.2" y1="1030.5" x2="233.3" y2="1030.5"/>
+<circle class="dot" cx="329.2" cy="1030.5" r="2.4"/>
+<text class="t1" x="225.3" y="1027.5" text-anchor="end">RAIL BUTTONS</text><text class="t2" x="225.3" y="1041.5" text-anchor="end">2</text>
+<line class="l" x1="26" y1="46.0" x2="26" y2="1046.0"/><line class="l" x1="21" y1="46.0" x2="31" y2="46.0"/><line class="l" x1="21" y1="1046.0" x2="31" y2="1046.0"/>
+<text class="t2" transform="translate(17,546.0) rotate(-90)" text-anchor="middle">129 in overall</text>
+<text class="cap" x="380" y="1080.0" text-anchor="middle">DIAMETER EXAGGERATED 2X. LENGTH TO SCALE.</text>
+</svg>

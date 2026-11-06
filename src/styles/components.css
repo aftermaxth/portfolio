@@ -209,3 +209,81 @@
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.001ms !important; }
 }
+
+
+/* ---------- USLI card (nasa-student-launch) ----------
+   Collapsed: the team's schematic (inlined SVG in token colors) fills the column left of the text. No canvas,
+   no WebGL. Write-up open: the extension is its own grid row (text right), and the "Recovery sequence" player
+   sits at its bottom, left column, in normal flow: canvas (or the four stills), then one row with Play/Pause,
+   Restart and the readout, then the note. */
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+.usli__schematic { grid-column: 1 / -1; min-width: 0; container: usli-fig / inline-size; overflow: hidden; } /* the narrow-mode drawing is centered wider than its column */
+.usli-schematic { display: block; width: 100%; height: auto; }
+/* Side labels at 13.5 viewBox units: 12 px or more whenever the drawing is at least 680 px wide (760 unit viewBox).
+   Narrower than that, the labels hide and the same content shows as the list under the drawing. */
+.usli__schematic .usli-schematic text.t1, .usli__schematic .usli-schematic text.t2, .usli__schematic .usli-schematic text.cap { font-size: 13.5px; }
+.usli__legend, .usli__legend-cap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@container usli-fig (max-width: 679.98px) {
+  .usli__schematic .usli-schematic { position: relative; left: 50%; translate: -50% 0; width: auto; height: min(70svh, 40rem); }
+  .usli__schematic .usli-schematic text, .usli__schematic .usli-schematic .l, .usli__schematic .usli-schematic .la,
+  .usli__schematic .usli-schematic .dot, .usli__schematic .usli-schematic .da { display: none; }
+  .usli__legend, .usli__legend-cap { position: static; width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; }
+}
+.usli__legend { margin-top: var(--sp-3); font-family: var(--font-mono); font-size: var(--text-label); line-height: 1.4; }
+.usli__legend-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-2); padding-block: 6px; border-top: 1px solid var(--color-rule); }
+.usli__legend dt { color: var(--color-ink-muted); font-weight: 500; letter-spacing: 0.08em; }
+.usli__legend dt.usli__legend-accent { color: var(--color-accent); }
+.usli__legend dd { color: var(--color-ink); }
+.usli__legend-cap { margin-top: var(--sp-1); font-family: var(--font-mono); font-size: var(--text-label); letter-spacing: 0.06em; color: var(--color-ink-muted); }
+
+.usli__more { row-gap: var(--sp-5); align-items: start; }
+.usli__more-text, .usli__player { grid-column: 1 / -1; min-width: 0; }
+.usli__player { margin-top: var(--sp-2); }
+.usli__player-title { margin-bottom: var(--sp-2); color: var(--color-accent); }
+
+.usli__stage { position: relative; }
+.usli__canvas-wrap { display: none; position: relative; aspect-ratio: 4 / 3; }
+@media (max-width: 599px) { .usli__canvas-wrap { aspect-ratio: 4 / 5; } }
+.usli__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.usli__player[data-state="live"] .usli__canvas-wrap { display: block; }
+.usli__player[data-state="live"] .usli__stills { display: none; }
+.usli__stills { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-2); }
+.usli__still .figure__frame { aspect-ratio: 4 / 3; }
+.usli__still .figure__frame img { height: 100%; object-fit: cover; }
+
+/* Thin event label next to the piece where the event happens (the only event marker in the animation). */
+.usli__tag {
+  position: absolute; left: 0; top: 0; margin: 0; display: flex; align-items: center; gap: var(--sp-1);
+  font-family: var(--font-mono); font-size: var(--text-label); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--color-ink); white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity var(--dur-2) var(--ease);
+}
+.usli__tag::before { content: ""; width: var(--sp-3); height: 1px; background: var(--color-ink-muted); }
+.usli__tag[data-side="left"] { flex-direction: row-reverse; }
+.usli__tag[data-on] { opacity: 1; }
+
+.usli__bar { display: flex; align-items: center; gap: var(--sp-1); margin-top: var(--sp-2); }
+.usli__bar[hidden] { display: none; }
+.usli__button {
+  flex: none; min-height: var(--tap); min-width: var(--tap); padding-inline: var(--sp-2);
+  background: var(--color-surface-2); color: var(--color-ink); border-radius: var(--radius);
+  font-family: var(--font-mono); font-size: var(--text-label); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  transition: transform var(--dur-1) var(--ease);
+}
+.usli__button:hover { transform: translate3d(0, -2px, 0); }
+.usli__button[data-usli-toggle] { min-width: 6rem; } /* Play and Pause keep one width */
+.usli__button[aria-pressed="true"] { background: var(--color-accent); color: var(--color-accent-ink); }
+.usli__readout {
+  flex: 1 1 auto; min-width: 0; display: flex; flex-wrap: wrap; column-gap: var(--sp-2); row-gap: 2px; margin-left: var(--sp-1);
+  font-family: var(--font-mono); font-size: var(--text-label); line-height: 1.4; color: var(--color-ink); font-variant-numeric: tabular-nums;
+}
+.usli__readout [data-r-phase] { flex-basis: 100%; color: var(--color-accent); }
+.usli__note { margin-top: var(--sp-2); font-family: var(--font-mono); font-size: var(--text-label); color: var(--color-ink-muted); }
+
+@media (min-width: 900px) {
+  .usli__schematic { grid-column: 1 / span 7; }
+  .project[data-layout="scene"] .project__body { grid-column: 8 / span 5; padding-left: var(--sp-3); }
+  .usli__more-text { grid-column: 8 / span 5; grid-row: 1; padding-left: var(--sp-3); }
+  .usli__player { grid-column: 1 / span 7; grid-row: 1; align-self: end; margin-top: 0; }
+}
+.usli__tag[data-side="top"]::before { display: none; }

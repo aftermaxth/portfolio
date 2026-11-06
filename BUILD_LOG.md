@@ -1,11 +1,12 @@
 # BUILD_LOG
 
 ## RESUME HERE
+- Current work (2026-11-06): USLI card REDESIGN done and pushed to `usli-launch-scene` (PR #6, open, NOT merged): schematic in the collapsed card, recovery sequence player at the bottom of the write-up, no autoplay, solid rocket, grey sheet. Open for Charles: TODO_CHARLES.md USLI section. Also open: tools/verify_content.mjs fails 17 Training Hub strings that came in with PR #4 on main (not from this branch).
 - Current phase: PUBLISHED. Phase C finished and the redesign is live at https://aftermaxth.github.io/portfolio/ (2026-11-02). PR #1 merged to main, Pages source switched to GitHub Actions, deploy run 41523533383 succeeded.
 - Expected model and effort: Sonnet high for follow-ups.
 - Rule: never push to main directly. Any change goes on a branch, then a PR, then merge on Charles's word.
-- Open: PR #4 (branch `training-hub/ai-process-writeup`), not yet merged. Adds Charles's own account of how Training Hub V2 was built with AI (the parallel-chat workflow, the permissions bug) as two new write-up sections. Edited content/projects.json directly since Portfolio Source Material.md is not reachable from this session; that source file still needs the same text or the next `npm run content` wipes it.
-- Open for Charles: (1) sensor count 3 vs 5 (then fix the alt text of robot-assembly.webp in content/media.json; the caption says "Sensor array"); (2) "Design not started" on the Next card: confirm it is still true; (3) phone frame rate of the hero is unmeasured on a real phone (risk: ray-marched plume); (4) missing assets and [add] info, GSAP license text, LICENSE file (TODO_CHARLES.md); (5) the Actions run warns that Node 20 actions are deprecated (checkout@v4, setup-node@v4, upload-artifact@v4 forced onto Node 24): bump versions later; (6) PR #4 needs review and merge.
+- PR #4 (branch `training-hub/ai-process-writeup`) was merged to main (merge commit 89bbcc3). Adds Charles's own account of how Training Hub V2 was built with AI (the parallel-chat workflow, the permissions bug) as two new write-up sections. Edited content/projects.json directly since Portfolio Source Material.md is not reachable from this session; that source file still needs the same text or the next `npm run content` wipes it.
+- Open for Charles: (1) sensor count 3 vs 5 (then fix the alt text of robot-assembly.webp in content/media.json; the caption says "Sensor array"); (2) "Design not started" on the Next card: confirm it is still true; (3) phone frame rate of the hero is unmeasured on a real phone (risk: ray-marched plume); (4) missing assets and [add] info, GSAP license text, LICENSE file (TODO_CHARLES.md); (5) the Actions run warns that Node 20 actions are deprecated (checkout@v4, setup-node@v4, upload-artifact@v4 forced onto Node 24): bump versions later.
 
 ---
 
@@ -159,3 +160,121 @@
 - Commands: `npm install` ok; `npx vite build` ok; `node tools/check_site.mjs` 0 em dashes, 0 brackets; grepped dist/index.html for the new headings, all present.
 - Not done: did not run tools/verify_content.mjs (it reads the old live index.html for [add]-gap checks only, not applicable here) or regenerate from source, since source isn't reachable. Did not merge; branch pushed, PR #4 opened, waiting on Charles.
 - Next: Charles adds the same text to Portfolio Source Material.md so it survives the next `npm run content`, reviews PR #4, merges when ready.
+
+### 2026-11-04 | USLI scene step 1 | Inputs, branch, scroll mapping (written before coding)
+- Branch `usli-launch-scene` from main e704dff.
+- Inputs (Charles, chat 2026-11-04): flight data is C:\Users\thorn\toDO\portfolio_update\usli-flight.json, copied unchanged to content/usli-flight.json, plus one added block `scene.cordScale` = 0.25 (the shared cord and line factor). STLs: C:\Users\thorn\toDO\portfolio_update\rocket_stls (25 files, all binary: size = 84 + 50 x triangle count for every file). No parts list file exists, so the part map is derived from the file names (Charles OK). The four U-bolt STLs are left out as purchased hardware (two carry the McMaster-Carr number 8896T68; Charles OK). The OpenRocket screenshots are NOT used (Charles, chat: "actualy dont incude them"), so content/media.json gets only the four scene stills.
+- STL geometry (mm, axis +y, aft end at y 0, outer diameter 156.7 mm = 6.17 in, total 3273.8 mm = 128.9 in): booster 0 to 1140, switchband 1140 to 1190.8, main-bay tube 1190.8 to 2003.8, payload tube 2003.8 to 2511.8, nosecone 2359.4 to 3273.8 (30 in exposed). Every joint matches the JSON section lengths within 0.1 in. No motor STL: Motor_Mount-1 is the 79.2 mm OD mount tube, so the motor is a plain cylinder inside it.
+
+Part map (file name, part, class, body after separation):
+| File (prefix "RocketV3 - ") | Part | Class | Body |
+|---|---|---|---|
+| Body_Bot-1 | booster tube | airframe | booster |
+| Motor_Mount-1 | motor mount tube | structure | booster |
+| centering_ring-1, -2, -3 | centering rings | structure | booster |
+| newFin-1 to -4 | fins | fin | booster |
+| bulkhead2-1 BulkheadBottom-1 | booster bulkhead (drogue bay floor) | structure | booster |
+| Body_Mid-1 | switchband | airframe | middle |
+| Body_Top2-1 | main-bay tube | airframe | middle |
+| couplerBotassembly-1 tube_coupler_bot-1 | avionics bay coupler | structure | middle |
+| couplerBotassembly-1 ... Bulkhead1-1 (two files) | avionics bay bulkheads (aft, forward) | structure | middle |
+| Body_Top-1 | payload tube | airframe | payload |
+| tube_coupler_top-1 | payload coupler | structure | payload |
+| payloadCenterRing-1, -2 | payload coupler rings | structure | payload |
+| Nosecone-1 | nosecone | airframe | nose |
+| noseconeBulkhead-1 BulkheadSide-1 | nosecone bulkhead | structure | nose |
+| four U-bolt files | U-bolts | LEFT OUT (purchased) | none |
+
+Scroll to time mapping (pin progress p from 0 to 1; time t in seconds of the OpenRocket run; linear inside each window). Uniform would be 1 / 105.099 s = 0.951 percent of the pin per second.
+| # | Window | p from | p to | share | t from | t to | seconds | percent per s |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Pad hold | 0.000 | 0.050 | 5.0 | 0 | 0 | 0 | hold |
+| 2 | Burn (event) | 0.050 | 0.150 | 10.0 | 0 | 2.309 | 2.309 | 4.33 |
+| 3 | Coast | 0.150 | 0.320 | 17.0 | 2.309 | 17.0 | 14.691 | 1.16 |
+| 4 | Apogee, both drogue charges, separation, drogue inflation (event) | 0.320 | 0.450 | 13.0 | 17.0 | 21.0 | 4.0 | 3.25 |
+| 5 | Drogue descent | 0.450 | 0.580 | 13.0 | 21.0 | 67.0 | 46.0 | 0.28 (least) |
+| 6 | 600 ft: charge, separation, main extraction and inflation (event) | 0.580 | 0.700 | 12.0 | 67.0 | 68.2 | 1.2 | 10.0 |
+| 7 | 500 ft: payload parachute release and inflation (event) | 0.700 | 0.790 | 9.0 | 68.2 | 70.5 | 2.3 | 3.91 |
+| 8 | Descent under main and payload parachute | 0.790 | 0.850 | 6.0 | 70.5 | 89.0 | 18.5 | 0.32 |
+| 9 | Payload and nosecone touchdown, 93.662 s (event) | 0.850 | 0.910 | 6.0 | 89.0 | 95.0 | 6.0 | 1.00 |
+| 10 | Main descent continues | 0.910 | 0.925 | 1.5 | 95.0 | 100.0 | 5.0 | 0.30 |
+| 11 | Middle body and booster touchdown, 105.099 s (event) | 0.925 | 0.985 | 6.0 | 100.0 | 105.099 | 5.099 | 1.18 |
+| 12 | Landed hold | 0.985 | 1.000 | 1.5 | 105.099 | 105.099 | 0 | hold |
+- Checks this table meets: the burn gets 10 percent (rule: at least 8); every event window gets more than 0.951 percent per second; the drogue descent (0.28) is the lowest rate of any moving window. tools/check_usli_scene.mjs asserts all three.
+- Text crossing (desktop, 900 px and up; the rocket sits in the left lane at every event moment, the text column is on the right): crossing 1 in FRONT of the text during the coast (p 0.17 to 0.31); crossing 2 BEHIND the text during the drogue descent (p 0.47 to 0.57). The canvas z-order flips at ScrollTrigger checkpoints p 0.45 and 0.58. Apogee (p 0.32 to 0.45), 600 ft (0.58 to 0.70) and 500 ft (0.70 to 0.79) are in the left lane, clear of the text.
+- Next: build the GLB.
+
+### 2026-11-04 | USLI scene steps 2 to 6 | GLB, timeline, scene, stills, checks
+- GLB: tools/build_models.mjs gets classes airframe (#f2f1ee), structure (#a0a6ad), fin (#ff8100) and model `usli/rocket` (21 parts, U-bolts out). The first build merged parts by material (3 nodes); added `keepParts` (--join false --instance false). Result: "21 part(s), 9304 source triangles, raw 0.2 MB -> 0.04 MB", models/usli/rocket.glb 42,796 bytes (budget 500 kB). It lives in models/usli/, so the project scan makes no drag viewer.
+- Timeline: src/js/usli-timeline.js (no three.js): createTimeline(data) gives timeAt(p) and stateAt(t) with phase, altitudes (event points merged into the curves, so liftoff reads 0 ft and the release reads 500 ft), body poses, chutes, cords, flashes, fire, island, lane, z-order and frame box. Altitude is drawn compressed (0.02 m per ft); the readout shows the real values.
+- tools/check_usli_scene.mjs: "104 checks passed, 0 failed" (mapping rules, phase and altitude at all 10 JSON events, fire, chutes, cords, island only below 260 ft, both crossings, event lanes clear, z checkpoints, every label number found in the JSON).
+- Scene: src/js/usli-scene.js (lazy chunk 16.2 kB gzip), reuses createStage; clipping plane z = 0 with back-face caps; mountUsli wires ScrollTrigger (pin progress to time; a second trigger sets data-behind between p 0.45 and 0.58). tools/vite-plugin-site.mjs: "scene" layout for nasa-student-launch only (stills, HUD, visually hidden step list built from the JSON). src/js/projects.js: initUsli mounts near the viewport, never under reduced motion. The text block is sticky in the pin with a solid page-color fill.
+- Failed attempts: (1) only the booster drew: GLB positions are int16-quantized and baking node transforms clamped them; fixed by copying to floats first. (2) the text scrolled away in the first 10 percent of the pin, so nothing was left to cross; fixed with the sticky text block. (3) the charge flash read as a box (cylinder); now spheres. (4) the island ran under the readout; it is now eased into the frame box and the subject sits in the upper 74 percent. (5) the dev server reloads when a still is written; all four are rendered first.
+- Stills: rendered with scene.snapshot from a scratch headless Chrome script (the poster plugin is outside this task's scope lock; same pattern): scene-1-pad (t 0), scene-2-apogee (t 21.0), scene-3-600ft (t 69.2; 68.9 caught the backup flash), scene-4-landing (t 105.099). Alt text and captions in content/media.json.
+- Checked by screenshots (headless Chrome, swiftshader): 1440 live at p 0 to 0.99 (front crossing at p 0.25, behind at p 0.5, events in the left lane, console clean); 375 live; 1440 reduced motion (stills, state "still"); 375 and 1440 with JS off (stills and text readable).
+- Commands: `npm run build` ok; `npm run check` 0 em dashes (src + content + tools, dist), 0 bracket placeholders; `node tools/verify_content.mjs` OK; `node tools/audit_a11y.mjs --widths 1440,768,375` OK (0 below threshold at each width; it skipped 59 to 91 text elements still fading in; not compared with main).
+- Not done or not measured: phone frame rate (unmeasured); a check in a real GPU browser outside headless swiftshader; text crossing below 900 px (the text sits under the scene there).
+- Next: Charles reviews the PR and decides the USLI items in TODO_CHARLES.md. Do not merge without his word.
+
+### 2026-11-04 | USLI scene | Plays under reduced motion (Charles, chat)
+- Charles (chat): "remove reduced motion aspect", then "Change the site too" for the USLI scene. src/js/projects.js initUsli no longer returns early under prefers-reduced-motion: reduce; comments in usli-scene.js, vite-plugin-site.mjs and components.css updated. Stills stay for no JS and no WebGL. The rest of the site (hero, Lenis, GSAP reveals) still honors reduced motion; this is the one exception, recorded in PROJECT_CONTEXT.md decisions.
+- Without Lenis (reduced motion) ScrollTrigger runs on native scroll.
+- Checked in the browser pane (it always reports reduced motion): matchMedia reduce true, [data-usli] state "live", canvas present; scrolling to 42 percent of the pin read "T+ 7.0 s / Altitude 2,986 ft / Burnout, coasting to apogee".
+- The task brief's done item "with reduced motion the still frames show" no longer applies by Charles's decision.
+
+### 2026-11-04 | USLI rework step 1 | Feedback, decisions, play time map (written before coding)
+- Charles's review (chat): the pinned scroll takeover blocks the page; wants an ambient animation on one huge arc over the card, normal page scroll, start and stop controls, a thicker rocket, real shading, the rocket never drawn in front of text, better smoke, island, flash and a constant scale. Full brief pasted in chat (sections A to E).
+- Decisions in chat: follow the brief (no pin, timed playback, autoplay once); the overlap check uses headless Chrome over the DevTools protocol, not Playwright (Playwright is not approved and needs no new dependency this way); the scene still autoplays under reduced motion (Charles kept his earlier call over the brief's "no autoplay under reduced motion").
+- Play time map (play seconds on the scene clock to flight seconds of the OpenRocket run; linear inside each window). Uniform would be 105.099 / 40 = 2.63 flight s per play s.
+| # | Window | play from | play to | play s | flight from | flight to | flight s | flight s per play s |
+|---|---|---|---|---|---|---|---|---|
+| 1 | Burn (slowed) | 0.0 | 4.0 | 4.0 | 0 | 2.309 | 2.309 | 0.58 |
+| 2 | Coast | 4.0 | 10.0 | 6.0 | 2.309 | 17.0 | 14.691 | 2.45 |
+| 3 | Apogee, both drogue charges, separation, drogue (slowed) | 10.0 | 16.0 | 6.0 | 17.0 | 21.0 | 4.0 | 0.67 |
+| 4 | Drogue descent (compressed) | 16.0 | 22.0 | 6.0 | 21.0 | 67.0 | 46.0 | 7.67 |
+| 5 | 600 ft: charge, separation, main (slowed) | 22.0 | 27.0 | 5.0 | 67.0 | 68.2 | 1.2 | 0.24 |
+| 6 | 500 ft: payload parachute (slowed) | 27.0 | 31.0 | 4.0 | 68.2 | 70.5 | 2.3 | 0.58 |
+| 7 | Descent and both landings | 31.0 | 40.0 | 9.0 | 70.5 | 105.099 | 34.599 | 3.84 |
+- Total 40.0 s. The slowed windows (1, 3, 5, 6) run below the uniform rate; the drogue descent (window 4) is the most compressed. tools/check_usli_scene.mjs will assert this.
+- Next: the pure path module.
+
+### 2026-11-04 | USLI rework steps 2 to 8 | Arc path, timed playback, materials, checks
+- Path: src/js/usli-path.js (pure): two cubic Bezier halves in normalized card space, pad (0.08, 1), apex (0.55, 0), landing (0.88, 1), parameters under `path` in content/usli-flight.json. pathAt(p) gives x, y and the screen tangent angle; atAltitude(f, side) inverts height (height proportional to altitude). The run reads 4862 ft from 17.48 s, so the height stays at most 0.2 percent of the arc under the apex until 17.68 s (otherwise the rocket would park at the apex).
+- Timeline: src/js/usli-timeline.js now maps the play clock (PLAY_WINDOWS, 40 s) to flight time and places every piece relative to a chain anchor on the arc (booster aft end for shared and main, nosecone tip for payload). The nose follows the arc tangent through burn, coast and the pitch-over; after apogee the pieces hang. Diameter, fins and canopy diameters x1.8 (`stylization.diameterScale`); cords keep cordScale 0.25.
+- Scene: src/js/usli-scene.js rewritten. Viewport-tall canvas sticky behind the whole card (narrow 6 degree lens far away, so one scale everywhere); MeshPhysicalMaterial per class (composite tubes with clearcoat, graphite metal bulkheads and motor, graphite fins, accent switchband) with a procedural winding and grain roughness variation; darker back-face caps; weak rim light added to this scene only (createStage unchanged); noise-shader fire (soft, white core to orange) and noise-alpha smoke sprites (90 on narrow screens, 220 otherwise); charge burst inside the middle body at the avionics bulkhead; cloth canopies (seams, skirt band, sheen, billow); matte tube cords; island as a low lathe with soft edge, grass tone variation and soft contact shadows; 2 px trail in 8 solid steps. Text rule: pieces of a chain whose screen rect overlaps a [data-usli-text] block fade to 0.35. Layout vars --usli-top and --usli-zone are computed so the apogee has room above the headline and the 600 ft and 500 ft moments sit below the text. On narrow screens the descent side shifts left so the main canopy stays inside the card.
+- Markup and CSS: tools/vite-plugin-site.mjs builds the card as the scene root (canvas, head, stills, body, ground marker, HUD with readout, Play/Pause and Restart buttons, note "Illustrative, path not to scale. Based on the team's OpenRocket simulation of the PDR design."). No pin, no ScrollTrigger. Stills only without JS or WebGL.
+- Failed attempts: (1) trail NaN (path samples had no p for the new shift); (2) "faded" pieces with no visible overlap: the rect counted hidden flash spheres and closed canopies, now only drawn meshes; (3) island read as a grey plate: seen edge-on, then washed by the HDRI, then its lathe faces pointed inward (profile reversed); (4) sticky readout covered the headline on scroll, now in normal flow at the card bottom-left; (5) Play/Pause changed width, fixed with a min-width.
+- Commands and results: `npm run build` ok (usli-scene chunk 20.2 kB gzip, rocket.glb 42.8 kB); `npm run check` 0 em dashes, 0 bracket placeholders; `node tools/check_usli_scene.mjs --browser --widths 1440,768,375` 126 passed, 0 failed (no opaque piece over text at any of the 10 event times at each width); `node tools/audit_a11y.mjs --widths 1440,768,375` OK (0 below threshold; Restart and Play focus ring 10.50:1, 44 px tall); controls script (headless Chrome): autoplays once when in view, click pauses, Space plays, Tab to Restart shows the #7cc4ff ring, Enter restarts, stops at T+ 105.1 s and keeps the landed frame, pauses off screen and resumes on return, autoplays under reduced motion.
+- Screenshots (DSF 2, headless Chrome with swiftshader) at 1440 and 375 for pad, burn, coast, apogee, backup charge, drogue descent, 600 ft, 500 ft, landings.
+- Not measured: frame rate on a desktop GPU and on a phone (headless swiftshader only); phone frame rate stays unmeasured.
+- Found, not fixed (out of scope): `node tools/verify_content.mjs` fails 17 training-hub-v2 strings that PR #4 added to content/projects.json on main without adding them to the source file.
+
+### 2026-11-04 | USLI redesign step 1 | Plan and time map (before coding)
+- Brief (Charles, chat 2026-11-04): collapsed card shows the team's schematic (images/nasa-student-launch/usli-schematic.svg, inlined at build with token colors); the 3D sequence moves into a "Recovery sequence" player at the bottom of the write-up (left column), nothing autoplays, the WebGL chunk loads only when the write-up opens. Look: whole solid rocket, no cutaway, no smoke, no charge flashes, no trail, no grass island; one soft engine glow and a short plume; clean axial separations; grey sheet as the landing surface.
+- Screenshots: the brief names Playwright, but it is not installed and not approved (PROJECT_CONTEXT, Charles chose "No new dependency" in the previous round). Screenshots are taken with headless Chrome over the DevTools protocol at deviceScaleFactor 2, same as before.
+- Time map (unchanged from the rework; about 40 s, slowed at burn, apogee, 600 ft and 500 ft, compressed in the drogue descent). Flight times from content/usli-flight.json.
+
+| Play s | Flight s | Window | Flight s per play s |
+|---|---|---|---|
+| 0 to 4 | 0 to 2.309 (burnout) | burn | 0.58 (slowed) |
+| 4 to 10 | 2.309 to 17.0 | coast | 2.45 |
+| 10 to 16 | 17.0 to 21.0 | apogee, both drogue charges, drogue opens | 0.67 (slowed) |
+| 16 to 22 | 21.0 to 67.0 | drogue descent | 7.67 (most compressed) |
+| 22 to 27 | 67.0 to 68.2 | 600 ft separation, main opens | 0.24 (slowed) |
+| 27 to 31 | 68.2 to 70.5 | 500 ft payload parachute release | 0.58 (slowed) |
+| 31 to 40 | 70.5 to 105.099 | descent, payload lands at 93.662, main and booster at 105.099 | 3.84 |
+
+- World: one scale for the whole run. Altitude maps to height at a fixed display ratio (path not to scale, label kept); the camera keeps one view height for the whole run and only follows, smoothed.
+
+### 2026-11-06 | USLI redesign steps 2 to 7 | Schematic, player, new look, checks
+- Schematic: copied toDO\portfolio_update\usli-schematic.svg to images/nasa-student-launch/ (byte-identical, `cmp`). tools/vite-plugin-site.mjs inlines it: every hex becomes var(--token, hex) (surface, ink-muted, ink, rule, accent), fill and stroke attributes become style properties, the <style> rules are scoped to .usli-schematic, title and desc ids renamed; the build throws if any hex is left. The side labels also become a definition list (LENGTH row for "129 in overall"), visually hidden unless the drawing is narrower than 680 px (container query), where the SVG labels hide. Labels drawn at 13.5 viewBox units so they render at 12 px or more; drawing unchanged.
+- JSON: added from the schematic: nosecone shape ogive, vehicle.avionicsBay {couplerIn 12, bulkheads 2}, centeringRings 3, fins {count 4, shape trapezoidal}, railButtons 2, stylization.schematicDiameterScale 2 (all with notes); removed `path` (arc); scene gained altitudeScale 0.04, ascentDriftM 20, descentDriftM 8 (display only, noted).
+- Layout: collapsed card = schematic (cols 1 to 7) next to the text (8 to 12) from 900 px, stacked below. The write-up is its own grid row: text right, player bottom left (align-self end), in normal flow.
+- Player: canvas (4:3, 4:5 under 600 px), thin event label, then Play/Pause (aria-pressed), Restart and the readout (T+, altitude, phase line in the accent) in one row, then the note. projects.js loads usli-scene.js only on write-up open (not with reduced motion: stills until Play). mountUsli pauses off screen and on tab hidden and resumes on return.
+- Scene (src/js/usli-scene.js, rewritten): whole solid rocket (no clipping plane, no caps); MeshPhysicalMaterial per class (off-white composite tubes and fins with clearcoat, graphite metal hardware roughness 0.3, accent switchband) with procedural roughness variation; one additive engine glow sprite plus a short plume shader (white-hot core, orange edge) and an engine point light, fading out 0.12 s after burnout; no smoke, charge flashes, trail or island; cloth canopies (indexed, smooth gores with seams, skirt and vent bands, sheen, double sided, gentle billow; the landed payload canopy deflates flat); matte tube cords; grey sheet (physical, roughness 0.3, clearcoat, env reflections, key light shadow map PCF soft plus contact blobs, fades into the page in an oval that follows the view); faint altitude lines every 500 ft with labels. Fixed lens (20 degrees, yaw 0.24, pitch -0.1), view height 11.5 m (or 10.5 m wide on narrow canvases), smoothed follow (0.55 s) with a band so the fast climb never leaves the frame. Per frame: no allocations in the timeline (stateInto writes one reused object) or the scene loop; readout and label DOM writes only on change.
+- Timeline (src/js/usli-timeline.js, rewritten): world anchors (height = altitude x altitudeScale, drift illustrative), axis along the velocity on the way up (vertical on the pad, level at apogee), same chain configurations as before, nose pivots on its tip when it tips over, landed chains stop drifting, event labels.
+- Deleted (created in PR #6, now unused): src/js/usli-path.js (arc path; `git log --diff-filter=A` shows it was added in c911388 on this branch only). Nothing else deleted.
+- Failed attempts: (1) settle hold applied to the whole ascent (pad at -0.12 m), limited to the last 1.5 s; (2) nosecone tip swung 0.12 m through the sheet while tipping over, now pivots on its tip; (3) sheet read as a blurred grey box (screen-edge fade), replaced by an oval fade around the view; (4) canopies looked peach after AgX, darker cloth base; (5) event label sat on the pieces, now beside all pieces or top left; (6) altitude lines read 0.3 m low (they sit 3 m behind), shifted along the view ray; (7) the narrow-mode drawing pushed the page 6 px wider at 375 px (found by tools/audit_a11y.mjs: hero button text measured at the viewport edge, innerHeight 825 instead of 812), the figure now clips.
+- Commands and results: `npm run build` ok (usli-scene chunk 34.98 kB, 13.97 kB gzip; rocket.glb 42.79 kB; usli-schematic.svg 10.20 kB); `npm run check` 0 em dashes (src, content, tools, dist), 0 bracket placeholders; `node tools/check_usli_scene.mjs` 119 passed, 0 failed; `node tools/check_usli_scene.mjs --browser --widths 1440,768,375` 170 passed, 0 failed (collapsed: no canvas, no scene chunk; labels 12 px or more; player at the bottom of the write-up, left column at 1440; one-row controls; 44 px targets; no autoplay; play, pause, off-screen pause with 0 frames drawn, resume; plays once and stops at T+ 105.1 s with the lowest point at 0 m on the sheet; reduced motion: four stills and no chunk until Play); `node tools/audit_a11y.mjs --widths 1440,768,375` OK.
+- Screenshots: headless Chrome over the DevTools protocol, deviceScaleFactor 2, at 1440, 768 and 375: collapsed, expanded, and frames at T+ 0, 1.2, 10, 18.3, 21, 67.95, 69, 96, 105.099 (the landed frame). Stills re-rendered at t = 0, 21, 69.2, 105.099; alt text and captions updated.
+- Not measured: frame rate on a desktop GPU and on a phone (headless software rendering only).

@@ -1,0 +1,624 @@
+{
+  "source": "Stevens Rocketry NASA USLI PDR draft (29 Oct 2026) and the team's OpenRocket 24.12 simulation of that design. Draft values: they can change at CDR. Illustrative use only.",
+  "units": {
+    "length": "in unless the key says Ft or M",
+    "time": "s",
+    "altitude": "ft AGL"
+  },
+  "vehicle": {
+    "lengthIn": 129,
+    "diameterIn": 6.17,
+    "sectionsTopToBottom": [
+      {
+        "id": "nosecone",
+        "lengthIn": 30,
+        "shape": "ogive"
+      },
+      {
+        "id": "payload-tube",
+        "lengthIn": 20,
+        "contains": "payload coupler, 16 in"
+      },
+      {
+        "id": "main-bay-tube",
+        "lengthIn": 32,
+        "contains": "main parachute bay, 27 in deep, and avionics bay coupler, 12 in"
+      },
+      {
+        "id": "switchband",
+        "lengthIn": 2
+      },
+      {
+        "id": "booster",
+        "lengthIn": 45,
+        "contains": "drogue bay in the forward 17 in, motor bay in the aft 28 in, 3 centering rings, 4 fins"
+      }
+    ],
+    "motor": {
+      "name": "Aerotech L1940X",
+      "burnoutS": 2.309,
+      "note": "no motor in the CAD: draw a plain cylinder"
+    },
+    "avionicsBay": {
+      "couplerIn": 12,
+      "bulkheads": 2
+    },
+    "centeringRings": 3,
+    "fins": {
+      "count": 4,
+      "shape": "trapezoidal"
+    },
+    "railButtons": 2,
+    "schematicNote": "avionicsBay, centeringRings, fins, railButtons and the nosecone shape as labeled in images/nasa-student-launch/usli-schematic.svg (labeled side view generated from the team's OpenRocket geometry; length to scale, diameter drawn 2 times real). The centering ring and fin counts also appear in the booster note above."
+  },
+  "events": [
+    {
+      "id": "liftoff",
+      "t": 0.055,
+      "altFt": 0
+    },
+    {
+      "id": "rail-exit",
+      "t": 0.317,
+      "note": "12 ft rail, about 85 ft/s"
+    },
+    {
+      "id": "burnout",
+      "t": 2.309
+    },
+    {
+      "id": "apogee",
+      "t": 17.68,
+      "altFt": 4862
+    },
+    {
+      "id": "drogue-charge-primary",
+      "t": 17.68,
+      "chargeG": 2.42,
+      "note": "primary altimeter, aft avionics bay bulkhead, into the drogue bay (329.1 in3)"
+    },
+    {
+      "id": "drogue-charge-backup",
+      "t": 18.68,
+      "chargeG": 2.9,
+      "note": "backup altimeter, about 1 s after the primary"
+    },
+    {
+      "id": "main-and-payload-separation",
+      "t": 67.663,
+      "altFt": 600,
+      "chargeG": 4.26,
+      "backupChargeG": 5.11,
+      "note": "forward avionics bay bulkhead into the main bay (580.9 in3); backup about 1 s later"
+    },
+    {
+      "id": "payload-parachute-release",
+      "t": 68.481,
+      "altFt": 500,
+      "note": "Jolly Logic Chute Release lets go of the folded payload parachute"
+    },
+    {
+      "id": "payload-landing",
+      "t": 93.662,
+      "altFt": 0,
+      "speedFtS": 19.94
+    },
+    {
+      "id": "main-booster-landing",
+      "t": 105.099,
+      "altFt": 0,
+      "speedFtS": 15.99
+    }
+  ],
+  "separations": [
+    {
+      "id": "apogee",
+      "between": [
+        "main-bay-tube + avionics bay",
+        "booster"
+      ],
+      "shearPins": 3,
+      "primaryPressurePsi": 14.2
+    },
+    {
+      "id": "600ft",
+      "between": [
+        "nosecone + payload-tube",
+        "main-bay-tube"
+      ],
+      "shearPins": 3
+    }
+  ],
+  "parachutes": [
+    {
+      "id": "drogue",
+      "model": "Fruity Chutes Classic Elliptical",
+      "diameterIn": 24,
+      "lines": 8,
+      "lineLengthIn": 27.6,
+      "deploy": "apogee",
+      "packedIn": "booster drogue bay",
+      "descentFtS": 87
+    },
+    {
+      "id": "main",
+      "model": "Fruity Chutes Iris Ultra",
+      "diameterIn": 84,
+      "lines": 12,
+      "lineLengthIn": 96.6,
+      "deployAltFt": 600,
+      "packedIn": "main bay",
+      "openingTimeS": 0.322
+    },
+    {
+      "id": "payload",
+      "model": "Fruity Chutes Elliptical",
+      "diameterIn": 72,
+      "lines": 12,
+      "lineLengthIn": 82.8,
+      "deployAltFt": 500,
+      "heldFoldedBy": "Jolly Logic Chute Release",
+      "openingTimeS": 0.212
+    }
+  ],
+  "shockCords": [
+    {
+      "id": "drogue-forward",
+      "lengthFt": 6,
+      "material": "1 in tubular nylon",
+      "from": "drogue parachute",
+      "to": "avionics bay lower U-bolt (middle body)"
+    },
+    {
+      "id": "drogue-aft",
+      "lengthFt": 24,
+      "material": "1 in tubular nylon",
+      "from": "drogue parachute",
+      "to": "booster bulkhead, 17 in inside the booster"
+    },
+    {
+      "id": "main",
+      "lengthFt": 25,
+      "material": "3/8 in Kevlar",
+      "from": "avionics bay upper bulkhead U-bolt",
+      "to": "main parachute"
+    },
+    {
+      "id": "payload-to-parachute",
+      "lengthFt": 15,
+      "material": "1 in tubular nylon",
+      "from": "payload",
+      "to": "payload parachute"
+    },
+    {
+      "id": "payload-to-nosecone",
+      "lengthFt": 15,
+      "material": "1 in tubular nylon",
+      "from": "payload",
+      "to": "nosecone assembly"
+    }
+  ],
+  "afterSeparation": {
+    "mainBooster": "middle body and booster hang under the main; the drogue stays attached on its two cords between them",
+    "payloadNosecone": "payload and nosecone descend under the payload parachute, tethered together"
+  },
+  "scene": {
+    "cordScale": 0.25,
+    "cordScaleNote": "Display only. Every shock cord and parachute line in the scene is drawn at 0.25 of its real length (6, 24, 25, 15, 15 ft become 1.5, 6, 6.25, 3.75, 3.75 ft), so all keep their real proportions to each other. Canopy diameters keep their proportion to the tube diameter (see stylization).",
+    "altitudeScale": 0.04,
+    "ascentDriftM": 20,
+    "descentDriftM": 8,
+    "displayNote": "Display only, path not to scale. Height above the landing sheet is altitude times altitudeScale (apogee about 59 m in scene meters while the rocket keeps its real 129 in length). The horizontal drift (ascentDriftM from the pad to apogee, descentDriftM from apogee to the main landing) is illustrative, not from the simulation."
+  },
+  "stylization": {
+    "diameterScale": 1.8,
+    "note": "Display only. The tube diameter, fins and canopy diameters are drawn at 1.8 times real so the rocket reads at card size; every length stays real.",
+    "schematicDiameterScale": 2,
+    "schematicNote": "usli-schematic.svg draws the diameter 2 times real (its caption); length to scale."
+  },
+  "altitudeCurveFtByTimeS": {
+    "note": "[time s, altitude ft AGL] from the OpenRocket run. Shared until the 600 ft separation, then one curve per body.",
+    "ascentAndDrogue": [
+      [
+        0,
+        0
+      ],
+      [
+        0.25,
+        7
+      ],
+      [
+        0.5,
+        33
+      ],
+      [
+        0.74,
+        76
+      ],
+      [
+        0.98,
+        136
+      ],
+      [
+        1.23,
+        217
+      ],
+      [
+        1.5,
+        325
+      ],
+      [
+        1.75,
+        440
+      ],
+      [
+        1.99,
+        567
+      ],
+      [
+        2.24,
+        720
+      ],
+      [
+        2.48,
+        859
+      ],
+      [
+        2.73,
+        1004
+      ],
+      [
+        2.98,
+        1145
+      ],
+      [
+        3.48,
+        1417
+      ],
+      [
+        3.98,
+        1676
+      ],
+      [
+        4.48,
+        1922
+      ],
+      [
+        4.98,
+        2157
+      ],
+      [
+        5.48,
+        2379
+      ],
+      [
+        5.98,
+        2591
+      ],
+      [
+        6.48,
+        2792
+      ],
+      [
+        6.98,
+        2982
+      ],
+      [
+        7.48,
+        3162
+      ],
+      [
+        7.98,
+        3331
+      ],
+      [
+        8.48,
+        3491
+      ],
+      [
+        8.98,
+        3642
+      ],
+      [
+        9.48,
+        3783
+      ],
+      [
+        9.98,
+        3915
+      ],
+      [
+        10.48,
+        4037
+      ],
+      [
+        10.98,
+        4151
+      ],
+      [
+        11.48,
+        4256
+      ],
+      [
+        11.98,
+        4352
+      ],
+      [
+        12.48,
+        4440
+      ],
+      [
+        12.98,
+        4519
+      ],
+      [
+        13.48,
+        4590
+      ],
+      [
+        13.98,
+        4652
+      ],
+      [
+        14.48,
+        4706
+      ],
+      [
+        14.98,
+        4752
+      ],
+      [
+        15.48,
+        4790
+      ],
+      [
+        15.98,
+        4820
+      ],
+      [
+        16.48,
+        4842
+      ],
+      [
+        16.98,
+        4856
+      ],
+      [
+        17.48,
+        4862
+      ],
+      [
+        17.68,
+        4862
+      ],
+      [
+        18.02,
+        4860
+      ],
+      [
+        18.55,
+        4850
+      ],
+      [
+        19.03,
+        4834
+      ],
+      [
+        19.43,
+        4817
+      ],
+      [
+        20.04,
+        4784
+      ],
+      [
+        22.66,
+        4587
+      ],
+      [
+        25.16,
+        4365
+      ],
+      [
+        27.66,
+        4137
+      ],
+      [
+        30.16,
+        3909
+      ],
+      [
+        32.66,
+        3681
+      ],
+      [
+        35.16,
+        3454
+      ],
+      [
+        37.66,
+        3228
+      ],
+      [
+        40.16,
+        3003
+      ],
+      [
+        42.66,
+        2778
+      ],
+      [
+        45.16,
+        2554
+      ],
+      [
+        47.66,
+        2331
+      ],
+      [
+        50.16,
+        2109
+      ],
+      [
+        52.66,
+        1887
+      ],
+      [
+        55.16,
+        1666
+      ],
+      [
+        57.66,
+        1446
+      ],
+      [
+        60.16,
+        1227
+      ],
+      [
+        62.66,
+        1008
+      ],
+      [
+        65.16,
+        790
+      ],
+      [
+        67.66,
+        600
+      ]
+    ],
+    "mainBooster": [
+      [
+        67.663,
+        600
+      ],
+      [
+        69.68,
+        535
+      ],
+      [
+        71.56,
+        506
+      ],
+      [
+        73.69,
+        474
+      ],
+      [
+        75.84,
+        441
+      ],
+      [
+        77.72,
+        413
+      ],
+      [
+        79.63,
+        384
+      ],
+      [
+        81.75,
+        352
+      ],
+      [
+        83.63,
+        323
+      ],
+      [
+        85.75,
+        291
+      ],
+      [
+        87.63,
+        263
+      ],
+      [
+        89.75,
+        231
+      ],
+      [
+        91.62,
+        203
+      ],
+      [
+        93.74,
+        171
+      ],
+      [
+        95.61,
+        143
+      ],
+      [
+        97.72,
+        111
+      ],
+      [
+        99.6,
+        83
+      ],
+      [
+        101.71,
+        51
+      ],
+      [
+        105.1,
+        0
+      ]
+    ],
+    "payloadNosecone": [
+      [
+        67.663,
+        600
+      ],
+      [
+        69.65,
+        456
+      ],
+      [
+        71.72,
+        417
+      ],
+      [
+        73.8,
+        377
+      ],
+      [
+        75.58,
+        343
+      ],
+      [
+        77.65,
+        304
+      ],
+      [
+        79.72,
+        264
+      ],
+      [
+        81.79,
+        225
+      ],
+      [
+        83.57,
+        191
+      ],
+      [
+        85.64,
+        152
+      ],
+      [
+        87.7,
+        113
+      ],
+      [
+        89.68,
+        75
+      ],
+      [
+        93.66,
+        0
+      ]
+    ]
+  }
+}

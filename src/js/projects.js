@@ -19,6 +19,8 @@ export function initProjects() {
     });
   }
 
+  initUsli();
+
   const roots = document.querySelectorAll("[data-viewer]");
   if (!roots.length) return;
 
@@ -52,4 +54,32 @@ export function initProjects() {
     { rootMargin: "400px 0px" }
   );
   roots.forEach((r) => io.observe(r));
+}
+
+// USLI card: the recovery sequence player sits at the bottom of the write-up. The WebGL chunk loads only when the
+// write-up opens (with reduced motion: only when Play is pressed; the still frames show until then). Nothing autoplays.
+// Without WebGL, or if loading fails, the still frames stay and the controls hide.
+function initUsli() {
+  const root = document.querySelector("[data-usli]");
+  if (!root) return;
+  if (!("WebGLRenderingContext" in window)) return;
+  const project = root.closest("[data-project]");
+  const controls = root.querySelector("[data-usli-controls]");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  controls.hidden = false;
+  let loading = null;
+  const ensure = () => (loading ??= import("./usli-scene.js")
+    .then((m) => m.mountUsli(root))
+    .catch((error) => {
+      root.dataset.state = "still";
+      controls.hidden = true;
+      console.info("USLI scene unavailable:", error.message);
+      throw error;
+    }));
+  const run = (fn) => ensure().then(fn, () => {});
+  root.querySelector("[data-usli-toggle]").addEventListener("click", () => run((s) => (s.playing ? s.pause() : s.play())));
+  root.querySelector("[data-usli-restart]").addEventListener("click", () => run((s) => s.restart()));
+  document.addEventListener("write-up-toggle", ({ detail }) => {
+    if (detail.project === project && detail.open && !reduce) ensure().catch(() => {});
+  });
 }
